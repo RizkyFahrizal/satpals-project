@@ -1,0 +1,24 @@
+@startuml Hapus_Template_Surat
+title Activity Diagram - Proses Hapus Template Surat
+
+start
+:Admin klik tombol "Hapus" pada template;
+:Tampil dialog konfirmasi;
+:Display nama template yang akan dihapus;
+
+if (Konfirmasi) then (Ya / Hapus)
+    :Check file di storage;
+    if (File ada di storage) then (Ya)
+        :Delete file dari storage/document-templates/;
+    endif
+    :Delete record dari tabel document_templates;
+    :Redirect ke daftar template;
+    :Display success message;
+    stop
+else (Tidak / Batal)
+    :Tutup dialog;
+    :Kembali ke halaman;
+    stop
+endif
+
+@enduml

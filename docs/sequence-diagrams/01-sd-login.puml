@@ -1,0 +1,47 @@
+@startuml SD_Login
+title Sequence Diagram - Proses Login
+
+actor "User" as user
+participant "Browser" as browser
+participant "AuthController" as controller
+participant "User Model" as model
+database "Database" as db
+
+user -> browser : Buka halaman /login
+browser -> controller : GET /login
+controller --> browser : Return view login form
+
+user -> browser : Input username & password\nlalu klik Login
+browser -> controller : POST /login\n(email, password)
+
+controller -> controller : Validasi input (required, format email)
+
+alt Validasi Gagal
+    controller --> browser : Redirect back\nwith errors
+    browser --> user : Tampil pesan error\npada form
+else Validasi Berhasil
+    controller -> model : attempt(email, password)
+    model -> db : SELECT * FROM users\nWHERE email = ?
+    db --> model : Return user data
+
+    alt Kredensial Salah
+        model --> controller : Return false
+        controller --> browser : Redirect back\nwith error "Kredensial tidak valid"
+        browser --> user : Tampil pesan error
+    else Kredensial Benar
+        model --> controller : Return user object
+        controller -> controller : Check user role
+        
+        alt Role = super_admin / pengurus
+            controller -> controller : Generate session\n& login user
+            controller --> browser : Redirect /admin
+            browser --> user : Tampil dashboard admin
+        else Role lainnya
+            controller -> controller : Generate session\n& login user
+            controller --> browser : Redirect /
+            browser --> user : Tampil halaman home
+        end
+    end
+end
+
+@enduml

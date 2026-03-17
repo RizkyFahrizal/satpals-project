@@ -1,0 +1,91 @@
+@startuml SD_Kelola_User
+title Sequence Diagram - Proses Kelola User (Super Admin)
+
+actor "Super Admin" as admin
+participant "Browser" as browser
+participant "UserController" as controller
+participant "User Model" as model
+database "Database" as db
+
+== Lihat Daftar User ==
+
+admin -> browser : Akses menu Kelola User
+browser -> controller : GET /admin/users
+controller -> model : User::orderBy('created_at','desc')\n->get()
+model -> db : SELECT * FROM users
+db --> model : Return users
+controller --> browser : Return view daftar user
+browser --> admin : Tampil daftar semua user\n& role masing-masing
+
+== Tambah User ==
+
+admin -> browser : Klik "Tambah User"
+browser -> controller : GET /admin/users/create
+controller --> browser : Return view form create
+admin -> browser : Input nama, email,\npassword, pilih role
+browser -> controller : POST /admin/users
+controller -> controller : Validasi input\n(required, email unique, password min:8)
+alt Valid
+    controller -> model : User::where('email', email)->exists()
+    model -> db : SELECT COUNT(*) WHERE email = ?
+    db --> model : Return 0 (tidak ada)
+    controller -> controller : Hash password\n(bcrypt)
+    controller -> model : User::create(nama, email, password, role)
+    model -> db : INSERT INTO users (...)
+    db --> model : Return new user
+    controller --> browser : Redirect with success
+    browser --> admin : Tampil pesan "User berhasil ditambahkan"
+else Invalid
+    controller --> browser : Redirect back with errors
+    browser --> admin : Tampil error di form
+end
+
+== Edit User ==
+
+admin -> browser : Klik "Edit" pada user
+browser -> controller : GET /admin/users/{id}/edit
+controller -> model : User::findOrFail(id)
+model -> db : SELECT * WHERE id = ?
+db --> model : Return user
+controller --> browser : Return view form edit
+admin -> browser : Ubah nama / email
+browser -> controller : PUT /admin/users/{id}
+controller -> controller : Validasi input
+controller -> model : $user->update(data)
+model -> db : UPDATE users SET ... WHERE id = ?
+db --> model : OK
+controller --> browser : Redirect with success
+browser --> admin : Tampil pesan berhasil
+
+== Ubah Role User ==
+
+admin -> browser : Klik toggle/pilih role baru
+browser -> controller : PATCH /admin/users/{id}/role\n(role = super_admin / pengurus)
+controller -> model : User::findOrFail(id)
+model -> db : SELECT * WHERE id = ?
+db --> model : Return user
+controller -> model : $user->update(['role' => $role])
+model -> db : UPDATE users SET role = ? WHERE id = ?
+db --> model : OK
+controller --> browser : Redirect with success
+browser --> admin : Badge role user terupdate
+
+== Hapus User ==
+
+admin -> browser : Klik "Hapus" pada user
+browser --> admin : Tampil konfirmasi
+alt Konfirmasi
+    browser -> controller : DELETE /admin/users/{id}
+    controller -> model : User::findOrFail(id)
+    model -> db : SELECT * WHERE id = ?
+    db --> model : Return user
+    controller -> model : $user->delete()
+    model -> db : DELETE FROM users WHERE id = ?
+    db --> model : OK
+    controller --> browser : Redirect with success
+    browser --> admin : Tampil pesan "User berhasil dihapus"
+else Batal
+    browser --> admin : Tutup dialog
+end
+
+@enduml

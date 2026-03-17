@@ -1,0 +1,69 @@
+@startuml Tambah_Pengurus
+title Activity Diagram - Proses Tambah Pengurus
+
+start
+:Admin akses menu Struktur Pengurus;
+:View daftar pengurus;
+:Admin klik tombol "Tambah Pengurus";
+:Buka modal form tambah;
+
+:Pilih member dari dropdown;
+if (Member exists) then (Ya)
+    :Check if member already assigned;
+    if (Sudah assigned) then (Ya)
+        :Display error "Member sudah menjadi pengurus";
+        stop
+    else (Tidak)
+        :Continue;
+    endif
+else (Tidak)
+    :Display error "Member tidak ditemukan";
+    stop
+endif
+
+:Pilih jabatan:;
+:(ketua_umum, wakil_ketua_umum, sekretaris, bendahara, mpa,;
+:subsie_band, subsie_peralatan, subsie_humas, subsie_pdd, subsie_kesekretariatan);
+
+:Check if jabatan already filled;
+if (Jabatan available) then (Ya)
+    :Continue;
+else (Tidak)
+    :Display warning "Jabatan ini sudah ada";
+endif
+
+:Upload foto member (optional);
+if (Upload foto) then (Ya)
+    :Validate file (image only);
+    if (Valid) then (Ya)
+        :Compress & store foto;
+    else (Tidak)
+        :Display error invalid file;
+    endif
+else (Tidak)
+    :Use default placeholder;
+endif
+
+:Input tahun periode;
+:Submit form;
+
+:Validate all required fields;
+if (Valid) then (Ya)
+    :Create board_member record;
+    :Set:;
+    :- member_id;
+    :- jabatan;
+    :- periode;
+    :- foto (if uploaded);
+    :- status = active;
+    :Save to database;
+    :Close modal;
+    :Refresh board list;
+    :Display success message;
+    stop
+else (Invalid)
+    :Display error message;
+    stop
+endif
+
+@enduml

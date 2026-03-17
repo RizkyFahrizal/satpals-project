@@ -1,0 +1,51 @@
+@startuml Lihat_Daftar_Template
+title Activity Diagram - Proses Lihat Daftar Template Surat
+
+start
+:Admin akses menu Template Surat;
+:Request ke /admin/templates;
+
+partition "Opsi Filter & Search" {
+    :Search berdasarkan nama template;
+    :Filter berdasarkan kategori;
+    :(Surat/RAB/Proposal/LPJ/Lainnya);
+    :Klik tombol Cari;
+}
+
+:Query database dengan filter;
+
+if (Ada hasil) then (Ya)
+    :Display tabel template;
+    :Tampilkan kolom:;
+    :- Icon file;
+    :- Nama template;
+    :- Kategori;
+    :- Nama file & tipe;
+    :- Ukuran file;
+    :- Tanggal upload;
+    :- Aksi (Preview/Download/Edit/Hapus);
+    
+    :User pilih aksi per baris:;
+    fork
+        :Klik Preview;
+        :Jika PDF: Buka preview di tab baru;
+        :Jika lain: Tampil info file;
+    fork again
+        :Klik Download;
+        :Download file dengan nama asli;
+    fork again
+        :Klik Edit;
+        :Buka modal edit template;
+    fork again
+        :Klik Hapus;
+        :Tampil konfirmasi hapus;
+    endfork
+else (Tidak ada)
+    :Display empty state;
+    :Tampil tombol Upload Template;
+endif
+
+:Display pagination;
+stop
+
+@enduml

@@ -1,0 +1,50 @@
+@startuml Upload_Template_Surat
+title Activity Diagram - Proses Upload Template Surat
+
+start
+:Admin akses menu Kelola Template Surat;
+:View daftar template;
+:Admin klik tombol "Upload Template";
+:Buka modal form upload;
+
+:Input nama template;
+:Pilih kategori template;
+:(Surat/RAB/Proposal/LPJ/Lainnya);
+:Input deskripsi (optional);
+:Pilih file untuk diupload;
+
+:User select file (PDF/Word/Excel);
+
+:Submit form;
+
+if (Validasi file) then (Valid)
+    :Check format file;
+    if (Format allowed) then (Ya)
+        :Check ukuran file (max 10MB);
+        if (Ukuran valid) then (Ya)
+            :Read file properties;
+            :Get file size;
+            :Get file type;
+            :Get original filename;
+            :Store file ke storage/document-templates/;
+            :Save metadata ke database:;
+            :(nama_template, kategori, file_path, file_name,;
+            :file_type, file_size, deskripsi);
+            :Close modal;
+            :Refresh daftar template;
+            :Display success message;
+            stop
+        else (Tidak)
+            :Display error "Ukuran file > 10MB";
+            stop
+        endif
+    else (Tidak)
+        :Display error format tidak didukung;
+        stop
+    endif
+else (Invalid)
+    :Display error validasi;
+    stop
+endif
+
+@enduml

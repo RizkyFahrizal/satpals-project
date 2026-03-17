@@ -1,0 +1,56 @@
+@startuml Lihat_Daftar_Anggota
+title Activity Diagram - Proses Lihat Daftar Anggota
+
+start
+:Admin akses menu Data Anggota;
+:Request ke /admin/members;
+:Load default tampilan;
+
+:Query database anggota;
+
+partition "Opsi Filter & Search" {
+    :Search berdasarkan nama / NIM;
+    :Filter berdasarkan status (active/inactive);
+    :Filter berdasarkan tahun masuk;
+    :Filter berdasarkan prodi;
+    :Klik tombol Cari/Filter;
+}
+
+:Execute query dengan parameter;
+
+if (Ada hasil) then (Ya)
+    :Display tabel anggota;
+    :Tampilkan kolom:;
+    :- No;
+    :- Nama Lengkap;
+    :- NIM;
+    :- Email;
+    :- Prodi;
+    :- Status (active/inactive);
+    :- Aksi (Lihat/Edit/Hapus);
+    :Display total data;
+    :Display pagination;
+    
+    :User pilih aksi:;
+    fork
+        :Klik "Lihat Detail";
+        :Redirect ke halaman detail anggota;
+    fork again
+        :Klik "Edit";
+        :Redirect ke form edit anggota;
+    fork again
+        :Klik "Hapus";
+        :Tampil konfirmasi hapus;
+    fork again
+        :Klik "Tambah Anggota";
+        :Redirect ke form tambah;
+    endfork
+else (Tidak ada)
+    :Display pesan "Tidak ada data";
+endif
+
+:Display pagination controls;
+:User bisa navigasi halaman;
+stop
+
+@enduml

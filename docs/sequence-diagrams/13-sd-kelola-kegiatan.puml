@@ -1,0 +1,87 @@
+@startuml SD_Kelola_Kegiatan
+title Sequence Diagram - Proses Kelola Galeri Kegiatan
+
+actor "Admin" as admin
+participant "Browser" as browser
+participant "ActivityController" as controller
+participant "Activity Model" as model
+participant "Storage" as storage
+database "Database" as db
+
+== Tambah Kegiatan ==
+
+admin -> browser : Klik "Tambah Kegiatan"
+browser -> controller : GET /admin/activities/create
+controller --> browser : Return view form create
+admin -> browser : Isi form:\n- Nama kegiatan, deskripsi\n- Tanggal, lokasi\n- Upload multiple foto
+browser -> controller : POST /admin/activities\n(data + foto[])
+controller -> controller : Validasi input\n(required, foto format)
+alt Valid
+    controller -> model : Activity::create(data kegiatan)
+    model -> db : INSERT INTO activities
+    db --> model : Return activity
+    loop Setiap foto yang diupload
+        controller -> storage : Store foto ke storage/activities/
+        storage --> controller : Return file path
+        controller -> db : INSERT INTO activity_photos\n(activity_id, file_path)
+    end
+    controller --> browser : Redirect with success
+    browser --> admin : Tampil pesan berhasil
+else Invalid
+    controller --> browser : Redirect back with errors
+    browser --> admin : Tampil error di form
+end
+
+== Edit Kegiatan ==
+
+admin -> browser : Klik "Edit" pada kegiatan
+browser -> controller : GET /admin/activities/{id}/edit
+controller -> model : Activity::with('photos')\n->findOrFail(id)
+model -> db : SELECT activities\nJOIN activity_photos WHERE id = ?
+db --> model : Return activity + photos
+controller --> browser : Return view form edit\n(terisi data + foto existing)
+admin -> browser : Ubah data, tambah/hapus foto
+browser -> controller : PUT /admin/activities/{id}
+controller -> controller : Validasi input
+alt Valid
+    controller -> model : $activity->update(data)
+    model -> db : UPDATE activities SET ... WHERE id = ?
+    loop Foto yang dihapus
+        controller -> storage : Delete foto dari storage
+        controller -> db : DELETE FROM activity_photos WHERE id = ?
+    end
+    loop Foto baru
+        controller -> storage : Store foto baru
+        controller -> db : INSERT INTO activity_photos
+    end
+    controller --> browser : Redirect with success
+    browser --> admin : Tampil pesan berhasil
+else Invalid
+    controller --> browser : Redirect back with errors
+end
+
+== Toggle Publish & Hapus ==
+
+admin -> browser : Klik toggle publish
+browser -> controller : PATCH /admin/activities/{id}/toggle-publish
+controller -> model : Toggle is_published di database
+model -> db : UPDATE activities\nSET is_published = !is_published
+db --> model : OK
+controller --> browser : Redirect with success
+browser --> admin : Badge publish terupdate
+
+admin -> browser : Klik "Hapus"
+browser --> admin : Tampil konfirmasi
+alt Konfirmasi
+    browser -> controller : DELETE /admin/activities/{id}
+    controller -> storage : Delete semua foto kegiatan
+    controller -> model : $activity->delete()
+    model -> db : DELETE activities + activity_photos
+    db --> model : OK
+    controller --> browser : Redirect with success
+    browser --> admin : Tampil pesan "Kegiatan berhasil dihapus"
+else Batal
+    browser --> admin : Tutup dialog
+end
+
+@enduml

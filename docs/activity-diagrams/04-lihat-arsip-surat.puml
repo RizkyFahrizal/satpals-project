@@ -1,0 +1,61 @@
+@startuml Lihat_Arsip_Surat
+title Activity Diagram - Proses Lihat & Filter Arsip Surat
+
+start
+:Admin akses menu Arsip Surat;
+:Load halaman dengan daftar arsip default;
+:Display list arsip dengan pagination;
+
+:Admin bisa melakukan filter:;
+
+partition "Opsi Filter" {
+    :Pilih Jenis (Masuk/Keluar);
+    :Pilih Tahun;
+    :Pilih Bulan;
+    :Search berdasarkan nama/nomor/perihal;
+}
+
+:Klik tombol Filter;
+
+:Query database dengan parameter filter;
+:Generate statistics (total, masuk, keluar);
+:Display filtered results;
+
+if (Ada hasil) then (Ya)
+    :Tampilkan tabel dengan:;
+    :- Tanggal surat;
+    :- Jenis surat (icon);
+    :- Nama surat;
+    :- Nomor surat;
+    :- Pengirim/Penerima;
+    :- File info;
+    
+    :User bisa melakukan aksi per surat:;
+    
+    fork
+        :Klik Lihat Detail;
+        :Redirect ke halaman detail surat;
+    fork again
+        :Klik Download;
+        :Download file surat;
+    fork again
+        :Klik Preview;
+        if (File PDF) then (Ya)
+            :Display PDF viewer;
+        else (Tidak)
+            :Display file info;
+        endif
+    fork again
+        :Klik Hapus;
+        :Confirm dialog;
+        :Delete file & data;
+    endfork
+    
+else (Tidak ada)
+    :Display empty state message;
+endif
+
+:Display pagination controls;
+stop
+
+@enduml

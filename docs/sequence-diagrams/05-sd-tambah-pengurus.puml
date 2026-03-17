@@ -1,0 +1,45 @@
+@startuml SD_Tambah_Pengurus
+title Sequence Diagram - Proses Tambah Pengurus
+
+actor "Admin" as admin
+participant "Browser" as browser
+participant "BoardMemberController" as controller
+participant "BoardMember Model" as boardModel
+participant "Storage" as storage
+database "Database" as db
+
+admin -> browser : Akses halaman Struktur Pengurus
+browser -> controller : GET /admin/board
+controller -> boardModel : BoardMember::with('member')\n->orderBy(...)->get()
+boardModel -> db : SELECT board_members\nJOIN members ...
+db --> boardModel : Return board members
+controller --> browser : Return view dengan data pengurus
+
+admin -> browser : Klik tombol "Tambah Pengurus"
+browser --> admin : Tampil modal form tambah
+
+admin -> browser : Pilih member dari dropdown\nPilih jabatan\nInput periode\nUpload foto (opsional)
+admin -> browser : Klik Submit
+browser -> controller : POST /admin/board\n(member_id, jabatan, periode, foto)
+
+controller -> controller : Validasi input\n(required fields, file format)
+
+alt Validasi Gagal
+    controller --> browser : Redirect back with errors
+    browser --> admin : Tampil pesan error pada form
+else Validasi Berhasil
+    alt Ada file foto diupload
+        controller -> storage : $file->store('board-members', 'public')
+        storage --> controller : Return file path
+    end
+
+    controller -> boardModel : BoardMember::create(data)
+    boardModel -> db : INSERT INTO board_members\n(member_id, jabatan, periode, foto, status)
+    db --> boardModel : Return new board member
+    boardModel --> controller : Return object
+
+    controller --> browser : Redirect /admin/board\nwith success message
+    browser --> admin : Tampil halaman pengurus\n& pesan "Pengurus berhasil ditambahkan"
+end
+
+@enduml

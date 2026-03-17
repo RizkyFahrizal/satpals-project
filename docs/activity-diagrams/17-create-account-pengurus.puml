@@ -1,0 +1,32 @@
+@startuml Create_Account_Pengurus
+title Activity Diagram - Proses Buat Akun Pengurus
+
+start
+:Admin klik tombol "Buat Akun" pada kartu pengurus;
+:System check apakah pengurus sudah punya akun;
+
+if (Sudah punya akun) then (Ya)
+    :Display info "Pengurus sudah memiliki akun";
+    stop
+else (Tidak)
+    :Tampil modal konfirmasi buat akun;
+    :Display data pengurus yang akan dibuatkan akun;
+    
+    if (Konfirmasi) then (Ya)
+        :Generate username dari NIM atau nama;
+        :Generate password sementara;
+        :Buat record di tabel users;
+        :Set role = pengurus;
+        :Link user ke data member;
+        :Display success message;
+        :Tampilkan info akun yang baru dibuat:;
+        :- Username;
+        :- Password sementara;
+        stop
+    else (Tidak / Batal)
+        :Tutup modal;
+        stop
+    endif
+endif
+
+@enduml

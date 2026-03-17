@@ -1,0 +1,22 @@
+@startuml Ubah_Status_Anggota
+title Activity Diagram - Proses Ubah Status Anggota
+
+start
+:Admin pada halaman daftar anggota;
+:Admin klik tombol toggle status;
+:System baca status saat ini;
+
+if (Status saat ini) then (Active)
+    :Set status = inactive;
+    :Display badge "Tidak Aktif";
+else (Inactive)
+    :Set status = active;
+    :Display badge "Aktif";
+endif
+
+:Update status di database;
+:Display success message;
+:Refresh tampilan badge status;
+stop
+
+@enduml

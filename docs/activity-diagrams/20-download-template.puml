@@ -1,0 +1,22 @@
+@startuml Download_Template_Surat
+title Activity Diagram - Proses Download Template Surat
+
+start
+:Admin klik tombol "Download" pada template;
+:Request ke /admin/templates/{id}/download;
+:Check apakah file ada di storage;
+
+if (File ada) then (Ya)
+    :Generate download response;
+    :Set nama file = nama file asli;
+    :Set Content-Disposition = attachment;
+    :Stream file ke browser;
+    :File terdownload ke device user;
+    stop
+else (Tidak)
+    :Display error "File tidak ditemukan";
+    :Redirect back dengan pesan error;
+    stop
+endif
+
+@enduml

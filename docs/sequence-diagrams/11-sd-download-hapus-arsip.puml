@@ -1,0 +1,60 @@
+@startuml SD_Download_Hapus_Arsip
+title Sequence Diagram - Proses Download & Hapus Arsip Surat
+
+actor "Admin" as admin
+participant "Browser" as browser
+participant "LetterArchiveController" as controller
+participant "LetterArchive Model" as model
+participant "Storage" as storage
+database "Database" as db
+
+== Download Arsip Surat ==
+
+admin -> browser : Klik tombol "Download"
+browser -> controller : GET /admin/letters/{id}/download
+controller -> model : LetterArchive::findOrFail(id)
+model -> db : SELECT * FROM letter_archives WHERE id = ?
+db --> model : Return letter data
+model --> controller : Return letter object
+
+controller -> storage : Storage::disk('public')\n->exists(file_path)
+
+alt File Ada di Storage
+    storage --> controller : true
+    controller -> storage : Storage::disk('public')\n->download(file_path, file_name)
+    storage --> browser : Stream file binary response\n(Content-Disposition: attachment)
+    browser --> admin : File terdownload\nke device user
+else File Tidak Ditemukan
+    storage --> controller : false
+    controller --> browser : Redirect back\nwith error message
+    browser --> admin : Tampil pesan "File tidak ditemukan"
+end
+
+== Hapus Arsip Surat ==
+
+admin -> browser : Klik tombol "Hapus" pada arsip
+browser --> admin : Tampil dialog konfirmasi\n"Yakin hapus arsip ini?"
+
+alt Admin Klik "Hapus"
+    browser -> controller : DELETE /admin/letters/{id}
+    controller -> model : LetterArchive::findOrFail(id)
+    model -> db : SELECT * FROM letter_archives WHERE id = ?
+    db --> model : Return letter
+
+    controller -> storage : Storage::disk('public')\n->exists(file_path)
+    alt File Ada
+        controller -> storage : Storage::disk('public')\n->delete(file_path)
+        storage --> controller : File terhapus dari server
+    end
+
+    controller -> model : $letter->delete()
+    model -> db : DELETE FROM letter_archives WHERE id = ?
+    db --> model : OK
+
+    controller --> browser : Redirect /admin/letters\nwith success message
+    browser --> admin : Tampil daftar arsip\n& pesan "Arsip berhasil dihapus"
+else Admin Klik "Batal"
+    browser --> admin : Tutup dialog\nkembali ke halaman
+end
+
+@enduml

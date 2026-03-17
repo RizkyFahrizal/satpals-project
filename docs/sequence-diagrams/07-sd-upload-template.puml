@@ -1,0 +1,47 @@
+@startuml SD_Upload_Template_Surat
+title Sequence Diagram - Proses Upload Template Surat
+
+actor "Admin" as admin
+participant "Browser" as browser
+participant "DocumentTemplateController" as controller
+participant "DocumentTemplate Model" as model
+participant "Storage" as storage
+database "Database" as db
+
+admin -> browser : Akses menu Template Surat
+browser -> controller : GET /admin/templates
+controller -> model : DocumentTemplate::query()\n->paginate(10)
+model -> db : SELECT * FROM document_templates
+db --> model : Return templates
+controller --> browser : Return view dengan daftar template
+
+admin -> browser : Klik "Upload Template"
+browser --> admin : Tampil modal form upload
+
+admin -> browser : Input nama template\nPilih kategori\nInput deskripsi (opsional)\nPilih file (PDF/Word/Excel)
+admin -> browser : Klik Upload
+browser -> controller : POST /admin/templates\n(nama, kategori, file, deskripsi)
+
+controller -> controller : Validasi input\n(required, mimes: pdf,doc,docx,xls,xlsx, max:10MB)
+
+alt Validasi Gagal
+    controller --> browser : Redirect back with errors
+    browser --> admin : Tampil error di form (modal terbuka)
+else Validasi Berhasil
+    controller -> controller : $file->getClientOriginalName()
+    controller -> controller : $file->getClientOriginalExtension()
+    controller -> controller : $file->getSize()
+
+    controller -> storage : $file->store('document-templates', 'public')
+    storage --> controller : Return file_path
+
+    controller -> model : DocumentTemplate::create(\n nama_template, kategori,\n file_path, file_name,\n file_type, file_size, deskripsi)
+    model -> db : INSERT INTO document_templates (...)
+    db --> model : Return new record
+    model --> controller : Return object
+
+    controller --> browser : Redirect /admin/templates\nwith success message
+    browser --> admin : Tampil daftar template\n& pesan "Template berhasil ditambahkan"
+end
+
+@enduml

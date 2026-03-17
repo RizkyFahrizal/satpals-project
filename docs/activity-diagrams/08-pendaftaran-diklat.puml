@@ -1,0 +1,44 @@
+@startuml Pendaftaran_Diklat
+title Activity Diagram - Proses Pendaftaran Diklat (Public)
+
+start
+:User buka halaman /diklat/register;
+:Load form pendaftaran diklat;
+:Display form dengan fields:;
+:- Nama lengkap;
+:- NIM;
+:- Email;
+:- Nomor telepon;
+:- Program studi;
+
+:User input data diri;
+
+:Submit form;
+
+:Server validasi input;
+if (Validasi) then (Valid)
+    :Check duplikasi NIM;
+    if (NIM sudah terdaftar) then (Ya)
+        :Display error "NIM sudah mendaftar diklat";
+        :Offer to view existing registration;
+        stop
+    else (Tidak)
+        :Create diklat_registration record;
+        :Set status = pending;
+        :Save to database;
+        :Send confirmation email (optional);
+        :Redirect ke /diklat/success;
+        :Display sukses message dengan:;
+        :- Nomor registrasi;
+        :- Data yang terdaftar;
+        :- Instruksi selanjutnya;
+        stop
+    endif
+else (Invalid)
+    :Display error messages;
+    :Highlight invalid fields;
+    :User bisa retry;
+    stop
+endif
+
+@enduml

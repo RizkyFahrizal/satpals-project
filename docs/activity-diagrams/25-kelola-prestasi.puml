@@ -1,0 +1,85 @@
+@startuml Kelola_Prestasi
+title Activity Diagram - Proses Kelola Galeri Prestasi
+
+start
+:Admin akses menu Galeri Prestasi;
+:Request ke /admin/achievements;
+:Load daftar prestasi dengan filter;
+
+partition "Opsi Filter" {
+    :Search berdasarkan judul;
+    :Filter berdasarkan status publish;
+    :Filter berdasarkan tahun;
+    :Klik Filter;
+}
+
+:Query & tampilkan daftar prestasi;
+
+:Admin pilih aksi:;
+
+fork
+    partition "Tambah Prestasi Baru" {
+        :Klik "Tambah Prestasi";
+        :Buka form create;
+        :Input judul prestasi;
+        :Input deskripsi;
+        :Input tanggal;
+        :Input tingkat (lokal/nasional/internasional);
+        :Upload foto;
+        :Submit form;
+        if (Validasi valid) then (Ya)
+            :Simpan ke database;
+            :Store foto ke storage;
+            :Display success;
+        else (Tidak)
+            :Display error;
+        endif
+    }
+fork again
+    partition "Edit Prestasi" {
+        :Klik "Edit" pada prestasi;
+        :Load form dengan data saat ini;
+        :Ubah field yang diinginkan;
+        :Submit form update;
+        if (Validasi valid) then (Ya)
+            :Update record di database;
+            if (Ada foto baru) then (Ya)
+                :Hapus foto lama;
+                :Store foto baru;
+            endif
+            :Display success;
+        else (Tidak)
+            :Display error;
+        endif
+    }
+fork again
+    partition "Toggle Publish" {
+        :Klik tombol toggle publish;
+        :Baca status saat ini;
+        if (Published) then (Ya)
+            :Set is_published = false;
+            :Sembunyikan dari halaman publik;
+        else (Tidak)
+            :Set is_published = true;
+            :Tampilkan di halaman publik;
+        endif
+        :Update database;
+        :Display success;
+    }
+fork again
+    partition "Hapus Prestasi" {
+        :Klik "Hapus";
+        :Tampil konfirmasi;
+        if (Konfirmasi) then (Ya)
+            :Delete foto dari storage;
+            :Delete record dari database;
+            :Display success;
+        else (Batal)
+            :Tutup dialog;
+        endif
+    }
+endfork
+
+stop
+
+@enduml

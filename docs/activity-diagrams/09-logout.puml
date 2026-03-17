@@ -1,0 +1,13 @@
+@startuml Logout_Process
+title Activity Diagram - Proses Logout
+
+start
+:User klik tombol Logout;
+:Submit POST /logout;
+:Invalidate session token;
+:Clear session data;
+:Redirect ke halaman Login;
+:Display halaman login;
+stop
+
+@enduml

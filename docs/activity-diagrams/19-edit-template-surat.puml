@@ -1,0 +1,47 @@
+@startuml Edit_Template_Surat
+title Activity Diagram - Proses Edit Template Surat
+
+start
+:Admin klik tombol "Edit" pada template;
+:Buka modal edit;
+:Load data template saat ini:;
+:- Nama template;
+:- Kategori;
+:- Info file saat ini;
+:- Deskripsi;
+
+:Admin ubah data yang diinginkan;
+
+if (Ganti file) then (Ya)
+    :Pilih file baru (PDF/Word/Excel);
+    :Validate format & ukuran;
+    if (File valid) then (Ya)
+        :Mark file lama untuk dihapus;
+    else (Tidak)
+        :Display error;
+        stop
+    endif
+else (Tidak)
+    :Pertahankan file lama;
+endif
+
+:Submit form;
+
+:Server validasi input;
+if (Validasi) then (Valid)
+    :Update nama, kategori, deskripsi di database;
+    if (Ada file baru) then (Ya)
+        :Delete file lama dari storage;
+        :Store file baru ke storage/document-templates/;
+        :Update file_path, file_name, file_type, file_size;
+    endif
+    :Close modal;
+    :Refresh daftar template;
+    :Display success message;
+    stop
+else (Invalid)
+    :Display error message;
+    stop
+endif
+
+@enduml

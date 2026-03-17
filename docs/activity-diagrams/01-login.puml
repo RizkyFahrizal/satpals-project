@@ -1,0 +1,27 @@
+@startuml Login_Process
+title Activity Diagram - Proses Login
+
+start
+:User buka halaman login;
+:User input username & password;
+:Submit form login;
+
+if (Validasi kredensial) then (Valid)
+    :Check role user;
+    if (Role user) then (Super Admin / Pengurus)
+        :Generate session token;
+        :Redirect ke dashboard admin;
+        :Display welcome message;
+        stop
+    else (Anggota)
+        :Redirect ke halaman home;
+        stop
+    endif
+else (Invalid)
+    :Display error message;
+    :Redirect kembali ke login form;
+    :User bisa retry;
+    stop
+endif
+
+@enduml

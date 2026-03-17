@@ -1,0 +1,67 @@
+@startuml SD_Halaman_Publik
+title Sequence Diagram - Proses Akses Halaman Publik
+
+actor "User" as user
+participant "Browser" as browser
+participant "Controller" as controller
+participant "Model" as model
+database "Database" as db
+
+== Halaman Beranda ==
+
+user -> browser : Buka website
+browser -> controller : GET /
+controller -> model : Query data untuk home\n(stats, prestasi terbaru, kegiatan terbaru)
+model -> db : SELECT ... FROM achievements, activities\nWHERE is_published = 1 LIMIT ...
+db --> model : Return data
+controller --> browser : Return view home
+browser --> user : Tampil beranda:\n- Hero section\n- Info singkat UKM\n- Preview prestasi & kegiatan
+
+== Halaman Struktur Pengurus ==
+
+user -> browser : Klik menu Struktur
+browser -> controller : GET /struktur?periode=...
+controller -> model : BoardMember::with('member')\n->where('periode', $periode)\n->where('status', 'active')\n->get()
+model -> db : SELECT board_members JOIN members\nWHERE periode = ? AND status = active
+db --> model : Return board members
+controller -> controller : Group by jabatan:\n- pimpinan (BPH)\n- subsie
+controller --> browser : Return view struktur
+browser --> user : Tampil BPH section\n& semua subsie dengan foto
+
+== Halaman Galeri Prestasi ==
+
+user -> browser : Klik menu Prestasi
+browser -> controller : GET /prestasi
+controller -> model : Achievement::where('is_published', true)\n->orderBy('tanggal', 'desc')->paginate()
+model -> db : SELECT * FROM achievements\nWHERE is_published = 1 ORDER BY tanggal DESC
+db --> model : Return achievements
+controller --> browser : Return view galeri prestasi
+browser --> user : Tampil grid kartu prestasi
+
+user -> browser : Klik salah satu prestasi
+browser -> controller : GET /prestasi/{id}
+controller -> model : Achievement::findOrFail(id)
+model -> db : SELECT * WHERE id = ? AND is_published = 1
+db --> model : Return achievement
+controller --> browser : Return view detail prestasi
+browser --> user : Tampil detail:\n- Foto besar\n- Judul, deskripsi\n- Tanggal, tingkat
+
+== Halaman Galeri Kegiatan ==
+
+user -> browser : Klik menu Kegiatan
+browser -> controller : GET /kegiatan
+controller -> model : Activity::where('is_published', true)\n->with('photos')->paginate()
+model -> db : SELECT activities JOIN activity_photos\nWHERE is_published = 1
+db --> model : Return activities + photos
+controller --> browser : Return view galeri kegiatan
+browser --> user : Tampil grid kartu kegiatan
+
+user -> browser : Klik salah satu kegiatan
+browser -> controller : GET /kegiatan/{id}
+controller -> model : Activity::with('photos')\n->findOrFail(id)
+model -> db : SELECT * WHERE id = ?
+db --> model : Return activity + photos
+controller --> browser : Return view detail kegiatan
+browser --> user : Tampil detail:\n- Semua foto kegiatan\n- Nama, deskripsi\n- Tanggal, lokasi
+
+@enduml

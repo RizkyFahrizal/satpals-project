@@ -1,0 +1,74 @@
+@startuml SD_Kelola_Diklat
+title Sequence Diagram - Proses Kelola Pendaftaran Diklat
+
+actor "Calon Anggota" as user
+actor "Admin" as admin
+participant "Browser" as browser
+participant "DiklatController" as publicCtrl
+participant "DiklatRegistrationController" as adminCtrl
+participant "DiklatRegistration Model" as model
+database "Database" as db
+
+== Pendaftaran Diklat (Public) ==
+
+user -> browser : Buka halaman /diklat/register
+browser -> publicCtrl : GET /diklat/register
+publicCtrl --> browser : Return view form pendaftaran
+
+user -> browser : Isi form:\n- Nama lengkap\n- NIM\n- Email\n- No. Telepon\n- Program Studi
+user -> browser : Klik Daftar
+browser -> publicCtrl : POST /diklat/register\n(data pendaftar)
+publicCtrl -> publicCtrl : Validasi input
+alt Valid
+    publicCtrl -> model : DiklatRegistration::create(data)
+    model -> db : INSERT INTO diklat_registrations\n(nama, nim, email, ..., status=pending)
+    db --> model : Return new record
+    publicCtrl --> browser : Redirect /diklat/success
+    browser --> user : Tampil halaman sukses\n& informasi registrasi
+else Invalid
+    publicCtrl --> browser : Redirect back with errors
+    browser --> user : Tampil error di form
+end
+
+== Kelola Pendaftaran (Admin) ==
+
+admin -> browser : Akses menu Pendaftaran Diklat
+browser -> adminCtrl : GET /admin/diklat
+adminCtrl -> model : DiklatRegistration::query()\n->with filters->paginate()
+model -> db : SELECT * FROM diklat_registrations\nWHERE ... ORDER BY created_at DESC
+db --> model : Return registrations
+adminCtrl --> browser : Return view\n(daftar pendaftar + stats)
+
+== Lihat Detail Pendaftar ==
+admin -> browser : Klik "Lihat" pada pendaftar
+browser -> adminCtrl : GET /admin/diklat/{id}
+adminCtrl -> model : DiklatRegistration::findOrFail(id)
+model -> db : SELECT * WHERE id = ?
+db --> model : Return data pendaftar
+adminCtrl --> browser : Return view detail
+browser --> admin : Tampil detail lengkap pendaftar
+
+== Update Status Pendaftaran ==
+admin -> browser : Klik "Terima" atau "Tolak"
+browser -> adminCtrl : PATCH /admin/diklat/{id}/status\n(status = accepted / rejected)
+adminCtrl -> model : $registration->update(['status' => $status])
+model -> db : UPDATE diklat_registrations\nSET status = ? WHERE id = ?
+db --> model : OK
+adminCtrl --> browser : Redirect with success
+browser --> admin : Tampil pesan status berhasil diubah
+
+== Hapus Pendaftaran ==
+admin -> browser : Klik "Hapus"
+browser --> admin : Tampil konfirmasi
+alt Konfirmasi
+    browser -> adminCtrl : DELETE /admin/diklat/{id}
+    adminCtrl -> model : $registration->delete()
+    model -> db : DELETE FROM diklat_registrations WHERE id = ?
+    db --> model : OK
+    adminCtrl --> browser : Redirect with success
+    browser --> admin : Tampil pesan "Pendaftaran dihapus"
+else Batal
+    browser --> admin : Tutup dialog
+end
+
+@enduml

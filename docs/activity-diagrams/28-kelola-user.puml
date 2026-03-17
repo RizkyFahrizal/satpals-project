@@ -1,0 +1,86 @@
+@startuml Kelola_User
+title Activity Diagram - Proses Kelola User (Super Admin Only)
+
+start
+:Super Admin akses menu Kelola User;
+:Request ke /admin/users;
+:Load daftar user;
+
+:Tampilkan semua user dengan:;
+:- Nama;
+:- Username / Email;
+:- Role (super_admin / pengurus);
+:- Tanggal dibuat;
+:- Aksi;
+
+:Super Admin pilih aksi:;
+
+fork
+    partition "Tambah User Baru" {
+        :Klik "Tambah User";
+        :Buka form create user;
+        :Input nama lengkap;
+        :Input email / username;
+        :Input password;
+        :Pilih role;
+        :Submit form;
+        if (Validasi valid) then (Ya)
+            :Check email sudah ada;
+            if (Email unik) then (Ya)
+                :Hash password;
+                :Create record di tabel users;
+                :Assign role;
+                :Display success;
+            else (Tidak)
+                :Display error "Email sudah digunakan";
+            endif
+        else (Tidak)
+            :Display error validasi;
+        endif
+    }
+fork again
+    partition "Edit User" {
+        :Klik "Edit" pada user;
+        :Load form dengan data saat ini;
+        :Ubah nama / email;
+        :Submit form update;
+        if (Validasi valid) then (Ya)
+            :Update record di database;
+            :Display success;
+        else (Tidak)
+            :Display error;
+        endif
+    }
+fork again
+    partition "Ubah Role User" {
+        :Klik toggle role pada user;
+        :Baca role saat ini;
+        if (Role = pengurus) then (Ya)
+            :Set role = super_admin;
+        else (Tidak)
+            :Set role = pengurus;
+        endif
+        :Update role di database;
+        :Display success;
+    }
+fork again
+    partition "Hapus User" {
+        :Klik "Hapus" pada user;
+        :Tampil konfirmasi;
+        if (Konfirmasi) then (Ya)
+            :Check user bukan diri sendiri;
+            if (Bukan diri sendiri) then (Ya)
+                :Delete record dari database;
+                :Display success;
+            else (Tidak)
+                :Display error "Tidak bisa hapus akun sendiri";
+            endif
+        else (Batal)
+            :Tutup dialog;
+        endif
+    }
+endfork
+
+stop
+
+@enduml

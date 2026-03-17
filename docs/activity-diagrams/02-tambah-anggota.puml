@@ -1,0 +1,39 @@
+@startuml Tambah_Anggota
+title Activity Diagram - Proses Tambah Anggota
+
+start
+:Admin akses menu Data Anggota;
+:View daftar anggota;
+:Admin klik tombol "Tambah Anggota";
+:Buka form tambah anggota;
+
+:Input nama lengkap;
+:Input NIM;
+:Input email;
+:Input nomor telepon;
+:Input program studi;
+:Input tahun masuk;
+
+:Submit form;
+
+if (Validasi data) then (Valid)
+    :Check duplikasi NIM;
+    if (NIM sudah ada) then (Ya)
+        :Display error "NIM sudah terdaftar";
+        :Redirect kembali ke form;
+        stop
+    else (Tidak)
+        :Simpan data anggota ke database;
+        :Set status anggota = active;
+        :Redirect ke halaman daftar anggota;
+        :Display success message;
+        stop
+    endif
+else (Invalid)
+    :Display error message;
+    :Highlight field yang error;
+    :User bisa memperbaiki data;
+    stop
+endif
+
+@enduml

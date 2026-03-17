@@ -1,0 +1,48 @@
+@startuml SD_Tambah_Arsip_Surat
+title Sequence Diagram - Proses Tambah Arsip Surat
+
+actor "Admin" as admin
+participant "Browser" as browser
+participant "LetterArchiveController" as controller
+participant "LetterArchive Model" as model
+participant "Storage" as storage
+database "Database" as db
+
+admin -> browser : Akses menu Arsip Surat
+browser -> controller : GET /admin/letters
+controller -> model : LetterArchive::query()\n->orderBy('tanggal_surat', 'desc')\n->paginate(15)
+model -> db : SELECT * FROM letter_archives
+db --> model : Return data arsip
+controller -> model : Ambil tahun unik untuk filter
+model -> db : SELECT DISTINCT YEAR(tanggal_surat)
+db --> model : Return years
+controller --> browser : Return view\n(daftar arsip + filter options + stats)
+
+admin -> browser : Klik "Tambah Arsip Surat"
+browser --> admin : Tampil modal form
+
+admin -> browser : Input nama surat\nInput nomor surat (opsional)\nPilih jenis (Masuk/Keluar)\nInput tanggal\nInput pengirim/penerima\nInput perihal\nUpload file surat\nInput keterangan (opsional)
+admin -> browser : Klik Submit
+browser -> controller : POST /admin/letters\n(semua data + file)
+
+controller -> controller : Validasi input\n(required, mimes:pdf/doc/docx/xls/xlsx, max:10MB)
+
+alt Validasi Gagal
+    controller --> browser : Redirect back with errors
+    browser --> admin : Modal terbuka kembali\ndengan pesan error
+else Validasi Berhasil
+    controller -> controller : Ambil info file:\n- getClientOriginalName()\n- getClientOriginalExtension()\n- getSize()
+
+    controller -> storage : $file->store('letter-archives', 'public')
+    storage --> controller : Return file_path
+
+    controller -> model : LetterArchive::create(\n nama_surat, nomor_surat, jenis,\n tanggal_surat, pengirim, penerima,\n perihal, file_path, file_name,\n file_type, file_size, keterangan)
+    model -> db : INSERT INTO letter_archives (...)
+    db --> model : Return new record
+    model --> controller : Return object
+
+    controller --> browser : Redirect /admin/letters\nwith success message
+    browser --> admin : Tampil daftar arsip\n& pesan "Arsip surat berhasil ditambahkan"
+end
+
+@enduml

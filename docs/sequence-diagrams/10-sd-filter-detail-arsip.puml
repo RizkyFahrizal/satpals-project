@@ -1,0 +1,53 @@
+@startuml SD_Filter_Arsip_Surat
+title Sequence Diagram - Proses Filter & Lihat Detail Arsip Surat
+
+actor "Admin" as admin
+participant "Browser" as browser
+participant "LetterArchiveController" as controller
+participant "LetterArchive Model" as model
+database "Database" as db
+
+== Filter Arsip Surat ==
+
+admin -> browser : Pilih filter:\n- Jenis (masuk/keluar)\n- Tahun\n- Bulan\n- Keyword search
+admin -> browser : Klik tombol Filter
+browser -> controller : GET /admin/letters\n?jenis=&tahun=&bulan=&search=
+
+controller -> model : LetterArchive::query()
+alt Ada filter jenis
+    controller -> model : ->where('jenis', $jenis)
+end
+alt Ada filter tahun
+    controller -> model : ->whereYear('tanggal_surat', $tahun)
+end
+alt Ada filter bulan
+    controller -> model : ->whereMonth('tanggal_surat', $bulan)
+end
+alt Ada search keyword
+    controller -> model : ->where(nama_surat|nomor_surat|perihal\n LIKE '%keyword%')
+end
+
+controller -> model : ->orderBy('tanggal_surat','desc')\n->paginate(15)
+model -> db : SELECT * FROM letter_archives\nWHERE ... ORDER BY ... LIMIT ...
+db --> model : Return filtered results
+
+controller -> model : Hitung stats:\n- total\n- masuk\n- keluar
+model -> db : SELECT COUNT(*) ...
+db --> model : Return counts
+
+controller --> browser : Return view\ndengan hasil filter + stats
+browser --> admin : Tampil daftar arsip terfilter\n& stats ringkasan
+
+== Lihat Detail Arsip ==
+
+admin -> browser : Klik tombol "Lihat" pada arsip
+browser -> controller : GET /admin/letters/{id}
+controller -> model : LetterArchive::findOrFail(id)
+model -> db : SELECT * FROM letter_archives\nWHERE id = ?
+db --> model : Return letter data
+model --> controller : Return letter object
+controller --> browser : Return view detail arsip
+
+browser --> admin : Tampil detail lengkap:\n- Info surat (nama, nomor, jenis)\n- Tanggal, pengirim/penerima, perihal\n- Keterangan\n- Preview PDF (jika PDF)\n- Info file (jika bukan PDF)
+
+@enduml

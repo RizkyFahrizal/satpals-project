@@ -1,0 +1,69 @@
+@startuml Halaman_Publik
+title Activity Diagram - Proses Akses Halaman Publik
+
+start
+:User buka website;
+:Request ke halaman beranda (/);
+:Load home page;
+:Display hero section, info singkat UKM, menu navigasi;
+
+:User navigasi ke menu:;
+
+fork
+    partition "Halaman Profil (/profil)" {
+        :Request ke /profil;
+        :Load data profil UKM;
+        :Display:;
+        :- Sejarah UKM;
+        :- Visi & Misi;
+        :- Informasi kontak;
+    }
+fork again
+    partition "Halaman Struktur (/struktur)" {
+        :Request ke /struktur;
+        :Load data pengurus aktif;
+        :Display BPH section;
+        :Display Subsie section;
+        :User bisa ganti periode;
+    }
+fork again
+    partition "Halaman Galeri Prestasi (/prestasi)" {
+        :Request ke /prestasi;
+        :Query prestasi yang published;
+        :Display grid kartu prestasi;
+        :User klik prestasi;
+        :Request ke /prestasi/{id};
+        :Display detail prestasi:;
+        :- Foto;
+        :- Judul;
+        :- Deskripsi;
+        :- Tanggal;
+        :- Tingkat;
+    }
+fork again
+    partition "Halaman Galeri Kegiatan (/kegiatan)" {
+        :Request ke /kegiatan;
+        :Query kegiatan yang published;
+        :Display grid kartu kegiatan;
+        :User klik kegiatan;
+        :Request ke /kegiatan/{id};
+        :Display detail kegiatan:;
+        :- Foto-foto kegiatan;
+        :- Nama kegiatan;
+        :- Deskripsi;
+        :- Tanggal & Lokasi;
+    }
+fork again
+    partition "Pendaftaran Diklat (/diklat/register)" {
+        :Request ke /diklat/register;
+        :Display form pendaftaran;
+        :User isi form;
+        :Submit pendaftaran;
+        :Redirect ke /diklat/success;
+        :Display halaman konfirmasi;
+    }
+endfork
+
+stop
+
+@enduml

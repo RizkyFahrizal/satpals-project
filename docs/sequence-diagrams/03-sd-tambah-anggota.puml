@@ -1,0 +1,43 @@
+@startuml SD_Tambah_Anggota
+title Sequence Diagram - Proses Tambah Anggota
+
+actor "Admin" as admin
+participant "Browser" as browser
+participant "MemberController" as controller
+participant "Member Model" as model
+database "Database" as db
+
+admin -> browser : Klik tombol "Tambah Anggota"
+browser -> controller : GET /admin/members/create
+controller --> browser : Return view form tambah anggota
+
+admin -> browser : Isi form:\n- Nama Lengkap\n- NIM\n- Email\n- Nomor Telepon\n- Program Studi\n- Tahun Masuk
+admin -> browser : Klik Submit
+browser -> controller : POST /admin/members\n(data anggota)
+
+controller -> controller : Validasi input\n(required, format, max length)
+
+alt Validasi Gagal
+    controller --> browser : Redirect back\nwith errors & old input
+    browser --> admin : Tampil pesan error\npada field terkait
+else Validasi Berhasil
+    controller -> model : where('nim', $nim)->exists()
+    model -> db : SELECT COUNT(*) FROM members\nWHERE nim = ?
+    db --> model : Return count
+
+    alt NIM Sudah Ada
+        model --> controller : Return true
+        controller --> browser : Redirect back\nwith error "NIM sudah terdaftar"
+        browser --> admin : Tampil pesan error NIM duplikat
+    else NIM Belum Ada
+        model --> controller : Return false
+        controller -> model : Member::create(data)
+        model -> db : INSERT INTO members\n(nama, nim, email, ...)
+        db --> model : Return new member
+        model --> controller : Return member object
+        controller --> browser : Redirect /admin/members\nwith success message
+        browser --> admin : Tampil daftar anggota\n& pesan "Anggota berhasil ditambahkan"
+    end
+end
+
+@enduml

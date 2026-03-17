@@ -1,0 +1,45 @@
+@startuml Tambah_Arsip_Surat
+title Activity Diagram - Proses Tambah Arsip Surat
+
+start
+:Admin akses menu Arsip Surat;
+:View daftar arsip surat;
+:Admin klik tombol "Tambah Arsip Surat";
+:Buka form tambah arsip;
+
+:Input nama surat;
+:Input nomor surat (optional);
+:Pilih jenis surat (Masuk/Keluar);
+
+if (Jenis Surat) then (Masuk)
+    :Input nama pengirim;
+else (Keluar)
+    :Input nama penerima;
+endif
+
+:Input tanggal surat;
+:Input perihal surat;
+:Upload file surat (PDF/Word/Excel);
+:Input keterangan (optional);
+
+:Submit form;
+
+if (Validasi data) then (Valid)
+    :Check format & ukuran file;
+    if (File valid) then (Ya)
+        :Store file ke storage/letter-archives/;
+        :Simpan metadata arsip ke database;
+        :Extract file information;
+        :Redirect ke halaman daftar arsip;
+        :Display success message;
+        stop
+    else (Tidak)
+        :Display error format/ukuran file;
+        stop
+    endif
+else (Invalid)
+    :Display error message;
+    stop
+endif
+
+@enduml

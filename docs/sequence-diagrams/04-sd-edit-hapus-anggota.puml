@@ -1,0 +1,58 @@
+@startuml SD_Edit_Hapus_Anggota
+title Sequence Diagram - Proses Edit & Hapus Anggota
+
+actor "Admin" as admin
+participant "Browser" as browser
+participant "MemberController" as controller
+participant "Member Model" as model
+database "Database" as db
+
+== Edit Anggota ==
+
+admin -> browser : Klik tombol "Edit" pada anggota
+browser -> controller : GET /admin/members/{id}/edit
+controller -> model : Member::findOrFail(id)
+model -> db : SELECT * FROM members WHERE id = ?
+db --> model : Return member data
+model --> controller : Return member object
+controller --> browser : Return view form edit\n(terisi data saat ini)
+
+admin -> browser : Ubah data yang diinginkan
+admin -> browser : Klik Submit
+browser -> controller : PUT /admin/members/{id}\n(data baru)
+
+controller -> controller : Validasi input
+
+alt Validasi Gagal
+    controller --> browser : Redirect back with errors
+    browser --> admin : Tampil pesan error
+else Validasi Berhasil
+    controller -> model : $member->update(data)
+    model -> db : UPDATE members SET ... WHERE id = ?
+    db --> model : Return updated
+    controller --> browser : Redirect /admin/members\nwith success message
+    browser --> admin : Tampil daftar anggota\n& pesan berhasil
+end
+
+== Hapus Anggota ==
+
+admin -> browser : Klik tombol "Hapus" pada anggota
+browser --> admin : Tampil dialog konfirmasi
+
+alt Admin Konfirmasi Hapus
+    admin -> browser : Klik "Ya, Hapus"
+    browser -> controller : DELETE /admin/members/{id}
+    controller -> model : Member::findOrFail(id)
+    model -> db : SELECT * FROM members WHERE id = ?
+    db --> model : Return member
+    controller -> model : $member->delete()
+    model -> db : DELETE FROM members WHERE id = ?
+    db --> model : Return success
+    controller --> browser : Redirect /admin/members\nwith success message
+    browser --> admin : Tampil daftar anggota\n& pesan "Anggota berhasil dihapus"
+else Admin Batal
+    admin -> browser : Klik "Batal"
+    browser --> admin : Tutup dialog\nkembali ke halaman
+end
+
+@enduml

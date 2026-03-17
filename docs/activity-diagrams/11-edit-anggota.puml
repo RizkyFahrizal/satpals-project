@@ -1,0 +1,40 @@
+@startuml Edit_Anggota
+title Activity Diagram - Proses Edit Data Anggota
+
+start
+:Admin akses halaman detail / daftar anggota;
+:Admin klik tombol "Edit";
+:Load form edit dengan data anggota saat ini;
+:Display semua field terisi:;
+:- Nama Lengkap;
+:- NIM;
+:- Email;
+:- Nomor Telepon;
+:- Program Studi;
+:- Tahun Masuk;
+:- Angkatan;
+
+:Admin ubah field yang diinginkan;
+:Submit form;
+
+:Server validasi input;
+if (Validasi) then (Valid)
+    :Check NIM conflict (jika NIM diubah);
+    if (NIM conflict) then (Ya)
+        :Display error "NIM sudah digunakan";
+        :Return ke form dengan pesan error;
+        stop
+    else (Tidak)
+        :Update record di database;
+        :Simpan perubahan data;
+        :Redirect ke halaman daftar anggota;
+        :Display success message;
+        stop
+    endif
+else (Invalid)
+    :Display error message per field;
+    :Return ke form dengan data lama;
+    stop
+endif
+
+@enduml

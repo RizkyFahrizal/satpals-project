@@ -1,0 +1,75 @@
+@startuml Lihat_Struktur_Pengurus
+title Activity Diagram - Proses Lihat Struktur Pengurus (Public)
+
+start
+:User buka menu Struktur;
+:Request ke endpoint /struktur;
+
+:Check periode parameter (optional);
+if (Ada periode) then (Ya)
+    :Set selected periode;
+else (Tidak)
+    :Use periode terbaru;
+endif
+
+:Query database untuk data pengurus;
+:dengan periode yang dipilih;
+
+:Group data by jabatan;
+
+:Fetch semua board members:;
+:(ketua_umum, wakil_ketua_umum, sekretaris, bendahara, mpa);
+
+:Fetch semua subsie members:;
+:(subsie_band, subsie_peralatan, subsie_humas, subsie_pdd, subsie_kesekretariatan);
+
+:Render halaman struktur;
+
+partition "Section BPH (Badan Pengurus Harian)" {
+    :Display title & badge;
+    repeat
+        :Display card with:;
+        :- Foto (w-40 h-48);
+        :- Gradient yellow-orange;
+        :- Nama lengkap;
+        :- Jabatan label;
+        :- Program studi;
+        :- Hover effect;
+    repeat while (Masih ada BPH member?) is (Ya)
+    ->Tidak;
+}
+
+partition "Section Subsie" {
+    repeat
+        :Display subsie header dengan:;
+        :- Icon subsie;
+        :- Nama subsie;
+        :- Jumlah anggota;
+        :- Gradient color per subsie;
+        repeat
+            :Display card with:;
+            :- Foto (w-40 h-48);
+            :- Gradient color sesuai subsie;
+            :- Nama lengkap;
+            :- Program studi;
+            :Max 5 kartu per baris;
+            :Centered alignment;
+        repeat while (Masih ada member dalam subsie?) is (Ya)
+        ->Tidak;
+    repeat while (Masih ada subsie?) is (Ya)
+    ->Tidak;
+}
+
+:Display periode selector dropdown;
+
+:User bisa change periode;
+if (Change periode) then (Ya)
+    :Reload halaman dengan periode baru;
+    :Repeat proses fetch & render;
+else (Tidak)
+    :Stay di halaman saat ini;
+endif
+
+stop
+
+@enduml

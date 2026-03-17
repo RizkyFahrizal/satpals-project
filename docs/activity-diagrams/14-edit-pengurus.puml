@@ -1,0 +1,52 @@
+@startuml Edit_Pengurus
+title Activity Diagram - Proses Edit Data Pengurus
+
+start
+:Admin akses menu Struktur Pengurus;
+:Admin klik tombol "Edit" pada kartu pengurus;
+:Load modal edit dengan data pengurus saat ini;
+:Display form terisi:;
+:- Member terpilih;
+:- Jabatan;
+:- Periode;
+:- Foto saat ini (jika ada);
+
+:Admin ubah field yang diinginkan;
+
+if (Ganti foto) then (Ya)
+    :Pilih foto baru;
+    :Preview foto;
+    
+    if (Centang hapus foto lama) then (Ya)
+        :Mark foto lama untuk dihapus;
+    else (Tidak)
+        :Replace foto lama dengan baru;
+    endif
+else (Tidak)
+    :Pertahankan foto saat ini;
+endif
+
+:Submit form;
+
+:Server validasi input;
+if (Validasi) then (Valid)
+    :Update data pengurus di database;
+    if (Ada foto baru) then (Ya)
+        :Delete foto lama dari storage;
+        :Store foto baru ke storage/board-members/;
+        :Update file_path di database;
+    endif
+    if (Hapus foto dicentang) then (Ya)
+        :Delete foto dari storage;
+        :Set foto = null di database;
+    endif
+    :Close modal;
+    :Refresh board list;
+    :Display success message;
+    stop
+else (Invalid)
+    :Display error message;
+    stop
+endif
+
+@enduml

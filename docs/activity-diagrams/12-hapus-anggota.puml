@@ -1,0 +1,27 @@
+@startuml Hapus_Anggota
+title Activity Diagram - Proses Hapus Data Anggota
+
+start
+:Admin klik tombol "Hapus" pada anggota;
+:Tampil dialog konfirmasi;
+:Display pesan "Yakin ingin menghapus anggota ini?";
+
+if (Konfirmasi) then (Ya / Hapus)
+    :Check relasi anggota ke data lain;
+    if (Anggota menjadi pengurus aktif) then (Ya)
+        :Display error "Anggota masih menjadi pengurus aktif";
+        :Cancel proses;
+        stop
+    else (Tidak)
+        :Delete record anggota dari database;
+        :Redirect ke halaman daftar anggota;
+        :Display success message "Anggota berhasil dihapus";
+        stop
+    endif
+else (Tidak / Batal)
+    :Tutup dialog;
+    :Kembali ke halaman sebelumnya;
+    stop
+endif
+
+@enduml

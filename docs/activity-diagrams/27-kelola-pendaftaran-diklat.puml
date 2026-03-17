@@ -1,0 +1,74 @@
+@startuml Kelola_Pendaftaran_Diklat
+title Activity Diagram - Proses Kelola Pendaftaran Diklat
+
+start
+:Admin akses menu Pendaftaran Diklat;
+:Request ke /admin/diklat;
+:Load daftar pendaftaran;
+
+partition "Opsi Filter" {
+    :Search berdasarkan nama / NIM;
+    :Filter berdasarkan status;
+    :(pending / accepted / rejected);
+    :Filter berdasarkan tahun;
+    :Klik Filter;
+}
+
+:Query & tampilkan daftar pendaftaran;
+:Tampilkan stats: total, pending, diterima, ditolak;
+
+:Admin pilih aksi:;
+
+fork
+    partition "Lihat Detail Pendaftar" {
+        :Klik "Lihat" pada baris pendaftar;
+        :Load halaman detail pendaftar;
+        :Tampilkan semua data pendaftar:;
+        :- Nama lengkap;
+        :- NIM;
+        :- Email;
+        :- Nomor telepon;
+        :- Program studi;
+        :- Tanggal daftar;
+        :- Status saat ini;
+    }
+fork again
+    partition "Terima Pendaftaran" {
+        :Klik "Terima" pada pendaftar;
+        :Tampil konfirmasi;
+        if (Konfirmasi) then (Ya)
+            :Update status = accepted;
+            :Simpan ke database;
+            :Display success "Pendaftar diterima";
+        else (Batal)
+            :Tutup dialog;
+        endif
+    }
+fork again
+    partition "Tolak Pendaftaran" {
+        :Klik "Tolak" pada pendaftar;
+        :Tampil konfirmasi;
+        if (Konfirmasi) then (Ya)
+            :Update status = rejected;
+            :Simpan ke database;
+            :Display success "Pendaftar ditolak";
+        else (Batal)
+            :Tutup dialog;
+        endif
+    }
+fork again
+    partition "Hapus Pendaftaran" {
+        :Klik "Hapus";
+        :Tampil konfirmasi;
+        if (Konfirmasi) then (Ya)
+            :Delete record dari database;
+            :Display success;
+        else (Batal)
+            :Tutup dialog;
+        endif
+    }
+endfork
+
+stop
+
+@enduml

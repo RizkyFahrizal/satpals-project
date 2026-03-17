@@ -1,0 +1,23 @@
+@startuml Hapus_Pengurus
+title Activity Diagram - Proses Hapus Pengurus
+
+start
+:Admin klik tombol "Hapus" pada kartu pengurus;
+:Tampil dialog konfirmasi;
+
+if (Konfirmasi) then (Ya / Hapus)
+    :Check apakah pengurus punya foto;
+    if (Ada foto) then (Ya)
+        :Delete foto dari storage/board-members/;
+    endif
+    :Delete record dari tabel board_members;
+    :Redirect ke halaman struktur pengurus;
+    :Display success message;
+    stop
+else (Tidak / Batal)
+    :Tutup dialog;
+    :Kembali ke halaman;
+    stop
+endif
+
+@enduml

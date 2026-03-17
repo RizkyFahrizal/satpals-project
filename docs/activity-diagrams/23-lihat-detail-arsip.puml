@@ -1,0 +1,50 @@
+@startuml Lihat_Detail_Arsip_Surat
+title Activity Diagram - Proses Lihat Detail Arsip Surat
+
+start
+:Admin klik tombol "Lihat" pada arsip surat;
+:Request ke /admin/letters/{id};
+:Query database untuk data arsip;
+
+if (Data ditemukan) then (Ya)
+    :Load halaman detail arsip;
+    :Display informasi lengkap:;
+    :- Icon file;
+    :- Badge jenis (Masuk/Keluar);
+    :- Nama surat;
+    :- Perihal;
+    :- Tanggal surat;
+    :- Nomor surat;
+    :- Pengirim (jika surat masuk);
+    :- Penerima (jika surat keluar);
+    :- Ukuran file;
+    :- Tanggal diarsipkan;
+    :- Keterangan;
+    
+    :Check tipe file;
+    if (Tipe file = PDF) then (Ya)
+        :Render iframe PDF viewer;
+        :Admin bisa baca dokumen langsung;
+    else (Word / Excel)
+        :Display pesan "Preview tidak tersedia";
+        :Tampil info cara membuka file;
+    endif
+    
+    :Tampilkan tombol aksi:;
+    fork
+        :Klik Download;
+        :Download file;
+    fork again
+        :Klik Buka di Tab Baru (khusus PDF);
+        :Buka PDF di tab baru;
+    fork again
+        :Klik Hapus;
+        :Tampil konfirmasi hapus;
+    endfork
+    stop
+else (Tidak ditemukan)
+    :Display 404 not found;
+    stop
+endif
+
+@enduml

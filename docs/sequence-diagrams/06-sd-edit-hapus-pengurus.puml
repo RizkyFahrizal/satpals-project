@@ -1,0 +1,73 @@
+@startuml SD_Edit_Hapus_Pengurus
+title Sequence Diagram - Proses Edit & Hapus Pengurus
+
+actor "Admin" as admin
+participant "Browser" as browser
+participant "BoardMemberController" as controller
+participant "BoardMember Model" as boardModel
+participant "Storage" as storage
+database "Database" as db
+
+== Edit Pengurus ==
+
+admin -> browser : Klik tombol "Edit" pada kartu pengurus
+browser --> admin : Tampil modal form edit\n(terisi data saat ini)
+
+admin -> browser : Ubah data / ganti foto
+admin -> browser : Klik Submit
+browser -> controller : PUT /admin/board/{id}\n(data update + foto baru optional)
+
+controller -> controller : Validasi input
+
+alt Validasi Gagal
+    controller --> browser : Redirect back with errors
+    browser --> admin : Tampil pesan error
+else Validasi Berhasil
+    alt Ada foto baru diupload
+        controller -> storage : Hapus foto lama\n(Storage::delete(old_path))
+        storage --> controller : OK
+        controller -> storage : Store foto baru\n(board-members/)
+        storage --> controller : Return new path
+    end
+    
+    alt Checkbox hapus foto dicentang
+        controller -> storage : Storage::delete(foto_path)
+        storage --> controller : OK
+        controller -> controller : Set foto = null
+    end
+
+    controller -> boardModel : $boardMember->update(data)
+    boardModel -> db : UPDATE board_members\nSET ... WHERE id = ?
+    db --> boardModel : Return updated
+    controller --> browser : Redirect /admin/board\nwith success message
+    browser --> admin : Tampil halaman pengurus\n& pesan berhasil
+end
+
+== Hapus Pengurus ==
+
+admin -> browser : Klik tombol "Hapus" pada kartu pengurus
+browser --> admin : Tampil dialog konfirmasi
+
+alt Admin Konfirmasi
+    admin -> browser : Klik "Ya, Hapus"
+    browser -> controller : DELETE /admin/board/{id}
+    controller -> boardModel : BoardMember::findOrFail(id)
+    boardModel -> db : SELECT * FROM board_members WHERE id = ?
+    db --> boardModel : Return data
+
+    alt Ada foto
+        controller -> storage : Storage::disk('public')\n->delete(foto_path)
+        storage --> controller : OK
+    end
+
+    controller -> boardModel : $boardMember->delete()
+    boardModel -> db : DELETE FROM board_members WHERE id = ?
+    db --> boardModel : OK
+    controller --> browser : Redirect /admin/board\nwith success message
+    browser --> admin : Tampil halaman\n& pesan "Pengurus berhasil dihapus"
+else Admin Batal
+    admin -> browser : Klik "Batal"
+    browser --> admin : Tutup dialog
+end
+
+@enduml

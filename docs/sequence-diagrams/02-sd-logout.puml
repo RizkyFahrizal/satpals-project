@@ -1,0 +1,16 @@
+@startuml SD_Logout
+title Sequence Diagram - Proses Logout
+
+actor "User" as user
+participant "Browser" as browser
+participant "AuthController" as controller
+
+user -> browser : Klik tombol Logout
+browser -> controller : POST /logout\n(with CSRF token)
+controller -> controller : Auth::logout()
+controller -> controller : Invalidate session
+controller -> controller : Regenerate CSRF token
+controller --> browser : Redirect /login
+browser --> user : Tampil halaman Login
+
+@enduml

@@ -1,0 +1,39 @@
+@startuml Download_Hapus_Arsip
+title Activity Diagram - Proses Download & Hapus Arsip Surat
+
+start
+:Admin pada halaman daftar / detail arsip surat;
+
+fork
+    partition "Download Arsip" {
+        :Admin klik tombol "Download";
+        :Request ke /admin/letters/{id}/download;
+        :Check file di storage;
+        if (File ada) then (Ya)
+            :Stream file ke browser;
+            :File terdownload ke device;
+        else (Tidak)
+            :Display error "File tidak ditemukan";
+        endif
+    }
+fork again
+    partition "Hapus Arsip" {
+        :Admin klik tombol "Hapus";
+        :Tampil dialog konfirmasi;
+        if (Konfirmasi Hapus) then (Ya)
+            :Check file di storage;
+            if (File ada) then (Ya)
+                :Delete file dari storage/letter-archives/;
+            endif
+            :Delete record dari tabel letter_archives;
+            :Redirect ke daftar arsip;
+            :Display success message;
+        else (Batal)
+            :Tutup dialog;
+        endif
+    }
+endfork
+
+stop
+
+@enduml

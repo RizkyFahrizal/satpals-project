@@ -1,0 +1,24 @@
+@startuml Toggle_Status_Pengurus
+title Activity Diagram - Proses Toggle Status Pengurus
+
+start
+:Admin pada halaman Struktur Pengurus;
+:Admin klik tombol toggle status pengurus;
+:System ambil status saat ini dari database;
+
+if (Status saat ini) then (Active)
+    :Set status = inactive;
+    :Sembunyikan pengurus dari tampilan public;
+    :Update badge menjadi "Tidak Aktif";
+else (Inactive)
+    :Set status = active;
+    :Tampilkan pengurus di halaman public;
+    :Update badge menjadi "Aktif";
+endif
+
+:Simpan perubahan status ke database;
+:Display success message;
+:Refresh tampilan card pengurus;
+stop
+
+@enduml

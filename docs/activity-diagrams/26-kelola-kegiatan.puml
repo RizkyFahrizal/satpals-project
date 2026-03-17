@@ -1,0 +1,85 @@
+@startuml Kelola_Kegiatan
+title Activity Diagram - Proses Kelola Galeri Kegiatan
+
+start
+:Admin akses menu Galeri Kegiatan;
+:Request ke /admin/activities;
+:Load daftar kegiatan;
+
+partition "Opsi Filter" {
+    :Search berdasarkan nama kegiatan;
+    :Filter berdasarkan status publish;
+    :Filter berdasarkan tahun;
+    :Klik Filter;
+}
+
+:Query & tampilkan daftar kegiatan;
+
+:Admin pilih aksi:;
+
+fork
+    partition "Tambah Kegiatan Baru" {
+        :Klik "Tambah Kegiatan";
+        :Buka form create;
+        :Input nama kegiatan;
+        :Input deskripsi;
+        :Input tanggal kegiatan;
+        :Input lokasi;
+        :Upload multiple foto;
+        :Submit form;
+        if (Validasi valid) then (Ya)
+            :Simpan data kegiatan ke database;
+            :Store semua foto ke storage;
+            :Display success;
+        else (Tidak)
+            :Display error;
+        endif
+    }
+fork again
+    partition "Edit Kegiatan" {
+        :Klik "Edit" pada kegiatan;
+        :Load form dengan data saat ini;
+        :Tampil foto-foto existing;
+        :Admin bisa tambah/hapus foto;
+        :Ubah data kegiatan;
+        :Submit form update;
+        if (Validasi valid) then (Ya)
+            :Update record di database;
+            :Proses foto yang dihapus;
+            :Store foto baru;
+            :Display success;
+        else (Tidak)
+            :Display error;
+        endif
+    }
+fork again
+    partition "Toggle Publish" {
+        :Klik tombol toggle publish;
+        :Baca status saat ini;
+        if (Published) then (Ya)
+            :Set is_published = false;
+            :Sembunyikan dari halaman publik;
+        else (Tidak)
+            :Set is_published = true;
+            :Tampilkan di halaman publik;
+        endif
+        :Update database;
+        :Display success;
+    }
+fork again
+    partition "Hapus Kegiatan" {
+        :Klik "Hapus";
+        :Tampil konfirmasi;
+        if (Konfirmasi) then (Ya)
+            :Delete semua foto dari storage;
+            :Delete record dari database;
+            :Display success;
+        else (Batal)
+            :Tutup dialog;
+        endif
+    }
+endfork
+
+stop
+
+@enduml

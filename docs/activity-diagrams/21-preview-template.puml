@@ -1,0 +1,34 @@
+@startuml Preview_Template_Surat
+title Activity Diagram - Proses Preview Template Surat
+
+start
+:Admin klik tombol "Preview" pada template;
+:Request ke /admin/templates/{id}/preview;
+:Check apakah file ada di storage;
+
+if (File ada) then (Ya)
+    :Check tipe file;
+    if (Tipe file = PDF) then (Ya)
+        :Return file response dengan MIME application/pdf;
+        :Browser buka PDF viewer inline;
+        :Admin bisa scroll dan baca dokumen;
+        stop
+    else (Word / Excel)
+        :Load halaman preview info;
+        :Display informasi file:;
+        :- Nama template;
+        :- Kategori;
+        :- Nama file & tipe;
+        :- Ukuran file;
+        :- Tanggal upload;
+        :Display pesan "Preview tidak tersedia";
+        :Tampilkan tombol Download;
+        stop
+    endif
+else (Tidak)
+    :Display error "File tidak ditemukan";
+    :Redirect back;
+    stop
+endif
+
+@enduml

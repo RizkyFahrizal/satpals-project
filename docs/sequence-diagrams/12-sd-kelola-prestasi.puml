@@ -1,0 +1,65 @@
+@startuml SD_Kelola_Prestasi
+title Sequence Diagram - Proses Kelola Galeri Prestasi
+
+actor "Admin" as admin
+participant "Browser" as browser
+participant "AchievementController" as controller
+participant "Achievement Model" as model
+participant "Storage" as storage
+database "Database" as db
+
+== Tambah Prestasi ==
+
+admin -> browser : Klik "Tambah Prestasi"
+browser -> controller : GET /admin/achievements/create
+controller --> browser : Return view form create
+admin -> browser : Isi form:\n- Judul, deskripsi, tanggal\n- Tingkat, upload foto
+browser -> controller : POST /admin/achievements
+controller -> controller : Validasi input
+alt Valid
+    controller -> storage : Store foto
+    storage --> controller : Return path
+    controller -> model : Achievement::create(data)
+    model -> db : INSERT INTO achievements
+    db --> model : OK
+    controller --> browser : Redirect with success
+    browser --> admin : Tampil pesan berhasil
+else Invalid
+    controller --> browser : Redirect back with errors
+    browser --> admin : Tampil error di form
+end
+
+== Toggle Publish ==
+
+admin -> browser : Klik toggle publish
+browser -> controller : PATCH /admin/achievements/{id}/toggle-publish
+controller -> model : Achievement::findOrFail(id)
+model -> db : SELECT * WHERE id = ?
+db --> model : Return achievement
+controller -> model : Toggle is_published
+model -> db : UPDATE achievements\nSET is_published = !is_published WHERE id = ?
+db --> model : OK
+controller --> browser : Redirect with success
+browser --> admin : Badge publish terupdate
+
+== Hapus Prestasi ==
+
+admin -> browser : Klik "Hapus"
+browser --> admin : Tampil konfirmasi
+alt Konfirmasi
+    browser -> controller : DELETE /admin/achievements/{id}
+    controller -> model : Achievement::findOrFail(id)
+    model -> db : SELECT * WHERE id = ?
+    db --> model : Return achievement
+    controller -> storage : Hapus foto dari storage
+    storage --> controller : OK
+    controller -> model : $achievement->delete()
+    model -> db : DELETE WHERE id = ?
+    db --> model : OK
+    controller --> browser : Redirect with success
+    browser --> admin : Tampil pesan "Prestasi berhasil dihapus"
+else Batal
+    browser --> admin : Tutup dialog
+end
+
+@enduml

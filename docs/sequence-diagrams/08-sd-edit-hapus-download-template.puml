@@ -1,0 +1,77 @@
+@startuml SD_Edit_Hapus_Download_Template
+title Sequence Diagram - Proses Edit, Hapus & Download Template Surat
+
+actor "Admin" as admin
+participant "Browser" as browser
+participant "DocumentTemplateController" as controller
+participant "DocumentTemplate Model" as model
+participant "Storage" as storage
+database "Database" as db
+
+== Edit Template ==
+
+admin -> browser : Klik tombol "Edit" pada template
+browser --> admin : Tampil modal edit\n(terisi data saat ini)
+admin -> browser : Ubah nama / kategori / deskripsi\natau pilih file baru (opsional)
+browser -> controller : PUT /admin/templates/{id}
+
+controller -> controller : Validasi input
+alt Ada file baru
+    controller -> storage : Delete file lama
+    storage --> controller : OK
+    controller -> storage : Store file baru\n(document-templates/)
+    storage --> controller : Return new path
+    controller -> model : $template->update(data + new file info)
+else Tidak ada file baru
+    controller -> model : $template->update(data saja)
+end
+model -> db : UPDATE document_templates\nSET ... WHERE id = ?
+db --> model : OK
+controller --> browser : Redirect with success
+browser --> admin : Tampil pesan berhasil
+
+== Download Template ==
+
+admin -> browser : Klik tombol "Download"
+browser -> controller : GET /admin/templates/{id}/download
+controller -> model : DocumentTemplate::findOrFail(id)
+model -> db : SELECT * WHERE id = ?
+db --> model : Return template
+controller -> storage : Storage::disk('public')\n->exists(file_path)
+
+alt File Ada
+    storage --> controller : true
+    controller -> storage : Storage::disk('public')\n->download(file_path, file_name)
+    storage --> browser : Stream file response
+    browser --> admin : File terdownload ke device
+else File Tidak Ada
+    storage --> controller : false
+    controller --> browser : Redirect back\nwith error "File tidak ditemukan"
+    browser --> admin : Tampil pesan error
+end
+
+== Hapus Template ==
+
+admin -> browser : Klik tombol "Hapus"
+browser --> admin : Tampil dialog konfirmasi
+
+alt Konfirmasi Hapus
+    browser -> controller : DELETE /admin/templates/{id}
+    controller -> model : DocumentTemplate::findOrFail(id)
+    model -> db : SELECT * WHERE id = ?
+    db --> model : Return template
+    controller -> storage : Storage::disk('public')\n->exists(file_path)
+    alt File Ada
+        controller -> storage : Storage::disk('public')\n->delete(file_path)
+        storage --> controller : OK
+    end
+    controller -> model : $template->delete()
+    model -> db : DELETE FROM document_templates WHERE id = ?
+    db --> model : OK
+    controller --> browser : Redirect with success
+    browser --> admin : Tampil daftar template\n& pesan "Template berhasil dihapus"
+else Batal
+    browser --> admin : Tutup dialog
+end
+
+@enduml
