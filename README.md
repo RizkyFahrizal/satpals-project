@@ -146,36 +146,6 @@ Password: password
 
 ---
 
-## 📁 Struktur Project
-
-```
-satpals-project/
-├── app/
-│   ├── Http/Controllers/
-│   │   ├── Admin/              # Admin controllers
-│   │   └── Web/                # Public controllers
-│   ├── Models/                 # Eloquent models
-│   └── ...
-├── database/
-│   ├── migrations/             # Database migrations
-│   └── seeders/                # Database seeders
-├── resources/
-│   ├── views/
-│   │   ├── admin/              # Admin views
-│   │   ├── web/                # Public views
-│   │   └── layouts/            # Layout templates
-│   ├── css/                    # Tailwind CSS
-│   └── js/                     # JavaScript
-├── routes/
-│   └── web.php                 # All routes
-├── docs/
-│   ├── activity-diagrams/      # PlantUML activity diagrams
-│   └── sequence-diagrams/      # PlantUML sequence diagrams
-└── ...
-```
-
----
-
 ## 🎨 Tech Stack
 
 | Technology | Version | Purpose |
@@ -245,7 +215,7 @@ Project ini dilisensikan di bawah lisensi MIT. Lihat file [LICENSE](LICENSE) unt
 
 **Rizky Fahrizal**
 - GitHub: [@RizkyFahrizal](https://github.com/RizkyFahrizal)
-- Project: Skripsi S1 Informatika
+- Project: Skripsi S1 Sistem Informasi
 - Institusi: UPN Veteran Jawa Timur
 
 ---
