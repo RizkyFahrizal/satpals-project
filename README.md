@@ -1,53 +1,264 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# 🎸 SATPALS - Satya Palapa Organization Management System
 
 <p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
+  <strong>Sistem Manajemen Organisasi UKM Satya Palapa</strong><br>
+  <em>Kelompok Kesenian UPN Veteran Jawa Timur</em>
 </p>
 
-## About Laravel
+<p align="center">
+  <a href="https://github.com/RizkyFahrizal/satpals-project"><img src="https://img.shields.io/badge/Laravel-11.x-FF2D20?style=for-the-badge&logo=laravel" alt="Laravel"></a>
+  <a href="#"><img src="https://img.shields.io/badge/PHP-8.2+-777BB4?style=for-the-badge&logo=php" alt="PHP"></a>
+  <a href="#"><img src="https://img.shields.io/badge/Tailwind-3.x-06B6D4?style=for-the-badge&logo=tailwindcss" alt="Tailwind CSS"></a>
+  <a href="#"><img src="https://img.shields.io/badge/MySQL-8.0+-4479A1?style=for-the-badge&logo=mysql" alt="MySQL"></a>
+</p>
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+---
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## 📖 Tentang SATPALS
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+**SATPALS** adalah aplikasi web manajemen organisasi yang dirancang khusus untuk kelompok kesenian **Satya Palapa** di UPN Veteran Jawa Timur. Aplikasi ini membantu mengelola berbagai aspek organisasi dengan antarmuka yang user-friendly dan fitur-fitur yang komprehensif.
 
-## Learning Laravel
+### ✨ Fitur Utama
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+#### 👥 **Manajemen Struktur Pengurus**
+- Kelola struktur organisasi (BPH & Subsie)
+- Kelola periode organisasi
+- Tampilkan anggota dengan informasi lengkap (foto, nama, jabatan, prodi)
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+#### 📄 **Kelola Template Surat**
+- Upload template surat (PDF, Word, Excel)
+- Kategori template (Surat, RAB, Proposal, LPJ, Lainnya)
+- Preview dan download template
+- Pencarian & filter berdasarkan kategori
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 2000 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+#### 📮 **Arsip Surat Masuk/Keluar**
+- Catat surat masuk dan keluar
+- Filter berdasarkan jenis, tahun, dan bulan
+- Tracking nomor surat, pengirim, penerima, perihal
+- Preview dan download dokumen
+- Statistik surat masuk/keluar
 
-## Laravel Sponsors
+#### 📚 **Kelola Diklat (Training)**
+- Daftar peserta diklat (public form)
+- Kelola data peserta (admin panel)
+- Filter peserta berdasarkan periode
+- Export data peserta
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+#### 🏆 **Prestasi & Kegiatan**
+- Dokumentasi prestasi organisasi
+- Kelola kegiatan/event
+- Timeline aktivitas
+- Galeri foto kegiatan
 
-### Premium Partners
+#### 💰 **Manajemen Keuangan** *(coming soon)*
+- Pencatatan pemasukan/pengeluaran
+- Kategorisasi transaksi
+- Laporan keuangan
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[OP.GG](https://op.gg)**
-- **[WebReinvent](https://webreinvent.com/?utm_source=laravel&utm_medium=github&utm_campaign=patreon-sponsors)**
-- **[Lendio](https://lendio.com)**
+#### 🎷 **Persewaan Alat & Band** *(coming soon)*
+- Kelola alat musik
+- Booking/peminjaman alat
+- Kelola paket band
+
+#### 🎬 **Booking Studio** *(coming soon)*
+- Reservasi studio recording
+- Manajemen jadwal slot
+
+---
+
+## 🚀 Quick Start
+
+### Prerequisites
+- PHP 8.2 atau lebih tinggi
+- Composer
+- Node.js & NPM
+- MySQL 8.0 atau lebih tinggi
+- Git
+
+### 1️⃣ Clone Repository
+
+```bash
+git clone https://github.com/RizkyFahrizal/satpals-project.git
+cd satpals-project
+```
+
+### 2️⃣ Install Dependencies
+
+```bash
+# Install PHP dependencies
+composer install
+
+# Install Node.js dependencies
+npm install
+```
+
+### 3️⃣ Setup Environment
+
+```bash
+# Copy environment file
+cp .env.example .env
+
+# Generate application key
+php artisan key:generate
+
+# Compile assets
+npm run build
+```
+
+### 4️⃣ Database Setup
+
+```bash
+# Buat database MySQL bernama 'satpals'
+# Update file .env dengan credential database kamu
+
+# Run migrations
+php artisan migrate
+
+# (Optional) Seed data dummy
+php artisan db:seed
+```
+
+### 5️⃣ Jalankan Aplikasi
+
+```bash
+# Start development server
+php artisan serve
+
+# Di terminal lain, compile assets (watch mode)
+npm run dev
+```
+
+Aplikasi akan berjalan di `http://localhost:8000`
+
+---
+
+## 🔐 Default Credentials (Setelah Seeding)
+
+```
+Super Admin:
+Email: admin@satpals.com
+Password: password
+
+Pengurus:
+Email: pengurus@satpals.com
+Password: password
+```
+
+---
+
+## 📁 Struktur Project
+
+```
+satpals-project/
+├── app/
+│   ├── Http/Controllers/
+│   │   ├── Admin/              # Admin controllers
+│   │   └── Web/                # Public controllers
+│   ├── Models/                 # Eloquent models
+│   └── ...
+├── database/
+│   ├── migrations/             # Database migrations
+│   └── seeders/                # Database seeders
+├── resources/
+│   ├── views/
+│   │   ├── admin/              # Admin views
+│   │   ├── web/                # Public views
+│   │   └── layouts/            # Layout templates
+│   ├── css/                    # Tailwind CSS
+│   └── js/                     # JavaScript
+├── routes/
+│   └── web.php                 # All routes
+├── docs/
+│   ├── activity-diagrams/      # PlantUML activity diagrams
+│   └── sequence-diagrams/      # PlantUML sequence diagrams
+└── ...
+```
+
+---
+
+## 🎨 Tech Stack
+
+| Technology | Version | Purpose |
+|-----------|---------|---------|
+| **Laravel** | 11.x | Backend Framework |
+| **PHP** | 8.2+ | Programming Language |
+| **MySQL** | 8.0+ | Database |
+| **Tailwind CSS** | 3.x | Styling |
+| **DaisyUI** | 4.7+ | UI Components |
+| **Blade** | - | Templating Engine |
+| **Eloquent** | - | ORM |
+
+---
+
+## 📝 Development Guidelines
+
+### Adding Features
+
+1. Create migration: `php artisan make:model Feature -m`
+2. Define model in `app/Models/`
+3. Create controller: `php artisan make:controller Admin/FeatureController`
+4. Add routes in `routes/web.php`
+5. Create views in `resources/views/admin/features/`
+6. Run migrations: `php artisan migrate`
+
+### Running Tests
+
+```bash
+php artisan test
+```
+
+### Code Style
+
+Project menggunakan Laravel best practices:
+- PSR-12 for PHP code style
+- Blade templating conventions
+- RESTful routing principles
+
+---
+
+## 📚 Documentation
+
+- **Activity Diagrams**: `/docs/activity-diagrams/` - Deskripsi alur proses setiap fitur
+- **Sequence Diagrams**: `/docs/sequence-diagrams/` - Interaksi antar komponen sistem
+
+---
+
+## 🤝 Contributing
+
+Kontribusi sangat diterima! Untuk berkontribusi:
+
+1. Fork repository ini
+2. Buat branch fitur: `git checkout -b feature/AmazingFeature`
+3. Commit changes: `git commit -m 'Add AmazingFeature'`
+4. Push ke branch: `git push origin feature/AmazingFeature`
+5. Buka Pull Request
+
+---
+
+## 📄 License
+
+Project ini dilisensikan di bawah lisensi MIT. Lihat file [LICENSE](LICENSE) untuk detail lebih lanjut.
+
+---
+
+## 👨‍💻 Developer
+
+**Rizky Fahrizal**
+- GitHub: [@RizkyFahrizal](https://github.com/RizkyFahrizal)
+- Project: Skripsi S1 Informatika
+- Institusi: UPN Veteran Jawa Timur
+
+---
+
+## 💡 Support
+
+Jika ada pertanyaan atau issue, silakan buat [GitHub Issue](https://github.com/RizkyFahrizal/satpals-project/issues) atau hubungi developer.
+
+---
+
+<p align="center">
+  Made with ❤️ for Satya Palapa Organization
+</p>
 
 ## Contributing
 
