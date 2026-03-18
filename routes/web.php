@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\AchievementController;
 use App\Http\Controllers\Admin\ActivityController;
 use App\Http\Controllers\Admin\BoardMemberController;
 use App\Http\Controllers\Admin\DiklatRegistrationController;
+use App\Http\Controllers\Admin\DiklatPeriodController;
 use App\Http\Controllers\Admin\MemberController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DiklatController;
@@ -50,10 +51,20 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin.access'])->group(function () {
     Route::get('/', [AdminController::class, 'index'])->name('index');
     
+    // Diklat Periods Management
+    Route::get('/diklat/periods', [DiklatPeriodController::class, 'index'])->name('diklat.periods.index');
+    Route::get('/diklat/periods/create', [DiklatPeriodController::class, 'create'])->name('diklat.periods.create');
+    Route::post('/diklat/periods', [DiklatPeriodController::class, 'store'])->name('diklat.periods.store');
+    Route::get('/diklat/periods/{period}/edit', [DiklatPeriodController::class, 'edit'])->name('diklat.periods.edit');
+    Route::put('/diklat/periods/{period}', [DiklatPeriodController::class, 'update'])->name('diklat.periods.update');
+    Route::patch('/diklat/periods/{period}/toggle', [DiklatPeriodController::class, 'toggleOpen'])->name('diklat.periods.toggle');
+    Route::delete('/diklat/periods/{period}', [DiklatPeriodController::class, 'destroy'])->name('diklat.periods.destroy');
+    
     // Diklat Registration Management
     Route::get('/diklat', [DiklatRegistrationController::class, 'index'])->name('diklat.index');
     Route::get('/diklat/{registration}', [DiklatRegistrationController::class, 'show'])->name('diklat.show');
     Route::patch('/diklat/{registration}/status', [DiklatRegistrationController::class, 'updateStatus'])->name('diklat.update-status');
+    Route::post('/diklat/periods/{period}/accept-all', [DiklatRegistrationController::class, 'acceptAll'])->name('diklat.accept-all');
     Route::delete('/diklat/{registration}', [DiklatRegistrationController::class, 'destroy'])->name('diklat.destroy');
     
     // Member Management

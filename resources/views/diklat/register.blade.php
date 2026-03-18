@@ -31,8 +31,35 @@
                 <p class="text-gray-700">Lengkapi data berikut dengan benar</p>
             </div>
 
+            <!-- Status Alert -->
+            @if(!$isOpen)
+                <div class="bg-red-50 border-l-4 border-red-500 p-6 m-8 rounded-r-lg">
+                    <div class="flex items-start">
+                        <svg class="w-6 h-6 text-red-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4v.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <div class="ml-4">
+                            <h3 class="text-lg font-bold text-red-800">Pendaftaran Ditutup</h3>
+                            <p class="text-red-700 mt-1">Maaf, pendaftaran diklat sedang tidak dibuka. Silahkan hubungi pengurus untuk informasi lebih lanjut.</p>
+                        </div>
+                    </div>
+                </div>
+            @elseif($isOpen && $activePeriod)
+                <div class="bg-green-50 border-l-4 border-green-500 p-6 m-8 rounded-r-lg">
+                    <div class="flex items-start">
+                        <svg class="w-6 h-6 text-green-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m7 0a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <div class="ml-4">
+                            <h3 class="text-lg font-bold text-green-800">Pendaftaran Dibuka</h3>
+                            <p class="text-green-700 mt-1"><strong>Periode:</strong> {{ $activePeriod->nama_periode }} (Angkatan {{ $activePeriod->tahun_masuk }})</p>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
             <!-- Form Body -->
-            <form action="{{ route('diklat.store') }}" method="POST" enctype="multipart/form-data" class="p-8 space-y-6">
+            <form action="{{ route('diklat.store') }}" method="POST" enctype="multipart/form-data" class="p-8 space-y-6" {{ !$isOpen ? 'style=pointer-events:none;opacity:0.5' : '' }}>
                 @csrf
 
                 <!-- Data Pribadi Section -->
@@ -235,15 +262,35 @@
                         <h3 class="text-lg font-semibold text-gray-800">Bukti Pembayaran</h3>
                     </div>
 
+                    @if($isOpen && $activePeriod)
+                    <!-- Bank Account Info -->
+                    <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-lg mb-4">
+                        <h4 class="font-bold text-blue-900 mb-2">📱 Informasi Rekening Pembayaran:</h4>
+                        <div class="text-blue-800 text-sm whitespace-pre-wrap font-mono">{{ $activePeriod->rekening_info }}</div>
+                        <p class="text-blue-700 text-xs mt-3">💡 Setelah melakukan transfer, upload bukti pembayaran di bawah ini</p>
+                    </div>
+
+                    <!-- Tahun Masuk Display (Auto-filled) -->
+                    <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                            Tahun Masuk (Angkatan)
+                        </label>
+                        <input type="text" readonly value="{{ $activePeriod->tahun_masuk }}" 
+                            class="w-full px-4 py-3 rounded-xl border border-gray-300 bg-gray-100 text-gray-700 font-semibold cursor-not-allowed">
+                        <p class="text-xs text-gray-500 mt-1">Tahun masuk otomatis sesuai periode yang dibuka</p>
+                    </div>
+                    @endif
+
+                    <!-- Upload Bukti Pembayaran -->
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-2">
                             Upload Bukti Pembayaran <span class="text-red-500">*</span>
                         </label>
                         <div class="relative">
                             <input type="file" id="bukti_pembayaran" name="bukti_pembayaran" required accept="image/*"
-                                class="hidden" onchange="previewImage(this)">
+                                class="hidden" onchange="previewImage(this)" {{ !$isOpen ? 'disabled' : '' }}>
                             <label for="bukti_pembayaran" 
-                                class="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors">
+                                class="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors {{ !$isOpen ? 'opacity-50 cursor-not-allowed' : '' }}">
                                 <div id="upload-placeholder" class="flex flex-col items-center justify-center pt-5 pb-6">
                                     <svg class="w-12 h-12 text-gray-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>

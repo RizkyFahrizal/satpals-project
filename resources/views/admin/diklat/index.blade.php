@@ -69,9 +69,31 @@
         </div>
     </div>
 
+    <!-- Period & Filter Bar -->
+    <div class="flex items-center gap-3 mb-6">
+        <a href="{{ route('admin.diklat.periods.index') }}" class="btn btn-outline btn-sm gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h18M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+            </svg>
+            Kelola Periode
+        </a>
+    </div>
+
     <!-- Filters -->
     <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
         <form action="{{ route('admin.diklat.index') }}" method="GET" class="flex flex-col md:flex-row gap-4">
+            <!-- Period Filter -->
+            <div class="w-full md:w-56">
+                <select name="period_id" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 transition-all">
+                    <option value="">Semua Periode</option>
+                    @foreach($periods as $period)
+                        <option value="{{ $period->id }}" {{ request('period_id') == $period->id ? 'selected' : '' }}>
+                            {{ $period->nama_periode }} ({{ $period->tahun_masuk }})
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+
             <!-- Search -->
             <div class="flex-1">
                 <div class="relative">
@@ -99,7 +121,7 @@
                 <button type="submit" class="px-6 py-2.5 bg-yellow-400 hover:bg-yellow-500 text-gray-800 font-semibold rounded-xl transition-all">
                     Filter
                 </button>
-                @if(request('search') || request('status'))
+                @if(request('search') || request('status') || request('period_id'))
                 <a href="{{ route('admin.diklat.index') }}" class="px-6 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-xl transition-all">
                     Reset
                 </a>
@@ -107,6 +129,28 @@
             </div>
         </form>
     </div>
+
+    <!-- Accept All Button (if filtering by period) -->
+    @if(request('period_id') && $stats['pending'] > 0)
+    <div class="bg-blue-50 border border-blue-200 rounded-2xl p-5">
+        <div class="flex items-center justify-between">
+            <div>
+                <h3 class="font-semibold text-blue-900">Terima Semua Pendaftaran Menunggu</h3>
+                <p class="text-sm text-blue-700 mt-1">{{ $stats['pending'] }} pendaftaran menunggu untuk diterima di periode ini</p>
+            </div>
+            <form action="{{ route('admin.diklat.accept-all', \App\Models\DiklatPeriod::find(request('period_id'))) }}" method="POST" class="inline">
+                @csrf
+                <input type="hidden" name="confirm" value="yes">
+                <button type="submit" class="btn btn-sm btn-success gap-2" onclick="return confirm('Terima semua {{ $stats['pending'] }} pendaftaran? Data anggota akan otomatis ditambahkan.')">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                    Terima Semua
+                </button>
+            </form>
+        </div>
+    </div>
+    @endif
 
     <!-- Success/Error Messages -->
     @if(session('success'))

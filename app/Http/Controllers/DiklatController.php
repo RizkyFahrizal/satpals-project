@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\DiklatRegistration;
+use App\Models\DiklatPeriod;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -13,8 +14,22 @@ class DiklatController extends Controller
      */
     public function create()
     {
-        $spesifikasiOptions = DiklatRegistration::SPESIFIKASI_OPTIONS;
-        return view('diklat.register', compact('spesifikasiOptions'));
+        // Get the active (open) period
+        $activePeriod = DiklatPeriod::where('is_open', true)->first();
+        
+        if (!$activePeriod) {
+            return view('diklat.register', [
+                'activePeriod' => null,
+                'isOpen' => false,
+                'spesifikasiOptions' => DiklatRegistration::SPESIFIKASI_OPTIONS,
+            ]);
+        }
+
+        return view('diklat.register', [
+            'activePeriod' => $activePeriod,
+            'isOpen' => true,
+            'spesifikasiOptions' => DiklatRegistration::SPESIFIKASI_OPTIONS,
+        ]);
     }
 
     /**
@@ -22,6 +37,14 @@ class DiklatController extends Controller
      */
     public function store(Request $request)
     {
+        // Check if there is an active period
+        $activePeriod = DiklatPeriod::where('is_open', true)->first();
+        
+        if (!$activePeriod) {
+            return redirect()->route('diklat.register')
+                ->with('error', 'Pendaftaran diklat sedang ditutup.');
+        }
+
         $validated = $request->validate([
             'nama_lengkap' => 'required|string|max:255',
             'jenis_kelamin' => 'required|in:laki-laki,perempuan',
@@ -59,6 +82,10 @@ class DiklatController extends Controller
             $path = $file->storeAs('bukti_pembayaran', $filename, 'public');
             $validated['bukti_pembayaran'] = $path;
         }
+
+        // Add period ID and tahun masuk
+        $validated['diklat_period_id'] = $activePeriod->id;
+        $validated['tahun_masuk'] = $activePeriod->tahun_masuk;
 
         DiklatRegistration::create($validated);
 
