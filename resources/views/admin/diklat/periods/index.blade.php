@@ -74,13 +74,13 @@
                                     @method('PATCH')
                                     <button type="submit" class="btn btn-xs {{ $period->is_open ? 'btn-warning' : 'btn-success' }}" 
                                             onclick="return confirm('{{ $period->is_open ? 'Tutup' : 'Buka' }} periode ini?')">
-                                        {{ $period->is_open ? '🔒 Tutup' : '🔓 Buka' }}
+                                        {{ $period->is_open ? '🔒' : '🔓' }}
                                     </button>
                                 </form>
 
                                 <!-- Edit Button -->
                                 <a href="{{ route('admin.diklat.periods.edit', $period) }}" class="btn btn-xs btn-info">
-                                    ✏️ Edit
+                                    ✏️
                                 </a>
 
                                 <!-- Delete Button -->
@@ -89,7 +89,7 @@
                                     @method('DELETE')
                                     <button type="submit" class="btn btn-xs btn-error" 
                                             onclick="return confirm('Hapus periode ini? Data registrasi tidak akan terhapus.')">
-                                        🗑️ Hapus
+                                        🗑️
                                     </button>
                                 </form>
                             </div>
