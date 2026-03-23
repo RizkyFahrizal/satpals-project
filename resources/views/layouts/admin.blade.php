@@ -248,7 +248,7 @@
                             </button>
                             <ul class="dropdown-content z-50 menu p-2 shadow bg-white rounded-lg w-52 border border-gray-200">
                                 <li class="menu-title"><span class="text-gray-700">Akun</span></li>
-                                <li><a href="{{ route('profile.edit') }}" class="text-sm hover:bg-yellow-50">Profil Saya</a></li>
+                                <li><a href="{{ route('admin.users.edit', Auth::id()) }}" class="text-sm hover:bg-yellow-50">Profil Saya</a></li>
                                 <li><a href="#" class="text-sm hover:bg-yellow-50">Pengaturan</a></li>
                                 <li class="divider m-0"></li>
                                 <li>
