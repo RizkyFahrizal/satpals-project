@@ -71,12 +71,12 @@
                 </div>
                 
                 <!-- Desktop Menu -->
-                <div class="hidden lg:flex items-center justify-center flex-1 gap-1">
+                <div class="hidden lg:flex items-center gap-1 ml-auto">
                     <a href="{{ route('profil.index') }}" class="nav-link {{ request()->routeIs('profil.index') ? 'active' : '' }}">
-                        Profil UKM
+                        Tentang
                     </a>
                     <a href="{{ route('struktur.index') }}" class="nav-link {{ request()->routeIs('struktur.index') ? 'active' : '' }}">
-                        Pengurus
+                        Tim
                     </a>
                     <a href="{{ route('diklat.register') }}" class="nav-link {{ request()->routeIs('diklat.register') ? 'active' : '' }}">
                         Diklat
