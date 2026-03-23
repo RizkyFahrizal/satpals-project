@@ -37,9 +37,7 @@
             <!-- Logo Section -->
             <div class="p-6 border-b border-yellow-200 bg-gradient-to-r from-yellow-50 to-orange-50">
                 <div class="flex items-center gap-3 mb-2">
-                    <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center text-white font-bold text-lg">
-                        SP
-                    </div>
+                    <img src="{{ asset('images/logo-satpals.png') }}" alt="Logo Satya Palapa" class="w-10 h-10 object-contain rounded-lg">
                     <div>
                         <h1 class="text-lg font-bold text-gray-800">Satya Palapa</h1>
                         <p class="text-xs text-gray-500 font-medium">UKM Musik</p>
@@ -213,9 +211,9 @@
         </aside>
 
         <!-- Main Content -->
-        <div class="flex-1 lg:ml-64">
+        <div class="flex-1">
             <!-- Top Navigation Bar -->
-            <header class="bg-white shadow-sm border-b border-yellow-200 sticky top-0 z-20">
+            <header class="bg-yellow-300 shadow-sm border-b border-yellow-200 sticky top-0 z-20">
                 <div class="flex items-center justify-between px-4 lg:px-8 py-4">
                     <!-- Left: Menu Toggle & Title -->
                     <div class="flex items-center gap-4 flex-1 min-w-0">
