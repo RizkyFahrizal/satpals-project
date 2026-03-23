@@ -65,6 +65,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin.access'])->gr
     Route::get('/diklat/{registration}', [DiklatRegistrationController::class, 'show'])->name('diklat.show');
     Route::patch('/diklat/{registration}/status', [DiklatRegistrationController::class, 'updateStatus'])->name('diklat.update-status');
     Route::post('/diklat/periods/{period}/accept-all', [DiklatRegistrationController::class, 'acceptAll'])->name('diklat.accept-all');
+    Route::post('/diklat/accept-all-global', [DiklatRegistrationController::class, 'acceptAllGlobal'])->name('diklat.accept-all-global');
     Route::delete('/diklat/{registration}', [DiklatRegistrationController::class, 'destroy'])->name('diklat.destroy');
     
     // Member Management

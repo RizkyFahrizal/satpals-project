@@ -130,24 +130,49 @@
         </form>
     </div>
 
-    <!-- Accept All Button (if filtering by period) -->
-    @if(request('period_id') && $stats['pending'] > 0)
-    <div class="bg-blue-50 border border-blue-200 rounded-2xl p-5">
+    <!-- Accept All Button -->
+    @if($stats['pending'] > 0)
+    <div class="bg-gradient-to-r from-blue-50 to-green-50 border border-blue-200 rounded-2xl p-5">
         <div class="flex items-center justify-between">
             <div>
-                <h3 class="font-semibold text-blue-900">Terima Semua Pendaftaran Menunggu</h3>
-                <p class="text-sm text-blue-700 mt-1">{{ $stats['pending'] }} pendaftaran menunggu untuk diterima di periode ini</p>
+                <h3 class="font-semibold text-blue-900">
+                    @if(request('period_id'))
+                        Terima Semua Pendaftaran Menunggu (Periode Ini)
+                    @else
+                        Terima Semua Pendaftaran Menunggu (Semua Periode)
+                    @endif
+                </h3>
+                <p class="text-sm text-blue-700 mt-1">
+                    @if(request('period_id'))
+                        {{ $stats['pending'] }} pendaftaran menunggu untuk diterima di periode ini
+                    @else
+                        {{ $stats['pending'] }} pendaftaran menunggu untuk diterima dari semua periode
+                    @endif
+                </p>
             </div>
-            <form action="{{ route('admin.diklat.accept-all', \App\Models\DiklatPeriod::find(request('period_id'))) }}" method="POST" class="inline">
-                @csrf
-                <input type="hidden" name="confirm" value="yes">
-                <button type="submit" class="btn btn-sm btn-success gap-2" onclick="return confirm('Terima semua {{ $stats['pending'] }} pendaftaran? Data anggota akan otomatis ditambahkan.')">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                    </svg>
-                    Terima Semua
-                </button>
-            </form>
+            @if(request('period_id'))
+                <form action="{{ route('admin.diklat.accept-all', \App\Models\DiklatPeriod::find(request('period_id'))) }}" method="POST" class="inline">
+                    @csrf
+                    <input type="hidden" name="confirm" value="yes">
+                    <button type="submit" class="px-6 py-3 bg-green-500 hover:bg-green-600 text-white font-semibold rounded-xl transition-all flex items-center gap-2" onclick="return confirm('Terima semua {{ $stats['pending'] }} pendaftaran di periode ini? Data anggota akan otomatis ditambahkan.')">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        Terima Semua
+                    </button>
+                </form>
+            @else
+                <form action="{{ route('admin.diklat.accept-all-global') }}" method="POST" class="inline">
+                    @csrf
+                    <input type="hidden" name="confirm" value="yes">
+                    <button type="submit" class="px-6 py-3 bg-green-500 hover:bg-green-600 text-white font-semibold rounded-xl transition-all flex items-center gap-2" onclick="return confirm('Terima semua {{ $stats['pending'] }} pendaftaran dari SEMUA periode? Data anggota akan otomatis ditambahkan.')">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        Terima Semua
+                    </button>
+                </form>
+            @endif
         </div>
     </div>
     @endif

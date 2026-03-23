@@ -124,6 +124,31 @@ class DiklatRegistrationController extends Controller
     }
 
     /**
+     * Accept all pending registrations from all periods
+     */
+    public function acceptAllGlobal(Request $request)
+    {
+        $request->validate([
+            'confirm' => 'required|in:yes',
+        ]);
+
+        $count = 0;
+        $pending = DiklatRegistration::where('status', 'pending')->get();
+
+        foreach ($pending as $registration) {
+            $registration->update(['status' => 'approved']);
+            
+            // Create member if doesn't exist
+            if (!Member::where('npm', $registration->npm)->exists()) {
+                Member::createFromDiklatRegistration($registration);
+            }
+            $count++;
+        }
+
+        return back()->with('success', "Berhasil menerima {$count} pendaftaran dari semua periode. Data anggota juga sudah ditambahkan.");
+    }
+
+    /**
      * Remove the specified registration.
      */
     public function destroy(DiklatRegistration $registration)
