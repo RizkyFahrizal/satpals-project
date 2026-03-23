@@ -54,6 +54,10 @@ class DiklatController extends Controller
             'fakultas' => 'required|string|max:255',
             'prodi' => 'required|string|max:255',
             'tahun_daftar' => 'required|integer|min:2020|max:' . date('Y'),
+            'spesifikasi' => 'required|array|min:1',
+            'spesifikasi.*' => 'in:drum,keyboard,vocal,bass,guitar',
+            'spesifikasi_lainnya' => 'nullable|array',
+            'spesifikasi_lainnya.*' => 'nullable|string|max:255',
             'bukti_pembayaran' => 'required|image|mimes:jpeg,png,jpg|max:2048',
             'riwayat_penyakit' => 'nullable|string',
             'riwayat_alergi' => 'nullable|string',
@@ -66,8 +70,10 @@ class DiklatController extends Controller
             'npm.unique' => 'NPM sudah terdaftar',
             'fakultas.required' => 'Fakultas wajib diisi',
             'prodi.required' => 'Program studi wajib diisi',
-            'tahun_daftar.required' => 'Tahun masuk wajib diisi',
-            'tahun_daftar.integer' => 'Tahun masuk harus berupa angka',
+            'tahun_daftar.required' => 'Tahun daftar wajib diisi',
+            'tahun_daftar.integer' => 'Tahun daftar harus berupa angka',
+            'spesifikasi.required' => 'Pilih minimal satu spesifikasi',
+            'spesifikasi.min' => 'Pilih minimal satu spesifikasi',
             'bukti_pembayaran.required' => 'Bukti pembayaran wajib diupload',
             'bukti_pembayaran.image' => 'File harus berupa gambar',
             'bukti_pembayaran.mimes' => 'Format gambar harus JPEG, PNG, atau JPG',
@@ -80,6 +86,16 @@ class DiklatController extends Controller
             $filename = time() . '_' . $validated['npm'] . '.' . $file->getClientOriginalExtension();
             $path = $file->storeAs('bukti_pembayaran', $filename, 'public');
             $validated['bukti_pembayaran'] = $path;
+        }
+
+        // Filter out null values from spesifikasi_lainnya
+        if (!empty($validated['spesifikasi_lainnya'])) {
+            $validated['spesifikasi_lainnya'] = array_filter($validated['spesifikasi_lainnya'], function($item) {
+                return !empty($item);
+            });
+            if (empty($validated['spesifikasi_lainnya'])) {
+                $validated['spesifikasi_lainnya'] = null;
+            }
         }
 
         // Add period ID and tahun masuk

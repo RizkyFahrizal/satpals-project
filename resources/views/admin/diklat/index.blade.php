@@ -7,10 +7,10 @@
 @section('content')
 <div class="space-y-6">
     <!-- Management Button Bar -->
-    <div class="flex items-center gap-3 mb-6">
-        <a href="{{ route('admin.diklat.periods.index') }}" class="btn btn-primary gap-2">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h18M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+    <div class="bg-white rounded-2xl shadow-sm border border-yellow-100 p-6">
+        <a href="{{ route('admin.diklat.periods.index') }}" class="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-yellow-400 to-orange-500 text-gray-900 font-semibold hover:shadow-lg hover:shadow-yellow-400/30 transition-all duration-200">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h18M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
             </svg>
             Kelola Periode Pendaftaran
         </a>
@@ -81,7 +81,12 @@
 
     <!-- Period & Filter Bar -->
     <div class="flex items-center gap-3 mb-6">
-        <!-- This section was moved to top -->
+        <a href="{{ route('admin.diklat.periods.index') }}" class="btn btn-outline btn-sm gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h18M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+            </svg>
+            Kelola Periode
+        </a>
     </div>
 
     <!-- Filters -->
@@ -180,7 +185,7 @@
                         <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Nama Lengkap</th>
                         <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">NPM</th>
                         <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Fakultas/Prodi</th>
-                        <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Spesifikasi</th>
+                        <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Tahun</th>
                         <th class="px-6 py-4 text-center text-sm font-semibold text-gray-700">Status</th>
                         <th class="px-6 py-4 text-center text-sm font-semibold text-gray-700">Aksi</th>
                     </tr>
@@ -209,19 +214,10 @@
                                 <p class="text-gray-500">{{ $reg->prodi }}</p>
                             </div>
                         </td>
-                        <td class="px-6 py-4">
-                            <div class="flex flex-wrap gap-1">
-                                @foreach($reg->spesifikasi as $spec)
-                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-700">
-                                    @if($spec === 'drum') 🥁
-                                    @elseif($spec === 'keyboard') 🎹
-                                    @elseif($spec === 'vocal') 🎤
-                                    @elseif($spec === 'bass') 🎸
-                                    @elseif($spec === 'guitar') 🎸
-                                    @endif
-                                    {{ ucfirst($spec) }}
-                                </span>
-                                @endforeach
+                        <td class="px-6 py-4 text-sm">
+                            <div class="space-y-1">
+                                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Masuk: <span class="text-gray-700">{{ $reg->tahun_masuk ?? '-' }}</span></p>
+                                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Daftar: <span class="text-gray-700">{{ $reg->tahun_daftar ?? '-' }}</span></p>
                             </div>
                         </td>
                         <td class="px-6 py-4 text-center">

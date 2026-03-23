@@ -2,10 +2,10 @@
 
 @section('content')
 <div class="container mx-auto px-4 py-8">
-    <div class="flex justify-between items-center mb-6">
+    <div class="flex justify-between items-start mb-6">
         <div>
-            <a href="{{ route('admin.diklat.index') }}" class="btn btn-ghost btn-sm">← Kembali ke Daftar Pendaftar</a>
-            <h1 class="text-3xl font-bold mt-4">Kelola Periode Pendaftaran</h1>
+            <a href="{{ route('admin.diklat.index') }}" class="btn btn-ghost btn-sm mb-4">← Kembali ke Daftar Pendaftar</a>
+            <h1 class="text-3xl font-bold">Kelola Periode Pendaftaran</h1>
         </div>
         <a href="{{ route('admin.diklat.periods.create') }}" class="btn btn-primary">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
