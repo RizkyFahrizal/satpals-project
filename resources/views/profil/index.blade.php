@@ -4,42 +4,43 @@
 
 @section('content')
 <!-- Hero Section -->
-<section class="relative bg-gradient-to-br from-yellow-400 via-orange-400 to-red-500 py-20">
+<section class="relative bg-gradient-to-br from-yellow-400 via-orange-400 to-red-500 py-16 sm:py-20 md:py-32 overflow-hidden">
     <div class="absolute inset-0 bg-black/10"></div>
+    <div class="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full -mr-48 -mt-48 blur-3xl"></div>
+    <div class="absolute bottom-0 left-0 w-96 h-96 bg-white/10 rounded-full -ml-48 -mb-48 blur-3xl"></div>
+    
     <div class="container mx-auto px-4 relative z-10">
-        <div class="flex flex-col lg:flex-row items-center gap-12">
+        <div class="flex flex-col lg:flex-row items-center gap-8 md:gap-12">
             <!-- Logo UKM -->
-            <div class="flex-shrink-0">
-                <div class="w-48 h-48 md:w-64 md:h-64 bg-white rounded-full shadow-2xl flex items-center justify-center p-4 border-4 border-white/50">
-                    <!-- Placeholder untuk logo - ganti dengan gambar asli -->
-                    <img src="{{ asset('images/logo-satpals.png') }}" alt="Logo Satya Palapa" 
-                         class="w-full h-full object-contain"
-                         onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\'flex flex-col items-center justify-center text-gray-400\'><svg class=\'w-20 h-20\' fill=\'none\' stroke=\'currentColor\' viewBox=\'0 0 24 24\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3\'></path></svg><span class=\'text-sm mt-2\'>Logo UKM</span></div>'">
+            <div class="flex-shrink-0 w-full sm:w-auto flex justify-center" data-aos="zoom-in">
+                <div class="w-40 h-40 sm:w-48 sm:h-48 md:w-64 md:h-64 bg-white rounded-full shadow-2xl flex items-center justify-center p-4 border-4 border-white/50 hover:shadow-3xl transition-all duration-300 hover:scale-105">
+                    <img src="{{ asset('assets/images/logoukm.png') }}" alt="Logo Satya Palapa" 
+                         class="w-full h-full object-contain">
                 </div>
             </div>
             
             <!-- Title & Tagline -->
-            <div class="text-center lg:text-left text-white">
-                <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 drop-shadow-lg">
+            <div class="text-center lg:text-left text-white flex-1" data-aos="fade-up">
+                <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 drop-shadow-lg">
                     Satya Palapa
                 </h1>
-                <p class="text-xl md:text-2xl font-medium text-white/90 mb-2">
+                <p class="text-lg sm:text-xl md:text-2xl font-medium text-white/90 mb-2">
                     Unit Kegiatan Mahasiswa Musik
                 </p>
-                <p class="text-lg text-white/80">
+                <p class="text-base sm:text-lg text-white/80 mb-6">
                     UPN "Veteran" Jawa Timur
                 </p>
-                <div class="mt-6 flex flex-wrap justify-center lg:justify-start gap-3">
-                    <span class="px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full text-sm font-medium">
+                <div class="mt-6 flex flex-wrap justify-center lg:justify-start gap-2 sm:gap-3">
+                    <span class="px-3 sm:px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full text-xs sm:text-sm font-medium hover:bg-white/30 transition-all duration-300">
                         🎸 Band
                     </span>
-                    <span class="px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full text-sm font-medium">
+                    <span class="px-3 sm:px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full text-xs sm:text-sm font-medium hover:bg-white/30 transition-all duration-300">
                         🎤 Vocal
                     </span>
-                    <span class="px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full text-sm font-medium">
+                    <span class="px-3 sm:px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full text-xs sm:text-sm font-medium hover:bg-white/30 transition-all duration-300">
                         🥁 Drum
                     </span>
-                    <span class="px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full text-sm font-medium">
+                    <span class="px-3 sm:px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full text-xs sm:text-sm font-medium hover:bg-white/30 transition-all duration-300">
                         🎹 Keyboard
                     </span>
                 </div>
@@ -66,54 +67,45 @@
                 <div class="w-24 h-1 bg-gradient-to-r from-yellow-400 to-orange-500 mx-auto rounded-full"></div>
             </div>
             
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 items-center">
                 <!-- Text Content -->
-                <div class="space-y-6">
-                    <div class="bg-gradient-to-br from-yellow-50 to-orange-50 rounded-2xl p-6 border border-yellow-100">
-                        <h3 class="text-xl font-bold text-gray-800 mb-3 flex items-center gap-2">
+                <div class="space-y-4 md:space-y-6">
+                    <div class="bg-gradient-to-br from-yellow-50 to-orange-50 rounded-2xl p-4 md:p-6 border border-yellow-100 hover:shadow-lg transition-all duration-300 hover:scale-105" data-aos="fade-right">
+                        <h3 class="text-lg md:text-xl font-bold text-gray-800 mb-3 flex items-center gap-2">
                             <span class="w-8 h-8 bg-yellow-400 rounded-full flex items-center justify-center text-white text-sm">🎵</span>
                             Awal Berdiri
                         </h3>
-                        <p class="text-gray-600 leading-relaxed">
+                        <p class="text-sm md:text-base text-gray-600 leading-relaxed">
                             Unit Kegiatan Mahasiswa (UKM) Musik <strong>Satya Palapa</strong> didirikan sebagai wadah bagi para mahasiswa UPN "Veteran" Jawa Timur yang memiliki minat dan bakat di bidang musik. UKM ini menjadi rumah bagi para pencinta musik untuk mengekspresikan kreativitas dan mengembangkan kemampuan bermusik mereka.
                         </p>
                     </div>
                     
-                    <div class="bg-gradient-to-br from-orange-50 to-red-50 rounded-2xl p-6 border border-orange-100">
-                        <h3 class="text-xl font-bold text-gray-800 mb-3 flex items-center gap-2">
+                    <div class="bg-gradient-to-br from-orange-50 to-red-50 rounded-2xl p-4 md:p-6 border border-orange-100 hover:shadow-lg transition-all duration-300 hover:scale-105" data-aos="fade-right" data-aos-delay="100">
+                        <h3 class="text-lg md:text-xl font-bold text-gray-800 mb-3 flex items-center gap-2">
                             <span class="w-8 h-8 bg-orange-400 rounded-full flex items-center justify-center text-white text-sm">🎸</span>
                             Perkembangan
                         </h3>
-                        <p class="text-gray-600 leading-relaxed">
+                        <p class="text-sm md:text-base text-gray-600 leading-relaxed">
                             Seiring berjalannya waktu, Satya Palapa terus berkembang dan melahirkan musisi-musisi berbakat. UKM ini aktif mengadakan berbagai kegiatan seperti pelatihan musik (Diklat), penampilan di berbagai acara kampus, hingga mengikuti kompetisi musik antar universitas.
                         </p>
                     </div>
                     
-                    <div class="bg-gradient-to-br from-red-50 to-pink-50 rounded-2xl p-6 border border-red-100">
-                        <h3 class="text-xl font-bold text-gray-800 mb-3 flex items-center gap-2">
+                    <div class="bg-gradient-to-br from-red-50 to-pink-50 rounded-2xl p-4 md:p-6 border border-red-100 hover:shadow-lg transition-all duration-300 hover:scale-105" data-aos="fade-right" data-aos-delay="200">
+                        <h3 class="text-lg md:text-xl font-bold text-gray-800 mb-3 flex items-center gap-2">
                             <span class="w-8 h-8 bg-red-400 rounded-full flex items-center justify-center text-white text-sm">⭐</span>
                             Nama "Satya Palapa"
                         </h3>
-                        <p class="text-gray-600 leading-relaxed">
+                        <p class="text-sm md:text-base text-gray-600 leading-relaxed">
                             Nama <strong>"Satya Palapa"</strong> diambil dari bahasa Sanskerta yang bermakna kesetiaan dan persatuan. Nama ini mencerminkan semangat kebersamaan dan dedikasi para anggota dalam bermusik serta membangun komunitas yang solid dan harmonis.
                         </p>
                     </div>
                 </div>
                 
                 <!-- Photo Sekretariat -->
-                <div class="relative">
-                    <div class="bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl overflow-hidden shadow-xl aspect-[4/3]">
-                        <!-- Placeholder untuk foto sekretariat -->
-                        <img src="{{ asset('images/sekretariat-satpals.jpg') }}" alt="Sekretariat Satya Palapa" 
-                             class="w-full h-full object-cover"
-                             onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                        <div class="hidden flex-col items-center justify-center h-full text-gray-400 bg-gradient-to-br from-gray-100 to-gray-200" style="display: none;">
-                            <svg class="w-24 h-24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                            </svg>
-                            <span class="mt-4 text-lg font-medium">Foto Sekretariat UKM</span>
-                            <span class="text-sm">Tambahkan gambar di public/images/sekretariat-satpals.jpg</span>
-                        </div>
+                <div class="relative" data-aos="fade-left">
+                    <div class="bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl overflow-hidden shadow-xl aspect-[4/3] hover:shadow-2xl transition-all duration-300">
+                        <img src="{{ asset('assets/images/herobg.png') }}" alt="Sekretariat Satya Palapa" 
+                             class="w-full h-full object-cover">
                     </div>
                     
                     <!-- Floating Badge -->
@@ -325,13 +317,13 @@
         <p class="text-white/90 text-lg mb-8 max-w-2xl mx-auto">
             Ayo kembangkan bakat musikmu bersama Satya Palapa! Daftar sekarang untuk mengikuti pelatihan musik (Diklat) dan jadilah bagian dari keluarga besar kami.
         </p>
-        <div class="flex flex-wrap justify-center gap-4">
+        <div class="flex flex-wrap justify-center gap-4" data-aos="fade-up">
             <a href="{{ route('diklat.register') }}" 
-               class="bg-white text-orange-500 hover:bg-gray-100 font-bold py-3 px-8 rounded-xl transition-all shadow-lg hover:shadow-xl">
+               class="bg-white text-orange-500 hover:bg-orange-500 hover:text-white font-bold py-3 px-6 md:px-8 rounded-xl transition-all shadow-lg hover:shadow-2xl hover:scale-105 duration-300">
                 🎵 Daftar Diklat Sekarang
             </a>
             <a href="{{ route('struktur.index') }}" 
-               class="bg-white/20 backdrop-blur-sm text-white hover:bg-white/30 font-bold py-3 px-8 rounded-xl transition-all border border-white/30">
+               class="bg-white/20 backdrop-blur-sm text-white hover:bg-white/40 font-bold py-3 px-6 md:px-8 rounded-xl transition-all border border-white/30 hover:shadow-xl hover:scale-105 duration-300">
                 👥 Lihat Pengurus
             </a>
         </div>
