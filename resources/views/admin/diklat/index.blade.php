@@ -4,6 +4,8 @@
 
 @section('header', 'Kelola Anggota Diklat')
 
+@section('breadcrumb', 'Operasional > Pendaftaran Diklat')
+
 @section('content')
 <div class="space-y-6">
     <!-- Management Button Bar -->
