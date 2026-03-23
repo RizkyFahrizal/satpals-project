@@ -6,6 +6,16 @@
 
 @section('content')
 <div class="space-y-6">
+    <!-- Management Button Bar -->
+    <div class="flex items-center gap-3 mb-6">
+        <a href="{{ route('admin.diklat.periods.index') }}" class="btn btn-primary gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h18M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+            </svg>
+            Kelola Periode Pendaftaran
+        </a>
+    </div>
+
     <!-- Statistics Cards -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <!-- Total -->
@@ -71,12 +81,7 @@
 
     <!-- Period & Filter Bar -->
     <div class="flex items-center gap-3 mb-6">
-        <a href="{{ route('admin.diklat.periods.index') }}" class="btn btn-outline btn-sm gap-2">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h18M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-            </svg>
-            Kelola Periode
-        </a>
+        <!-- This section was moved to top -->
     </div>
 
     <!-- Filters -->

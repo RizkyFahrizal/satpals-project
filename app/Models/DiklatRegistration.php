@@ -30,7 +30,7 @@ class DiklatRegistration extends Model
         'npm',
         'fakultas',
         'prodi',
-        'spesifikasi',
+        'tahun_daftar',
         'tahun_masuk',
         'bukti_pembayaran',
         'riwayat_penyakit',
@@ -39,16 +39,9 @@ class DiklatRegistration extends Model
     ];
 
     protected $casts = [
-        'spesifikasi' => 'array',
+        'tahun_daftar' => 'integer',
         'tahun_masuk' => 'integer',
     ];
-
-    public function getSpesifikasiLabelsAttribute(): array
-    {
-        return array_map(function ($spec) {
-            return self::SPESIFIKASI_OPTIONS[$spec] ?? $spec;
-        }, $this->spesifikasi ?? []);
-    }
 
     public function getStatusLabelAttribute(): string
     {

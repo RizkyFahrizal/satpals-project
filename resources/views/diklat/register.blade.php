@@ -201,51 +201,31 @@
                 <!-- Divider -->
                 <div class="border-t border-gray-100"></div>
 
-                <!-- Spesifikasi Musik Section -->
+                <!-- Tahun Daftar Section -->
                 <div class="space-y-6">
                     <div class="flex items-center gap-3 mb-4">
                         <div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center">
-                            <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/>
+                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h18M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                             </svg>
                         </div>
-                        <h3 class="text-lg font-semibold text-gray-800">Spesifikasi Musik</h3>
+                        <h3 class="text-lg font-semibold text-gray-800">Tahun Masuk (Angkatan)</h3>
                     </div>
 
-                    <p class="text-sm text-gray-500 -mt-2">Pilih satu atau lebih instrumen yang ingin dipelajari</p>
-
-                    <!-- Spesifikasi Checkboxes -->
-                    <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
-                        @foreach($spesifikasiOptions as $value => $label)
-                        <label class="relative cursor-pointer">
-                            <input type="checkbox" name="spesifikasi[]" value="{{ $value }}" 
-                                {{ is_array(old('spesifikasi')) && in_array($value, old('spesifikasi')) ? 'checked' : '' }}
-                                class="peer sr-only">
-                            <div class="p-4 rounded-xl border-2 border-gray-200 bg-white transition-all duration-200 text-center
-                                peer-checked:border-purple-500 peer-checked:bg-purple-50 peer-checked:shadow-lg
-                                hover:border-purple-300 hover:bg-purple-50/50">
-                                <span class="text-3xl mb-2 block">
-                                    @if($value === 'drum') 🥁
-                                    @elseif($value === 'keyboard') 🎹
-                                    @elseif($value === 'vocal') 🎤
-                                    @elseif($value === 'bass') 🎸
-                                    @elseif($value === 'guitar') 🎸
-                                    @endif
-                                </span>
-                                <span class="font-medium text-gray-800 text-sm">{{ $label }}</span>
-                                <!-- Checkmark -->
-                                <div class="absolute top-2 right-2 w-5 h-5 rounded-full bg-purple-500 text-white flex items-center justify-center opacity-0 peer-checked:opacity-100 transition-opacity">
-                                    <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                                    </svg>
-                                </div>
-                            </div>
+                    <div>
+                        <label for="tahun_daftar" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Tahun Masuk <span class="text-red-500">*</span>
                         </label>
-                        @endforeach
+                        <input type="number" id="tahun_daftar" name="tahun_daftar" 
+                            value="{{ old('tahun_daftar', 2022) }}"
+                            min="2020" max="{{ date('Y') }}"
+                            class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 transition-all"
+                            placeholder="Masukkan tahun masuk">
+                        <p class="text-xs text-gray-500 mt-2">Contoh: 2022, 2023, 2024, dll</p>
+                        @error('tahun_daftar')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
                     </div>
-                    @error('spesifikasi')
-                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
                 </div>
 
                 <!-- Divider -->
