@@ -12,24 +12,28 @@ class DiklatPeriodSeeder extends Seeder
      */
     public function run(): void
     {
-        // Create sample diklat periods
+        // Periode 2023
         DiklatPeriod::create([
-            'nama_periode' => 'Diklat Kesenian 2024/2025',
-            'tahun_masuk' => 2024,
-            'rekening_number' => '1234567890',
-            'rekening_info' => "Bank: BCA\nAtas Nama: Satya Palapa\nNo. Rekening: 1234567890\nCabang: Kampus UPN Veteran Jawa Timur",
-            'is_open' => true,
-            'tanggal_buka' => now(),
-            'keterangan' => 'Periode pembukaan pendaftaran angkatan 2024',
+            'nama_periode' => 'Periode Diklat Angkatan 2023',
+            'tahun_masuk' => 2023,
+            'rekening_number' => '1234567890123456',
+            'rekening_info' => "Nama: Satya Palapa UKM\nBank: BCA\nNo Rekening: 1234567890123456\nCabang: Surabaya\n\nTransfer ke rekening ini sebagai bukti pembayaran diklat.",
+            'is_open' => false,
+            'tanggal_buka' => now()->subMonths(12),
+            'tanggal_tutup' => now()->subMonths(11),
+            'keterangan' => 'Periode diklat untuk angkatan 2023 - sudah ditutup',
         ]);
 
+        // Periode 2024
         DiklatPeriod::create([
-            'nama_periode' => 'Diklat Kesenian 2025/2026',
-            'tahun_masuk' => 2025,
-            'rekening_number' => '0987654321',
-            'rekening_info' => "Bank: Mandiri\nAtas Nama: UKM Satya Palapa\nNo. Rekening: 0987654321\nCabang: Surabaya",
-            'is_open' => false,
-            'keterangan' => 'Periode untuk angkatan 2025 (belum dibuka)',
+            'nama_periode' => 'Periode Diklat Angkatan 2024',
+            'tahun_masuk' => 2024,
+            'rekening_number' => '9876543210987654',
+            'rekening_info' => "Nama: Satya Palapa UKM\nBank: Mandiri\nNo Rekening: 9876543210987654\nCabang: Surabaya\n\nTransfer ke rekening ini sebagai bukti pembayaran diklat.",
+            'is_open' => true,
+            'tanggal_buka' => now()->subMonths(2),
+            'tanggal_tutup' => now()->addMonths(1),
+            'keterangan' => 'Periode diklat untuk angkatan 2024 - sedang dibuka',
         ]);
     }
 }

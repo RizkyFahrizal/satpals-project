@@ -216,7 +216,7 @@
                         </td>
                         <td class="px-6 py-4 text-sm">
                             <div class="space-y-1">
-                                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Masuk: <span class="text-gray-700">{{ $reg->tahun_masuk ?? '-' }}</span></p>
+                                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Angkatan: <span class="text-gray-700">{{ $reg->period->tahun_masuk ?? $reg->tahun_masuk ?? '-' }}</span></p>
                                 <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Daftar: <span class="text-gray-700">{{ $reg->tahun_daftar ?? '-' }}</span></p>
                             </div>
                         </td>
