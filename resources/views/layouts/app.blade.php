@@ -26,6 +26,11 @@
             animation: slideDown 0.5s ease-out;
         }
         
+        /* Prevent horizontal overflow */
+        html, body {
+            overflow-x: hidden;
+        }
+        
         /* Smooth transitions */
         * {
             @apply transition-all duration-300;
@@ -37,11 +42,30 @@
         }
         
         .nav-link {
-            @apply relative px-3 py-2 text-gray-800 font-semibold rounded-lg transition-all duration-300 hover:bg-yellow-300 hover:shadow-md;
+            @apply relative px-4 py-2 text-gray-900 font-bold transition-all duration-300 text-sm tracking-wide;
+            position: relative;
+            letter-spacing: 0.35px;
         }
         
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(to right, #eab308, #f97316);
+            transition: width 0.3s ease;
+        }
+        
+        .nav-link:hover,
         .nav-link.active {
-            @apply bg-yellow-300 shadow-md;
+            color: #b45309;
+        }
+        
+        .nav-link:hover::after,
+        .nav-link.active::after {
+            width: 100%;
         }
     </style>
 </head>
@@ -71,7 +95,7 @@
                 </div>
                 
                 <!-- Desktop Menu -->
-                <div class="hidden lg:flex items-center gap-1 ml-auto">
+                <div class="hidden lg:flex items-center gap-7 ml-auto">
                     <a href="{{ route('profil.index') }}" class="nav-link {{ request()->routeIs('profil.index') ? 'active' : '' }}">
                         Tentang
                     </a>
@@ -82,7 +106,7 @@
                         Diklat
                     </a>
                     <div class="dropdown dropdown-hover">
-                        <button class="nav-link">
+                        <button class="nav-link {{ request()->routeIs('kegiatan.*') || request()->routeIs('prestasi.*') ? 'active' : '' }}">
                             Galeri
                         </button>
                         <ul class="dropdown-content z-50 menu p-2 shadow bg-white rounded-xl w-48 border border-yellow-200">
@@ -98,19 +122,19 @@
                 <div id="mobile-menu" class="fixed left-0 top-20 w-full bg-white shadow-lg transform -translate-x-full transition-transform duration-300 z-40">
                     <div class="flex flex-col p-4 gap-2">
                         <a href="{{ route('profil.index') }}" class="px-4 py-3 text-gray-800 font-semibold hover:bg-yellow-50 rounded-lg {{ request()->routeIs('profil.index') ? 'bg-yellow-100' : '' }}">
-                            Profil UKM
+                            Tentang
                         </a>
                         <a href="{{ route('struktur.index') }}" class="px-4 py-3 text-gray-800 font-semibold hover:bg-yellow-50 rounded-lg {{ request()->routeIs('struktur.index') ? 'bg-yellow-100' : '' }}">
-                            Pengurus
+                            Tim
                         </a>
                         <a href="{{ route('diklat.register') }}" class="px-4 py-3 text-gray-800 font-semibold hover:bg-yellow-50 rounded-lg {{ request()->routeIs('diklat.register') ? 'bg-yellow-100' : '' }}">
-                            Pendaftaran Diklat
+                            Diklat
                         </a>
                         <a href="{{ route('kegiatan.index') }}" class="px-4 py-3 text-gray-800 font-semibold hover:bg-yellow-50 rounded-lg {{ request()->routeIs('kegiatan.*') ? 'bg-yellow-100' : '' }}">
-                            Kegiatan
+                            Galeri - Kegiatan
                         </a>
                         <a href="{{ route('prestasi.index') }}" class="px-4 py-3 text-gray-800 font-semibold hover:bg-yellow-50 rounded-lg {{ request()->routeIs('prestasi.*') ? 'bg-yellow-100' : '' }}">
-                            Prestasi
+                            Galeri - Prestasi
                         </a>
                     </div>
                 </div>
@@ -200,6 +224,26 @@
                         behavior: 'smooth'
                     });
                 }
+            });
+        });
+
+        // Smooth scroll for anchor links that start with '#'
+        document.addEventListener('DOMContentLoaded', function () {
+            const links = document.querySelectorAll('a[href^="#"]');
+
+            links.forEach(link => {
+                link.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href').substring(1);
+                    const targetElement = document.getElementById(targetId);
+
+                    if (targetElement) {
+                        window.scrollTo({
+                            top: targetElement.offsetTop,
+                            behavior: 'smooth'
+                        });
+                    }
+                });
             });
         });
     </script>

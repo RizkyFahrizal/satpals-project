@@ -30,20 +30,6 @@
                 <p class="text-base sm:text-lg text-white/80 mb-6">
                     UPN "Veteran" Jawa Timur
                 </p>
-                <div class="mt-6 flex flex-wrap justify-center lg:justify-start gap-2 sm:gap-3">
-                    <span class="px-3 sm:px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full text-xs sm:text-sm font-medium hover:bg-white/30 transition-all duration-300">
-                        🎸 Band
-                    </span>
-                    <span class="px-3 sm:px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full text-xs sm:text-sm font-medium hover:bg-white/30 transition-all duration-300">
-                        🎤 Vocal
-                    </span>
-                    <span class="px-3 sm:px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full text-xs sm:text-sm font-medium hover:bg-white/30 transition-all duration-300">
-                        🥁 Drum
-                    </span>
-                    <span class="px-3 sm:px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full text-xs sm:text-sm font-medium hover:bg-white/30 transition-all duration-300">
-                        🎹 Keyboard
-                    </span>
-                </div>
             </div>
         </div>
     </div>
