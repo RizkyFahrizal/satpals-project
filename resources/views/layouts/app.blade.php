@@ -6,72 +6,214 @@
     <title>@yield('title', 'Satpals Project')</title>
     <link href="https://cdn.jsdelivr.net/npm/daisyui@4.7.2/dist/full.min.css" rel="stylesheet" type="text/css" />
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" />
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <link rel="icon" type="image/png" href="{{ asset('assets/images/logoukm.png') }}">
+    <style>
+        /* Custom animations */
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .navbar-animate {
+            animation: slideDown 0.5s ease-out;
+        }
+        
+        /* Prevent horizontal overflow */
+        html, body {
+            overflow-x: hidden;
+        }
+        
+        /* Smooth transitions */
+        * {
+            @apply transition-all duration-300;
+        }
+        
+        /* Button hover effects */
+        .btn-primary-hover:hover {
+            @apply scale-105 shadow-xl;
+        }
+        
+        .nav-link {
+            @apply relative px-4 py-2 text-gray-900 font-bold transition-all duration-300 text-sm tracking-wide;
+            position: relative;
+            letter-spacing: 0.35px;
+        }
+        
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(to right, #eab308, #f97316);
+            transition: width 0.3s ease;
+        }
+        
+        .nav-link:hover,
+        .nav-link.active {
+            color: #b45309;
+        }
+        
+        .nav-link:hover::after,
+        .nav-link.active::after {
+            width: 100%;
+        }
+    </style>
 </head>
-<body class="bg-base-100">
-    <div class="drawer">
-        <input id="my-drawer-3" type="checkbox" class="drawer-toggle" />
-        <div class="drawer-content flex flex-col">
-            <!-- Navbar - Yellow Background -->
-            <div class="navbar bg-yellow-400 text-gray-800 shadow-lg sticky top-0 z-50">
-                <div class="flex-1">
-                    <label for="my-drawer-3" class="btn btn-ghost btn-circle drawer-button lg:hidden">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block w-6 h-6 stroke-current">
+<body class="bg-white">
+    <div class="flex flex-col min-h-screen">
+        <!-- Navbar -->
+        <nav class="navbar-animate sticky top-0 z-50 bg-gradient-to-r from-yellow-300 via-yellow-400 to-orange-300 shadow-lg border-b-4 border-yellow-400">
+            <div class="container mx-auto px-4 w-full flex items-center justify-between h-20">
+                <!-- Logo and Brand -->
+                <div class="flex items-center gap-3 flex-shrink-0">
+                    <!-- Mobile Menu Toggle -->
+                    <input type="checkbox" id="navbar-toggle" class="hidden" />
+                    <label for="navbar-toggle" class="lg:hidden flex items-center justify-center w-10 h-10 rounded-lg hover:bg-yellow-200 transition-colors cursor-pointer">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="w-6 h-6 stroke-current text-gray-800">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
                         </svg>
                     </label>
-                    <a href="/" class="btn btn-ghost normal-case text-2xl font-bold">Satya Palapa</a>
+                    
+                    <!-- Brand -->
+                    <a href="/" class="flex items-center gap-2 group">
+                        <img src="{{ asset('assets/images/logoukm.png') }}" alt="Logo Satya Palapa" class="w-10 h-10 object-contain rounded-lg group-hover:scale-110 transition-transform">
+                        <div class="hidden sm:block">
+                            <h1 class="text-lg font-bold text-gray-800">Satya Palapa</h1>
+                            <p class="text-xs text-gray-700">UKM Musik</p>
+                        </div>
+                    </a>
                 </div>
                 
                 <!-- Desktop Menu -->
-                <div class="flex-none hidden lg:flex gap-2">
-                    <ul class="menu menu-horizontal px-1 gap-2">
-                        <li><a href="{{ route('profil.index') }}" class="text-gray-800 font-semibold hover:bg-yellow-300 {{ request()->routeIs('profil.index') ? 'bg-yellow-300' : '' }}">Profil UKM Musik</a></li>
-                        <li><a href="{{ route('struktur.index') }}" class="text-gray-800 font-semibold hover:bg-yellow-300 {{ request()->routeIs('struktur.index') ? 'bg-yellow-300' : '' }}">Struktur Pengurus</a></li>
-                        <li><a href="{{ route('diklat.register') }}" class="text-gray-800 font-semibold hover:bg-yellow-300 {{ request()->routeIs('diklat.register') ? 'bg-yellow-300' : '' }}">Pendaftaran Diklat</a></li>
-                        <li>
-                            <details>
-                                <summary class="text-gray-800 font-semibold hover:bg-yellow-300">
-                                    Galeri
-                                </summary>
-                                <ul class="p-2 bg-yellow-300 rounded-t-none border-t-0">
-                                    <li><a href="{{ route('kegiatan.index') }}" class="text-gray-800 hover:bg-yellow-200 {{ request()->routeIs('kegiatan.*') ? 'bg-yellow-200' : '' }}">Kegiatan</a></li>
-                                    <li><a href="{{ route('prestasi.index') }}" class="text-gray-800 hover:bg-yellow-200 {{ request()->routeIs('prestasi.*') ? 'bg-yellow-200' : '' }}">Prestasi</a></li>
-                                </ul>
-                            </details>
-                        </li>
-                    </ul>
+                <div class="hidden lg:flex items-center gap-7 ml-auto">
+                    <a href="{{ route('profil.index') }}" class="nav-link {{ request()->routeIs('profil.index') ? 'active' : '' }}">
+                        Tentang
+                    </a>
+                    <a href="{{ route('struktur.index') }}" class="nav-link {{ request()->routeIs('struktur.index') ? 'active' : '' }}">
+                        Tim
+                    </a>
+                    <a href="{{ route('diklat.register') }}" class="nav-link {{ request()->routeIs('diklat.register') ? 'active' : '' }}">
+                        Diklat
+                    </a>
+                    <div class="dropdown dropdown-hover">
+                        <button class="nav-link {{ request()->routeIs('kegiatan.*') || request()->routeIs('prestasi.*') ? 'active' : '' }}">
+                            Galeri
+                        </button>
+                        <ul class="dropdown-content z-50 menu p-2 shadow bg-white rounded-xl w-48 border border-yellow-200">
+                            <li><a href="{{ route('kegiatan.index') }}" class="text-gray-800 hover:bg-yellow-50 {{ request()->routeIs('kegiatan.*') ? 'bg-yellow-100' : '' }}">Kegiatan</a></li>
+                            <li><a href="{{ route('prestasi.index') }}" class="text-gray-800 hover:bg-yellow-50 {{ request()->routeIs('prestasi.*') ? 'bg-yellow-100' : '' }}">Prestasi</a></li>
+                        </ul>
+                    </div>
                 </div>
             </div>
-
-            <!-- Main Content - No Padding -->
-            <div class="flex-1">
-                @yield('content')
+            
+            <!-- Mobile Menu -->
+            <div class="lg:hidden">
+                <div id="mobile-menu" class="fixed left-0 top-20 w-full bg-white shadow-lg transform -translate-x-full transition-transform duration-300 z-40">
+                    <div class="flex flex-col p-4 gap-2">
+                        <a href="{{ route('profil.index') }}" class="px-4 py-3 text-gray-800 font-semibold hover:bg-yellow-50 rounded-lg {{ request()->routeIs('profil.index') ? 'bg-yellow-100' : '' }}">
+                            Tentang
+                        </a>
+                        <a href="{{ route('struktur.index') }}" class="px-4 py-3 text-gray-800 font-semibold hover:bg-yellow-50 rounded-lg {{ request()->routeIs('struktur.index') ? 'bg-yellow-100' : '' }}">
+                            Tim
+                        </a>
+                        <a href="{{ route('diklat.register') }}" class="px-4 py-3 text-gray-800 font-semibold hover:bg-yellow-50 rounded-lg {{ request()->routeIs('diklat.register') ? 'bg-yellow-100' : '' }}">
+                            Diklat
+                        </a>
+                        <a href="{{ route('kegiatan.index') }}" class="px-4 py-3 text-gray-800 font-semibold hover:bg-yellow-50 rounded-lg {{ request()->routeIs('kegiatan.*') ? 'bg-yellow-100' : '' }}">
+                            Galeri - Kegiatan
+                        </a>
+                        <a href="{{ route('prestasi.index') }}" class="px-4 py-3 text-gray-800 font-semibold hover:bg-yellow-50 rounded-lg {{ request()->routeIs('prestasi.*') ? 'bg-yellow-100' : '' }}">
+                            Galeri - Prestasi
+                        </a>
+                    </div>
+                </div>
             </div>
+        </nav>
 
-            <!-- Footer -->
-            <footer class="footer footer-center p-4 bg-gray-800 text-white">
-                <aside>
+        <!-- Main Content -->
+        <main class="flex-1">
+            @yield('content')
+        </main>
+
+        <!-- Footer -->
+        <footer class="mt-auto bg-gradient-to-r from-gray-800 to-gray-900 text-white py-12">
+            <div class="container mx-auto px-4">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+                    <!-- About -->
+                    <div class="text-center md:text-left" data-aos="fade-up">
+                        <h3 class="text-xl font-bold mb-3 flex items-center gap-2 justify-center md:justify-start">
+                            <img src="{{ asset('assets/images/logoukm.png') }}" alt="Logo" class="w-6 h-6">
+                            Satya Palapa
+                        </h3>
+                        <p class="text-gray-300 text-sm">UKM Musik UPN "Veteran" Jawa Timur</p>
+                    </div>
+                    
+                    <!-- Quick Links -->
+                    <div class="text-center" data-aos="fade-up" data-aos-delay="100">
+                        <h4 class="font-bold mb-3">Menu</h4>
+                        <ul class="space-y-2 text-sm text-gray-300">
+                            <li><a href="{{ route('profil.index') }}" class="hover:text-yellow-400 transition-colors">Profil</a></li>
+                            <li><a href="{{ route('diklat.register') }}" class="hover:text-yellow-400 transition-colors">Daftar Diklat</a></li>
+                            <li><a href="{{ route('kegiatan.index') }}" class="hover:text-yellow-400 transition-colors">Galeri</a></li>
+                        </ul>
+                    </div>
+                    
+                    <!-- Contact -->
+                    <div class="text-center md:text-right" data-aos="fade-up" data-aos-delay="200">
+                        <h4 class="font-bold mb-3">Kontak</h4>
+                        <p class="text-gray-300 text-sm">Email: satpals@upnjatim.ac.id</p>
+                        <p class="text-gray-300 text-sm">Instagram: @satpals_upnvjt</p>
+                    </div>
+                </div>
+                
+                <div class="border-t border-gray-700 pt-6 text-center text-sm text-gray-400">
                     <p>Copyright © 2026 - All right reserved by Satya Palapa UKM</p>
-                </aside>
-            </footer>
-        </div>
-
-        <div class="drawer-side z-50">
-            <label for="my-drawer-3" class="drawer-overlay"></label>
-            <ul class="menu p-4 w-80 bg-yellow-300 text-gray-800 min-h-full">
-                <li class="text-lg font-bold mb-2"><a href="/">Satya Palapa</a></li>
-                <li><a href="{{ route('profil.index') }}" class="{{ request()->routeIs('profil.index') ? 'bg-yellow-400' : '' }}">Profil UKM Musik</a></li>
-                <li><a href="{{ route('struktur.index') }}" class="{{ request()->routeIs('struktur.index') ? 'bg-yellow-400' : '' }}">Struktur Pengurus</a></li>
-                <li><a href="{{ route('diklat.register') }}" class="{{ request()->routeIs('diklat.register') ? 'bg-yellow-400' : '' }}">Pendaftaran Diklat</a></li>
-                <li><a href="{{ route('kegiatan.index') }}" class="{{ request()->routeIs('kegiatan.*') ? 'bg-yellow-400' : '' }}">Galeri Kegiatan</a></li>
-                <li><a href="{{ route('prestasi.index') }}" class="{{ request()->routeIs('prestasi.*') ? 'bg-yellow-400' : '' }}">Galeri Prestasi</a></li>
-                <li class="mt-4 border-t border-yellow-400 pt-4"><a href="/admin">Admin Dashboard</a></li>
-            </ul>
-        </div>
+                </div>
+            </div>
+        </footer>
     </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
     <script>
+        // Initialize AOS
+        AOS.init({
+            duration: 800,
+            easing: 'ease-in-out',
+            once: true,
+            offset: 100
+        });
+
+        // Mobile menu toggle
+        const navbarToggle = document.getElementById('navbar-toggle');
+        const mobileMenu = document.getElementById('mobile-menu');
+
+        navbarToggle.addEventListener('change', function() {
+            if (this.checked) {
+                mobileMenu.classList.remove('-translate-x-full');
+            } else {
+                mobileMenu.classList.add('-translate-x-full');
+            }
+        });
+
+        // Close menu when clicking on a link
+        document.querySelectorAll('#mobile-menu a').forEach(link => {
+            link.addEventListener('click', () => {
+                navbarToggle.checked = false;
+                mobileMenu.classList.add('-translate-x-full');
+            });
+        });
+
         // Smooth scroll for anchor links
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
@@ -82,6 +224,26 @@
                         behavior: 'smooth'
                     });
                 }
+            });
+        });
+
+        // Smooth scroll for anchor links that start with '#'
+        document.addEventListener('DOMContentLoaded', function () {
+            const links = document.querySelectorAll('a[href^="#"]');
+
+            links.forEach(link => {
+                link.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href').substring(1);
+                    const targetElement = document.getElementById(targetId);
+
+                    if (targetElement) {
+                        window.scrollTo({
+                            top: targetElement.offsetTop,
+                            behavior: 'smooth'
+                        });
+                    }
+                });
             });
         });
     </script>

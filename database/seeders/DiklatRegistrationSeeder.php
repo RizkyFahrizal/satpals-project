@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use App\Models\DiklatRegistration;
+use App\Models\DiklatPeriod;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -18,6 +19,9 @@ class DiklatRegistrationSeeder extends Seeder
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
         DiklatRegistration::truncate();
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+
+        // Get all periods for random assignment
+        $periods = DiklatPeriod::pluck('id')->toArray();
 
         $registrations = [
             ['9/11/2024 22:59:55', 'chondulady19@gmail.com', 'CHOIRUL WAHYU ADJI', 'Laki', '24082010122', 'Ilmu Komputer', 'Sistem Informasi', 'Bassist', '085259487706'],
@@ -95,6 +99,7 @@ class DiklatRegistrationSeeder extends Seeder
             $jenisKelamin = strtolower($data[3]) === 'laki' ? 'laki-laki' : 'perempuan';
 
             DiklatRegistration::create([
+                'diklat_period_id' => collect($periods)->random(),
                 'nama_lengkap' => trim($data[2]),
                 'jenis_kelamin' => $jenisKelamin,
                 'no_telepon_pribadi' => $phone,
@@ -102,7 +107,9 @@ class DiklatRegistrationSeeder extends Seeder
                 'npm' => trim($data[4]),
                 'fakultas' => trim($data[5]),
                 'prodi' => trim($data[6]),
+                'tahun_masuk' => (rand(0, 1) === 0) ? 2023 : 2024,
                 'spesifikasi' => $spesifikasiArray,
+                'spesifikasi_lainnya' => null,
                 'bukti_pembayaran' => null,
                 'riwayat_penyakit' => null,
                 'riwayat_alergi' => null,

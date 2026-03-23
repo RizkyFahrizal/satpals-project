@@ -14,39 +14,39 @@
         <div class="absolute bottom-20 right-20 w-48 h-48 bg-orange-400/20 rounded-full blur-3xl animate-pulse" style="animation-delay: 1s;"></div>
     </div>
     
-    <div class="max-w-7xl mx-auto px-4 py-20 flex flex-col lg:flex-row items-center justify-between relative z-10 w-full gap-8">
+    <div class="max-w-7xl mx-auto px-4 py-16 md:py-20 flex flex-col lg:flex-row items-center justify-between relative z-10 w-full gap-8">
         <!-- Left Content -->
-        <div class="flex-1 text-center lg:text-left">
-            <div class="inline-block px-4 py-2 bg-yellow-400/20 backdrop-blur-sm rounded-full text-yellow-400 text-sm font-semibold mb-6 border border-yellow-400/30">
+        <div class="flex-1 text-center lg:text-left" data-aos="fade-up">
+            <div class="inline-block px-4 py-2 bg-yellow-400/20 backdrop-blur-sm rounded-full text-yellow-400 text-xs sm:text-sm font-semibold mb-6 border border-yellow-400/30">
                 🎵 UKM Musik Terbaik di Kampus
             </div>
-            <h1 class="text-5xl md:text-7xl font-bold mb-4 leading-tight">
+            <h1 class="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-4 leading-tight">
                 <span class="text-yellow-400 italic">Selengean</span>
                 <span class="text-white"> Tapi</span>
             </h1>
-            <h2 class="text-4xl md:text-6xl font-bold mb-8 leading-tight">
+            <h2 class="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-6 md:mb-8 leading-tight">
                 <span class="text-white">Punya</span>
                 <span class="bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent italic"> Sikap</span>
             </h2>
-            <p class="text-gray-300 text-lg leading-relaxed max-w-xl mb-10">
+            <p class="text-gray-300 text-sm md:text-lg leading-relaxed max-w-xl mb-8 md:mb-10">
                 Unit kegiatan mahasiswa musik Satya Palapa adalah UKM bidang minat bakat di bidang musik. Didirikan pada tanggal 9 September 1999, kami telah melahirkan banyak musisi berbakat.
             </p>
-            <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-                <a href="#services" class="px-8 py-4 bg-gradient-to-r from-yellow-400 to-orange-500 text-gray-900 font-bold rounded-full hover:shadow-lg hover:shadow-yellow-400/30 transition-all duration-300 hover:-translate-y-1">
+            <div class="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center lg:justify-start">
+                <a href="#services" class="px-6 md:px-8 py-3 md:py-4 bg-gradient-to-r from-yellow-400 to-orange-500 text-gray-900 font-bold rounded-full hover:shadow-lg hover:shadow-yellow-400/30 transition-all duration-300 hover:-translate-y-1 hover:scale-105 text-sm md:text-base">
                     Jelajahi Layanan
                 </a>
-                <a href="#about" class="px-8 py-4 bg-white/10 backdrop-blur-sm text-white font-semibold rounded-full border border-white/30 hover:bg-white/20 transition-all duration-300">
+                <a href="#about" class="px-6 md:px-8 py-3 md:py-4 bg-white/10 backdrop-blur-sm text-white font-semibold rounded-full border border-white/30 hover:bg-white/20 transition-all duration-300 hover:scale-105 text-sm md:text-base">
                     Tentang Kami
                 </a>
             </div>
         </div>
         
         <!-- Right Logo -->
-        <div class="flex-1 flex justify-center lg:justify-end">
+        <div class="flex-1 flex justify-center lg:justify-end" data-aos="zoom-in">
             <div class="relative">
                 <!-- Glow Effect -->
                 <div class="absolute inset-0 bg-gradient-to-br from-yellow-400/30 to-orange-500/30 rounded-full blur-3xl scale-110"></div>
-                <img src="{{ asset('assets/images/logoukm.png') }}" alt="UKM Logo" class="w-72 h-72 lg:w-96 lg:h-96 object-contain relative z-10 drop-shadow-2xl hover:scale-105 transition-transform duration-500">
+                <img src="{{ asset('assets/images/logoukm.png') }}" alt="UKM Logo" class="w-48 h-48 sm:w-72 sm:h-72 lg:w-96 lg:h-96 object-contain relative z-10 drop-shadow-2xl hover:scale-110 transition-transform duration-500">
             </div>
         </div>
     </div>
@@ -60,20 +60,20 @@
 </div>
 
 <!-- Services Section - Modern Gradient Background -->
-<div id="services" class="bg-gradient-to-br from-yellow-400 via-amber-400 to-orange-400 py-24 relative overflow-hidden">
+<div id="services" class="bg-gradient-to-br from-yellow-400 via-amber-400 to-orange-400 py-16 md:py-24 relative overflow-hidden">
     <!-- Decorative Elements -->
     <div class="absolute top-0 left-0 w-72 h-72 bg-white/10 rounded-full -translate-x-1/2 -translate-y-1/2"></div>
     <div class="absolute bottom-0 right-0 w-96 h-96 bg-white/10 rounded-full translate-x-1/2 translate-y-1/2"></div>
     
     <div class="max-w-7xl mx-auto px-4 relative z-10">
-        <div class="text-center mb-16">
-            <span class="inline-block px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full text-gray-800 text-sm font-semibold mb-4">Layanan Kami</span>
-            <h2 class="text-4xl md:text-5xl font-bold text-gray-800">Apa yang kita bisa?</h2>
+        <div class="text-center mb-12 md:mb-16">
+            <span class="inline-block px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full text-gray-800 text-xs md:text-sm font-semibold mb-4">Layanan Kami</span>
+            <h2 class="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-800">Apa yang kita bisa?</h2>
         </div>
         
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
             <!-- Service 1 - Pendaftaran Diklat -->
-            <a href="{{ route('diklat.register') }}" class="group bg-white/90 backdrop-blur-sm rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 cursor-pointer hover:-translate-y-2 border border-white/50">
+            <a href="{{ route('diklat.register') }}" class="group bg-white/90 backdrop-blur-sm rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 cursor-pointer hover:-translate-y-2 border border-white/50" data-aos="fade-up">
                 <div class="w-20 h-20 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl mb-5 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
                     <!-- Education/Training Icon -->
                     <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -82,7 +82,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222"/>
                     </svg>
                 </div>
-                <h3 class="text-xl font-bold text-gray-800 mb-2">Pendaftaran Diklat</h3>
+                <h3 class="text-lg md:text-xl font-bold text-gray-800 mb-2">Pendaftaran Diklat</h3>
                 <p class="text-gray-600 text-sm">Pelatihan musik profesional untuk pemula hingga mahir</p>
                 <div class="mt-4 flex items-center text-blue-600 font-semibold text-sm group-hover:gap-2 transition-all">
                     <span>Daftar Sekarang</span>
@@ -93,14 +93,14 @@
             </a>
 
             <!-- Service 2 - Persewaan Alat -->
-            <div class="group bg-white/90 backdrop-blur-sm rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 cursor-pointer hover:-translate-y-2 border border-white/50">
+            <div class="group bg-white/90 backdrop-blur-sm rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 cursor-pointer hover:-translate-y-2 border border-white/50" data-aos="fade-up" data-aos-delay="100">
                 <div class="w-20 h-20 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl mb-5 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
                     <!-- Guitar/Instrument Icon -->
                     <svg class="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M19.59 3.59L21 5l-1.41 1.41-1.41-1.41L19.59 3.59M12 8c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2m-1 9v3h2v-3h-2m4-10.59L16.41 8l1.41-1.41L19.24 8l1.41-1.41L19.24 5.17l1.41-1.41-1.41-1.41-1.41 1.41zM12 6c-3.31 0-6 2.69-6 6 0 2.22 1.21 4.15 3 5.19V21h6v-3.81c1.79-1.04 3-2.97 3-5.19 0-3.31-2.69-6-6-6z"/>
                     </svg>
                 </div>
-                <h3 class="text-xl font-bold text-gray-800 mb-2">Persewaan Alat</h3>
+                <h3 class="text-lg md:text-xl font-bold text-gray-800 mb-2">Persewaan Alat</h3>
                 <p class="text-gray-600 text-sm">Sewa alat musik berkualitas dengan harga terjangkau</p>
                 <div class="mt-4 flex items-center text-emerald-600 font-semibold text-sm group-hover:gap-2 transition-all">
                     <span>Lihat Katalog</span>
@@ -111,14 +111,14 @@
             </div>
 
             <!-- Service 3 - Persewaan Band -->
-            <div class="group bg-white/90 backdrop-blur-sm rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 cursor-pointer hover:-translate-y-2 border border-white/50">
+            <div class="group bg-white/90 backdrop-blur-sm rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 cursor-pointer hover:-translate-y-2 border border-white/50" data-aos="fade-up" data-aos-delay="200">
                 <div class="w-20 h-20 bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl mb-5 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
                     <!-- Band/Group Icon -->
                     <svg class="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M12 3c-1.27 0-2.4.8-2.82 2H3v2h1.95L2 14c-.47 2 1 4 4 4s4.5-2 4-4L7.05 7H9.1c.32.86.94 1.55 1.74 1.97C10.3 9.25 10 9.88 10 10.5c0 1.38 1.12 2.5 2.5 2.5s2.5-1.12 2.5-2.5c0-.62-.3-1.25-.84-1.53.8-.42 1.42-1.11 1.74-1.97h2.05L15 14c-.47 2 1.53 4 4 4s4.5-2 4-4l-2.95-7H22V5h-6.18c-.42-1.2-1.55-2-2.82-2zM4 10l2 5H2l2-5zm14 0l2 5h-4l2-5z"/>
                     </svg>
                 </div>
-                <h3 class="text-xl font-bold text-gray-800 mb-2">Persewaan Band</h3>
+                <h3 class="text-lg md:text-xl font-bold text-gray-800 mb-2">Persewaan Band</h3>
                 <p class="text-gray-600 text-sm">Band profesional untuk acara spesial Anda</p>
                 <div class="mt-4 flex items-center text-purple-600 font-semibold text-sm group-hover:gap-2 transition-all">
                     <span>Booking Band</span>
@@ -129,14 +129,14 @@
             </div>
 
             <!-- Service 4 - Sewa Studio -->
-            <div class="group bg-white/90 backdrop-blur-sm rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 cursor-pointer hover:-translate-y-2 border border-white/50">
+            <div class="group bg-white/90 backdrop-blur-sm rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 cursor-pointer hover:-translate-y-2 border border-white/50" data-aos="fade-up" data-aos-delay="300">
                 <div class="w-20 h-20 bg-gradient-to-br from-orange-500 to-red-600 rounded-2xl mb-5 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
                     <!-- Studio/Mic Icon -->
                     <svg class="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm-1-9c0-.55.45-1 1-1s1 .45 1 1v6c0 .55-.45 1-1 1s-1-.45-1-1V5zm6 6c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
                     </svg>
                 </div>
-                <h3 class="text-xl font-bold text-gray-800 mb-2">Sewa Studio</h3>
+                <h3 class="text-lg md:text-xl font-bold text-gray-800 mb-2">Sewa Studio</h3>
                 <p class="text-gray-600 text-sm">Studio rekaman dengan peralatan lengkap</p>
                 <div class="mt-4 flex items-center text-orange-600 font-semibold text-sm group-hover:gap-2 transition-all">
                     <span>Reservasi</span>
@@ -150,18 +150,18 @@
 </div>
 
 <!-- About Section - Modern Design -->
-<div id="about" class="bg-gradient-to-b from-white to-gray-50 py-24">
+<div id="about" class="bg-gradient-to-b from-white to-gray-50 py-16 md:py-24">
     <div class="max-w-7xl mx-auto px-4">
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-12 items-start">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 md:gap-12 items-start">
             <!-- Left Column - Foto -->
-            <div class="flex justify-center lg:col-span-1">
+            <div class="flex justify-center lg:col-span-1" data-aos="fade-right">
                 <div class="relative group">
                     <!-- Decorative Elements -->
                     <div class="absolute -top-4 -left-4 w-full h-full bg-gradient-to-br from-yellow-400 to-orange-500 rounded-2xl transform rotate-3 group-hover:rotate-6 transition-transform duration-300"></div>
                     <div class="absolute -bottom-4 -right-4 w-24 h-24 bg-yellow-400/30 rounded-full blur-2xl"></div>
                     
                     <!-- Photo Container -->
-                    <div class="relative bg-gradient-to-br from-orange-400 to-orange-500 rounded-2xl overflow-hidden shadow-2xl" style="width: 340px; height: 430px;">
+                    <div class="relative bg-gradient-to-br from-orange-400 to-orange-500 rounded-2xl overflow-hidden shadow-2xl" style="width: 280px; height: 350px;">
                         <img src="{{ asset('assets/images/ketua.png') }}" alt="Ketua UKM" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
                     </div>
                 </div>

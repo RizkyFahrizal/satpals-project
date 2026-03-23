@@ -22,6 +22,7 @@ class DiklatRegistration extends Model
     ];
 
     protected $fillable = [
+        'diklat_period_id',
         'nama_lengkap',
         'jenis_kelamin',
         'no_telepon_pribadi',
@@ -30,6 +31,9 @@ class DiklatRegistration extends Model
         'fakultas',
         'prodi',
         'spesifikasi',
+        'spesifikasi_lainnya',
+        'tahun_masuk',
+        'tahun_daftar',
         'bukti_pembayaran',
         'riwayat_penyakit',
         'riwayat_alergi',
@@ -38,6 +42,9 @@ class DiklatRegistration extends Model
 
     protected $casts = [
         'spesifikasi' => 'array',
+        'spesifikasi_lainnya' => 'array',
+        'tahun_masuk' => 'integer',
+        'tahun_daftar' => 'integer',
     ];
 
     public function getSpesifikasiLabelsAttribute(): array
@@ -65,5 +72,21 @@ class DiklatRegistration extends Model
             self::STATUS_REJECTED => 'red',
             default => 'gray',
         };
+    }
+
+    /**
+     * Relationship: Registration belongs to a period
+     */
+    public function period()
+    {
+        return $this->belongsTo(DiklatPeriod::class, 'diklat_period_id');
+    }
+
+    /**
+     * Get tahun masuk from the period
+     */
+    public function getTahunMasukFromPeriodAttribute(): ?int
+    {
+        return $this->period?->tahun_masuk;
     }
 }

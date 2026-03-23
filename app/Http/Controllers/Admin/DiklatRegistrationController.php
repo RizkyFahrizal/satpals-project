@@ -4,17 +4,23 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\DiklatRegistration;
+use App\Models\DiklatPeriod;
 use App\Models\Member;
 use Illuminate\Http\Request;
 
 class DiklatRegistrationController extends Controller
 {
     /**
-     * Display a listing of the registrations.
+     * Display a listing of the registrations with periods.
      */
     public function index(Request $request)
     {
         $query = DiklatRegistration::query();
+
+        // Filter by period
+        if ($request->filled('period_id')) {
+            $query->where('diklat_period_id', $request->period_id);
+        }
 
         // Filter by status
         if ($request->filled('status')) {
@@ -42,7 +48,10 @@ class DiklatRegistrationController extends Controller
             'rejected' => DiklatRegistration::where('status', 'rejected')->count(),
         ];
 
-        return view('admin.diklat.index', compact('registrations', 'stats'));
+        // Get all periods
+        $periods = DiklatPeriod::all();
+
+        return view('admin.diklat.index', compact('registrations', 'stats', 'periods'));
     }
 
     /**
@@ -87,6 +96,56 @@ class DiklatRegistrationController extends Controller
         }
 
         return back()->with('success', $message);
+    }
+
+    /**
+     * Accept all pending registrations in a period
+     */
+    public function acceptAll(Request $request, DiklatPeriod $period)
+    {
+        $request->validate([
+            'confirm' => 'required|in:yes',
+        ]);
+
+        $count = 0;
+        $pending = $period->registrations()->where('status', 'pending')->get();
+
+        foreach ($pending as $registration) {
+            $registration->update(['status' => 'approved']);
+            
+            // Create member if doesn't exist
+            if (!Member::where('npm', $registration->npm)->exists()) {
+                Member::createFromDiklatRegistration($registration);
+            }
+            $count++;
+        }
+
+        return back()->with('success', "Berhasil menerima {$count} pendaftaran. Data anggota juga sudah ditambahkan.");
+    }
+
+    /**
+     * Accept all pending registrations from all periods
+     */
+    public function acceptAllGlobal(Request $request)
+    {
+        $request->validate([
+            'confirm' => 'required|in:yes',
+        ]);
+
+        $count = 0;
+        $pending = DiklatRegistration::where('status', 'pending')->get();
+
+        foreach ($pending as $registration) {
+            $registration->update(['status' => 'approved']);
+            
+            // Create member if doesn't exist
+            if (!Member::where('npm', $registration->npm)->exists()) {
+                Member::createFromDiklatRegistration($registration);
+            }
+            $count++;
+        }
+
+        return back()->with('success', "Berhasil menerima {$count} pendaftaran dari semua periode. Data anggota juga sudah ditambahkan.");
     }
 
     /**

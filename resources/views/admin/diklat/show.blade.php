@@ -111,6 +111,30 @@
                 </div>
             </div>
 
+            <!-- Tahun Masuk & Tahun Daftar -->
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                <div class="bg-gradient-to-r from-blue-500 to-cyan-600 px-6 py-4">
+                    <h3 class="text-lg font-semibold text-white flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h18M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        </svg>
+                        Informasi Tahun
+                    </h3>
+                </div>
+                <div class="p-6">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="text-sm text-gray-500">Tahun Masuk (Angkatan)</label>
+                            <p class="font-semibold text-gray-800 text-lg">{{ $registration->tahun_masuk ?? '-' }}</p>
+                        </div>
+                        <div>
+                            <label class="text-sm text-gray-500">Tahun Daftar</label>
+                            <p class="font-semibold text-gray-800 text-lg">{{ $registration->tahun_daftar ?? '-' }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Spesifikasi Musik -->
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                 <div class="bg-gradient-to-r from-purple-500 to-pink-600 px-6 py-4">
@@ -137,6 +161,31 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Spesifikasi Lainnya -->
+            @if($registration->spesifikasi_lainnya && count($registration->spesifikasi_lainnya) > 0)
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                <div class="bg-gradient-to-r from-indigo-500 to-purple-600 px-6 py-4">
+                    <h3 class="text-lg font-semibold text-white flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/>
+                        </svg>
+                        Spesifikasi Lainnya
+                    </h3>
+                </div>
+                <div class="p-6">
+                    <div class="flex flex-wrap gap-3">
+                        @foreach($registration->spesifikasi_lainnya as $spec)
+                            @if(!empty($spec))
+                            <span class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium bg-indigo-100 text-indigo-700 border border-indigo-200">
+                                🎵 {{ $spec }}
+                            </span>
+                            @endif
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+            @endif
 
             <!-- Riwayat Kesehatan -->
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">

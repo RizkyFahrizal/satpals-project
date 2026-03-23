@@ -31,8 +31,35 @@
                 <p class="text-gray-700">Lengkapi data berikut dengan benar</p>
             </div>
 
+            <!-- Status Alert -->
+            @if(!$isOpen)
+                <div class="bg-red-50 border-l-4 border-red-500 p-6 m-8 rounded-r-lg">
+                    <div class="flex items-start">
+                        <svg class="w-6 h-6 text-red-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4v.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <div class="ml-4">
+                            <h3 class="text-lg font-bold text-red-800">Pendaftaran Ditutup</h3>
+                            <p class="text-red-700 mt-1">Maaf, pendaftaran diklat sedang tidak dibuka. Silahkan hubungi pengurus untuk informasi lebih lanjut.</p>
+                        </div>
+                    </div>
+                </div>
+            @elseif($isOpen && $activePeriod)
+                <div class="bg-green-50 border-l-4 border-green-500 p-6 m-8 rounded-r-lg">
+                    <div class="flex items-start">
+                        <svg class="w-6 h-6 text-green-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m7 0a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <div class="ml-4">
+                            <h3 class="text-lg font-bold text-green-800">Pendaftaran Dibuka</h3>
+                            <p class="text-green-700 mt-1"><strong>Periode:</strong> {{ $activePeriod->nama_periode }} (Angkatan {{ $activePeriod->tahun_masuk }})</p>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
             <!-- Form Body -->
-            <form action="{{ route('diklat.store') }}" method="POST" enctype="multipart/form-data" class="p-8 space-y-6">
+            <form action="{{ route('diklat.store') }}" method="POST" enctype="multipart/form-data" class="p-8 space-y-6" {{ !$isOpen ? 'style=pointer-events:none;opacity:0.5' : '' }}>
                 @csrf
 
                 <!-- Data Pribadi Section -->
@@ -174,7 +201,44 @@
                 <!-- Divider -->
                 <div class="border-t border-gray-100"></div>
 
-                <!-- Spesifikasi Musik Section -->
+                <!-- Tahun Masuk & Tahun Daftar Section -->
+                <div class="space-y-6">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-xl flex items-center justify-center">
+                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h18M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-800">Tahun Masuk (Angkatan)</h3>
+                    </div>
+
+                    @if($isOpen && $activePeriod)
+                    <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-lg">
+                        <p class="text-blue-800 font-semibold">Tahun Masuk: <span class="text-lg">{{ $activePeriod->tahun_masuk }}</span></p>
+                        <p class="text-blue-700 text-sm mt-1">Sesuai dengan periode pendaftaran yang sedang dibuka</p>
+                    </div>
+
+                    <div>
+                        <label for="tahun_daftar" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Tahun Daftar <span class="text-red-500">*</span>
+                        </label>
+                        <input type="number" id="tahun_daftar" name="tahun_daftar" 
+                            value="{{ old('tahun_daftar', $activePeriod->tahun_masuk ?? 2022) }}"
+                            min="2020" max="{{ date('Y') }}"
+                            class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-400 focus:ring-2 focus:ring-blue-400/20 transition-all"
+                            placeholder="Masukkan tahun daftar" required>
+                        <p class="text-xs text-gray-500 mt-2">Contoh: 2022, 2023, 2024, dll</p>
+                        @error('tahun_daftar')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+                    @endif
+                </div>
+
+                <!-- Divider -->
+                <div class="border-t border-gray-100"></div>
+
+                <!-- Spesifikasi Musik & Custom Section -->
                 <div class="space-y-6">
                     <div class="flex items-center gap-3 mb-4">
                         <div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center">
@@ -219,6 +283,46 @@
                     @error('spesifikasi')
                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
+
+                    <!-- Spesifikasi Lainnya (Custom) -->
+                    <div class="mt-6 p-4 rounded-xl bg-gradient-to-br from-purple-50 to-pink-50 border border-purple-200">
+                        <h4 class="text-sm font-semibold text-purple-900 mb-3">🎵 Spesifikasi Lainnya (Opsional)</h4>
+                        <p class="text-xs text-purple-700 mb-3">Tambahkan instrumen lain seperti DJ, Violin, Harmonica, Saxophone, dll</p>
+                        
+                        <!-- Custom Instrument Inputs -->
+                        <div id="spesifikasi-lainnya-container" class="space-y-2">
+                            @if(old('spesifikasi_lainnya'))
+                                @foreach(old('spesifikasi_lainnya') as $index => $spec)
+                                    @if(!empty($spec))
+                                    <div class="flex gap-2 items-center">
+                                        <input type="text" name="spesifikasi_lainnya[]" value="{{ $spec }}"
+                                            class="flex-1 px-3 py-2 rounded-lg border border-purple-300 bg-white text-sm focus:border-purple-500 focus:ring-1 focus:ring-purple-500"
+                                            placeholder="Misal: DJ, Violin, Harmonica">
+                                        <button type="button" onclick="this.parentElement.remove()"
+                                            class="px-3 py-2 rounded-lg bg-red-100 text-red-600 hover:bg-red-200 text-sm font-medium transition-colors">
+                                            Hapus
+                                        </button>
+                                    </div>
+                                    @endif
+                                @endforeach
+                            @endif
+                            <div class="flex gap-2 items-center">
+                                <input type="text" name="spesifikasi_lainnya[]" 
+                                    class="flex-1 px-3 py-2 rounded-lg border border-purple-300 bg-white text-sm focus:border-purple-500 focus:ring-1 focus:ring-purple-500"
+                                    placeholder="Misal: DJ, Violin, Harmonica">
+                                <button type="button" onclick="this.parentElement.remove()"
+                                    class="px-3 py-2 rounded-lg bg-red-100 text-red-600 hover:bg-red-200 text-sm font-medium transition-colors">
+                                    Hapus
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Add More Button -->
+                        <button type="button" id="tambah-spesifikasi-btn" 
+                            class="mt-3 w-full px-4 py-2 rounded-lg border-2 border-dashed border-purple-300 text-purple-600 hover:bg-purple-50 font-medium text-sm transition-colors">
+                            + Tambah Spesifikasi Lainnya
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Divider -->
@@ -235,15 +339,35 @@
                         <h3 class="text-lg font-semibold text-gray-800">Bukti Pembayaran</h3>
                     </div>
 
+                    @if($isOpen && $activePeriod)
+                    <!-- Bank Account Info -->
+                    <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-lg mb-4">
+                        <h4 class="font-bold text-blue-900 mb-2">📱 Informasi Rekening Pembayaran:</h4>
+                        <div class="text-blue-800 text-sm whitespace-pre-wrap font-mono">{{ $activePeriod->rekening_info }}</div>
+                        <p class="text-blue-700 text-xs mt-3">💡 Setelah melakukan transfer, upload bukti pembayaran di bawah ini</p>
+                    </div>
+
+                    <!-- Tahun Masuk Display (Auto-filled) -->
+                    <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                            Tahun Masuk (Angkatan)
+                        </label>
+                        <input type="text" readonly value="{{ $activePeriod->tahun_masuk }}" 
+                            class="w-full px-4 py-3 rounded-xl border border-gray-300 bg-gray-100 text-gray-700 font-semibold cursor-not-allowed">
+                        <p class="text-xs text-gray-500 mt-1">Tahun masuk otomatis sesuai periode yang dibuka</p>
+                    </div>
+                    @endif
+
+                    <!-- Upload Bukti Pembayaran -->
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-2">
                             Upload Bukti Pembayaran <span class="text-red-500">*</span>
                         </label>
                         <div class="relative">
                             <input type="file" id="bukti_pembayaran" name="bukti_pembayaran" required accept="image/*"
-                                class="hidden" onchange="previewImage(this)">
+                                class="hidden" onchange="previewImage(this)" {{ !$isOpen ? 'disabled' : '' }}>
                             <label for="bukti_pembayaran" 
-                                class="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors">
+                                class="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors {{ !$isOpen ? 'opacity-50 cursor-not-allowed' : '' }}">
                                 <div id="upload-placeholder" class="flex flex-col items-center justify-center pt-5 pb-6">
                                     <svg class="w-12 h-12 text-gray-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
@@ -330,5 +454,22 @@ function previewImage(input) {
         reader.readAsDataURL(input.files[0]);
     }
 }
+
+// Tambah Spesifikasi Lainnya functionality
+document.getElementById('tambah-spesifikasi-btn').addEventListener('click', function() {
+    const container = document.getElementById('spesifikasi-lainnya-container');
+    const newInput = document.createElement('div');
+    newInput.className = 'flex gap-2 items-center';
+    newInput.innerHTML = `
+        <input type="text" name="spesifikasi_lainnya[]" 
+            class="flex-1 px-3 py-2 rounded-lg border border-purple-300 bg-white text-sm focus:border-purple-500 focus:ring-1 focus:ring-purple-500"
+            placeholder="Misal: DJ, Violin, Harmonica">
+        <button type="button" onclick="this.parentElement.remove()"
+            class="px-3 py-2 rounded-lg bg-red-100 text-red-600 hover:bg-red-200 text-sm font-medium transition-colors">
+            Hapus
+        </button>
+    `;
+    container.insertBefore(newInput, this);
+});
 </script>
 @endsection
