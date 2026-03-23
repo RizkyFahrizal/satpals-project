@@ -79,16 +79,6 @@
         </div>
     </div>
 
-    <!-- Period & Filter Bar -->
-    <div class="flex items-center gap-3 mb-6">
-        <a href="{{ route('admin.diklat.periods.index') }}" class="btn btn-outline btn-sm gap-2">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h18M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-            </svg>
-            Kelola Periode
-        </a>
-    </div>
-
     <!-- Filters -->
     <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
         <form action="{{ route('admin.diklat.index') }}" method="GET" class="flex flex-col md:flex-row gap-4">
@@ -185,7 +175,7 @@
                         <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Nama Lengkap</th>
                         <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">NPM</th>
                         <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Fakultas/Prodi</th>
-                        <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Tahun</th>
+                        <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Angkatan</th>
                         <th class="px-6 py-4 text-center text-sm font-semibold text-gray-700">Status</th>
                         <th class="px-6 py-4 text-center text-sm font-semibold text-gray-700">Aksi</th>
                     </tr>
@@ -216,8 +206,7 @@
                         </td>
                         <td class="px-6 py-4 text-sm">
                             <div class="space-y-1">
-                                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Angkatan: <span class="text-gray-700">{{ $reg->period->tahun_masuk ?? $reg->tahun_masuk ?? '-' }}</span></p>
-                                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Daftar: <span class="text-gray-700">{{ $reg->tahun_daftar ?? '-' }}</span></p>
+                                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide"><span class="text-gray-700">{{ $reg->period->tahun_masuk ?? $reg->tahun_masuk ?? '-' }}</span></p>
                             </div>
                         </td>
                         <td class="px-6 py-4 text-center">
