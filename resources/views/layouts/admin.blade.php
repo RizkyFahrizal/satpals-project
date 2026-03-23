@@ -37,7 +37,7 @@
             <!-- Logo Section -->
             <div class="p-6 border-b border-yellow-200 bg-gradient-to-r from-yellow-50 to-orange-50">
                 <div class="flex items-center gap-3 mb-2">
-                    <img src="{{ asset('images/logo-satpals.png') }}" alt="Logo Satya Palapa" class="w-10 h-10 object-contain rounded-lg">
+                    <img src="{{ asset('assets/images/logoukm.png') }}" alt="Logo Satya Palapa" class="w-10 h-10 object-contain rounded-lg">
                     <div>
                         <h1 class="text-lg font-bold text-gray-800">Satya Palapa</h1>
                         <p class="text-xs text-gray-500 font-medium">UKM Musik</p>
