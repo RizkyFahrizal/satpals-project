@@ -91,11 +91,6 @@
                         </ul>
                     </div>
                 </div>
-                
-                <!-- Admin Button (Desktop) -->
-                <a href="/admin" class="hidden lg:inline-block px-4 py-2 bg-white text-orange-500 font-bold rounded-lg hover:bg-gray-100 hover:shadow-lg transition-all duration-300 ml-auto">
-                    Admin
-                </a>
             </div>
             
             <!-- Mobile Menu -->
@@ -117,11 +112,6 @@
                         <a href="{{ route('prestasi.index') }}" class="px-4 py-3 text-gray-800 font-semibold hover:bg-yellow-50 rounded-lg {{ request()->routeIs('prestasi.*') ? 'bg-yellow-100' : '' }}">
                             Prestasi
                         </a>
-                        <div class="border-t border-yellow-200 pt-2 mt-2">
-                            <a href="/admin" class="block px-4 py-3 bg-orange-500 text-white font-semibold rounded-lg hover:bg-orange-600 text-center">
-                                Admin Dashboard
-                            </a>
-                        </div>
                     </div>
                 </div>
             </div>
