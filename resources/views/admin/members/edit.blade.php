@@ -176,7 +176,6 @@
                         class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 transition-all @error('status') border-red-500 @enderror">
                         <option value="aktif" {{ old('status', $member->status) === 'aktif' ? 'selected' : '' }}>✅ Aktif</option>
                         <option value="alumni" {{ old('status', $member->status) === 'alumni' ? 'selected' : '' }}>🎓 Alumni</option>
-                        <option value="keluar" {{ old('status', $member->status) === 'keluar' ? 'selected' : '' }}>❌ Keluar</option>
                     </select>
                     @error('status')
                     <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
@@ -213,6 +212,21 @@
                     </div>
                     @error('spesifikasi')
                     <p class="text-red-500 text-xs mt-2">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <!-- Spesifikasi Lainnya -->
+                <div class="md:col-span-2">
+                    <label for="spesifikasi_lainnya" class="block text-sm font-semibold text-gray-700 mb-2">
+                        Spesifikasi Lainnya
+                    </label>
+                    <p class="text-xs text-gray-500 mb-3">Tambahkan spesifikasi tambahan jika ada (pisahkan dengan koma)</p>
+                    <input type="text" name="spesifikasi_lainnya" id="spesifikasi_lainnya" 
+                        value="{{ old('spesifikasi_lainnya', $member->spesifikasi_lainnya ? implode(', ', $member->spesifikasi_lainnya) : '') }}"
+                        class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 transition-all @error('spesifikasi_lainnya') border-red-500 @enderror"
+                        placeholder="Contoh: Biola, Kecapi, atau instrumen lainnya">
+                    @error('spesifikasi_lainnya')
+                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                     @enderror
                 </div>
             </div>

@@ -76,11 +76,19 @@ class MemberController extends Controller
             'prodi' => 'required|string|max:255',
             'spesifikasi' => 'required|array|min:1',
             'spesifikasi.*' => 'in:drum,keyboard,vocal,bass,guitar',
+            'spesifikasi_lainnya' => 'nullable|string',
             'tahun_daftar' => 'required|integer|min:2000|max:' . (now()->year + 1),
             'angkatan' => 'required|string|max:10',
-            'status' => 'required|in:aktif,alumni,keluar',
+            'status' => 'required|in:aktif,alumni',
             'foto' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ]);
+
+        // Convert spesifikasi_lainnya string to array
+        if ($validated['spesifikasi_lainnya']) {
+            $validated['spesifikasi_lainnya'] = array_map('trim', explode(',', $validated['spesifikasi_lainnya']));
+        } else {
+            $validated['spesifikasi_lainnya'] = null;
+        }
 
         if ($request->hasFile('foto')) {
             $file = $request->file('foto');
@@ -126,11 +134,19 @@ class MemberController extends Controller
             'prodi' => 'required|string|max:255',
             'spesifikasi' => 'required|array|min:1',
             'spesifikasi.*' => 'in:drum,keyboard,vocal,bass,guitar',
+            'spesifikasi_lainnya' => 'nullable|string',
             'tahun_daftar' => 'required|integer|min:2000|max:' . (now()->year + 1),
             'angkatan' => 'required|string|max:10',
-            'status' => 'required|in:aktif,alumni,keluar',
+            'status' => 'required|in:aktif,alumni',
             'foto' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ]);
+
+        // Convert spesifikasi_lainnya string to array
+        if ($validated['spesifikasi_lainnya']) {
+            $validated['spesifikasi_lainnya'] = array_map('trim', explode(',', $validated['spesifikasi_lainnya']));
+        } else {
+            $validated['spesifikasi_lainnya'] = null;
+        }
 
         if ($request->hasFile('foto')) {
             // Delete old photo
@@ -155,7 +171,7 @@ class MemberController extends Controller
     public function updateStatus(Request $request, Member $member)
     {
         $request->validate([
-            'status' => 'required|in:aktif,alumni,keluar',
+            'status' => 'required|in:aktif,alumni',
         ]);
 
         $member->update(['status' => $request->status]);
