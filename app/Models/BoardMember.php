@@ -30,9 +30,12 @@ class BoardMember extends Model
     protected $fillable = [
         'member_id',
         'user_id',
+        'diklat_period_id',
         'jabatan',
         'divisi',
         'periode',
+        'tanggal_buka',
+        'tanggal_tutup',
         'is_active',
         'urutan',
         'foto',
@@ -41,6 +44,8 @@ class BoardMember extends Model
     protected $casts = [
         'is_active' => 'boolean',
         'urutan' => 'integer',
+        'tanggal_buka' => 'datetime',
+        'tanggal_tutup' => 'datetime',
     ];
 
     /**
@@ -49,6 +54,14 @@ class BoardMember extends Model
     public function member()
     {
         return $this->belongsTo(Member::class);
+    }
+
+    /**
+     * Relationship with DiklatPeriod
+     */
+    public function diklatPeriod()
+    {
+        return $this->belongsTo(DiklatPeriod::class);
     }
 
     /**

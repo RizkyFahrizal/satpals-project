@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\BoardMember;
 use App\Models\Member;
+use App\Models\DiklatPeriod;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -47,6 +48,9 @@ class BoardMemberController extends Controller
 
         $jabatanOptions = BoardMember::JABATAN_OPTIONS;
 
+        // Get diklat periods for form select
+        $diklatPeriods = DiklatPeriod::orderBy('tahun_masuk', 'desc')->get();
+
         return view('admin.board.index', compact(
             'boardMembers', 
             'grouped', 
@@ -54,7 +58,8 @@ class BoardMemberController extends Controller
             'selectedPeriode', 
             'currentPeriode',
             'availableMembers',
-            'jabatanOptions'
+            'jabatanOptions',
+            'diklatPeriods'
         ));
     }
 
@@ -65,6 +70,7 @@ class BoardMemberController extends Controller
     {
         $validated = $request->validate([
             'member_id' => 'required|exists:members,id',
+            'diklat_period_id' => 'nullable|exists:diklat_periods,id',
             'jabatan' => 'required|string',
             'periode' => 'required|string',
             'foto' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
@@ -81,6 +87,17 @@ class BoardMemberController extends Controller
         // Get max urutan
         $maxUrutan = BoardMember::where('periode', $validated['periode'])->max('urutan') ?? 0;
 
+        // Get tanggal_buka and tanggal_tutup from diklat_period if provided
+        $tanggalBuka = null;
+        $tanggalTutup = null;
+        if ($validated['diklat_period_id']) {
+            $period = \App\Models\DiklatPeriod::find($validated['diklat_period_id']);
+            if ($period) {
+                $tanggalBuka = $period->tanggal_buka;
+                $tanggalTutup = $period->tanggal_tutup;
+            }
+        }
+
         // Handle foto upload
         $fotoPath = null;
         if ($request->hasFile('foto')) {
@@ -89,8 +106,11 @@ class BoardMemberController extends Controller
 
         $boardMember = BoardMember::create([
             'member_id' => $validated['member_id'],
+            'diklat_period_id' => $validated['diklat_period_id'],
             'jabatan' => $validated['jabatan'],
             'periode' => $validated['periode'],
+            'tanggal_buka' => $tanggalBuka,
+            'tanggal_tutup' => $tanggalTutup,
             'foto' => $fotoPath,
             'is_active' => true,
             'urutan' => $maxUrutan + 1,
@@ -174,6 +194,46 @@ class BoardMemberController extends Controller
         $boardMember->delete();
 
         return back()->with('success', 'Pengurus berhasil dihapus dari struktur.');
+    }
+
+    /**
+     * Search members for board position (API endpoint)
+     */
+    public function searchMembers(Request $request)
+    {
+        $search = $request->get('search', '');
+        $periode = $request->get('periode');
+
+        $query = Member::where('status', 'aktif');
+
+        // Search by nama or jabatan from board_members
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('nama_lengkap', 'like', "%{$search}%")
+                  ->orWhere('npm', 'like', "%{$search}%");
+            });
+        }
+
+        // Exclude members who already have position in this periode
+        if ($periode) {
+            $query->whereDoesntHave('boardPositions', function($q) use ($periode) {
+                $q->where('periode', $periode);
+            });
+        }
+
+        $members = $query->select('id', 'nama_lengkap', 'npm', 'prodi')
+            ->limit(10)
+            ->get()
+            ->map(function($member) {
+                return [
+                    'id' => $member->id,
+                    'text' => "{$member->nama_lengkap} ({$member->npm}) - {$member->prodi}",
+                    'nama_lengkap' => $member->nama_lengkap,
+                    'npm' => $member->npm,
+                ];
+            });
+
+        return response()->json($members);
     }
 
     /**
