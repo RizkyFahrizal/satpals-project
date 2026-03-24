@@ -265,7 +265,7 @@
             @csrf
             <input type="hidden" name="periode" value="{{ $selectedPeriode }}">
             
-            <!-- Member Selection -->
+            <!-- Member Selection (Searchable) -->
             <div>
                 <label class="block text-sm font-semibold text-gray-700 mb-2">
                     Pilih Anggota <span class="text-red-500">*</span>
@@ -276,13 +276,32 @@
                     <a href="{{ route('admin.members.index') }}" class="text-yellow-800 font-semibold hover:underline">Kelola Data Anggota →</a>
                 </div>
                 @else
-                <select name="member_id" required class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 transition-all">
-                    <option value="">-- Pilih Anggota --</option>
-                    @foreach($availableMembers as $member)
-                    <option value="{{ $member->id }}">{{ $member->nama_lengkap }} ({{ $member->npm }})</option>
+                <div class="relative">
+                    <input type="text" id="searchMember" placeholder="Cari anggota (nama/npm)..." 
+                        class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 transition-all">
+                    <select name="member_id" id="memberSelect" required class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 transition-all mt-2">
+                        <option value="">-- Pilih Dari Hasil Pencarian --</option>
+                    </select>
+                    <div id="searchResults" class="hidden absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-xl shadow-lg z-10 max-h-48 overflow-y-auto"></div>
+                </div>
+                @endif
+            </div>
+            
+            <!-- Diklat Period Selection (untuk timestamp) -->
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                    Periode Diklat
+                </label>
+                <select name="diklat_period_id" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 transition-all">
+                    <option value="">-- Tidak Ada (Tanpa Periode) --</option>
+                    @php
+                        $diklatPeriods = \App\Models\DiklatPeriod::orderBy('tahun_masuk', 'desc')->get();
+                    @endphp
+                    @foreach($diklatPeriods as $period)
+                    <option value="{{ $period->id }}">{{ $period->nama_periode }} ({{ $period->tahun_masuk }})</option>
                     @endforeach
                 </select>
-                @endif
+                <p class="text-xs text-gray-500 mt-1">Pilih periode untuk otomatis set tanggal dibuka/ditutup</p>
             </div>
             
             <!-- Jabatan -->
@@ -460,6 +479,76 @@
 @endforeach
 
 @section('scripts')
+<script>
+// Search Members Functionality
+document.addEventListener('DOMContentLoaded', () => {
+    const searchInput = document.getElementById('searchMember');
+    const resultsDiv = document.getElementById('searchResults');
+    const memberSelect = document.getElementById('memberSelect');
+    const periodSelect = document.querySelector('select[name="diklat_period_id"]');
+
+    if (!searchInput) return;
+
+    let searchTimeout;
+
+    searchInput.addEventListener('input', async (e) => {
+        clearTimeout(searchTimeout);
+        const search = e.target.value.trim();
+
+        if (search.length < 2) {
+            resultsDiv.classList.add('hidden');
+            memberSelect.value = '';
+            return;
+        }
+
+        // Get selected period
+        const periode = periodSelect?.value || '';
+
+        searchTimeout = setTimeout(async () => {
+            try {
+                const params = new URLSearchParams();
+                params.append('search', search);
+                if (periode) params.append('periode', periode);
+
+                const response = await fetch(`/admin/board/search-members?${params.toString()}`);
+                const members = await response.json();
+
+                if (members.length === 0) {
+                    resultsDiv.innerHTML = '<div class="px-4 py-3 text-sm text-gray-500">Tidak ada anggota ditemukan</div>';
+                } else {
+                    resultsDiv.innerHTML = members.map(member => `
+                        <div class="px-4 py-2 hover:bg-yellow-50 cursor-pointer border-b last:border-b-0 transition-colors" 
+                             onclick="selectMember(${member.id}, '${member.nama_lengkap.replace(/'/g, "\\'")}')">
+                            <div class="text-sm font-semibold text-gray-700">${member.nama_lengkap}</div>
+                            <div class="text-xs text-gray-500">${member.npm}</div>
+                        </div>
+                    `).join('');
+                }
+
+                resultsDiv.classList.remove('hidden');
+            } catch (error) {
+                console.error('Search error:', error);
+                resultsDiv.innerHTML = '<div class="px-4 py-2 text-sm text-red-500">Error saat mencari</div>';
+                resultsDiv.classList.remove('hidden');
+            }
+        }, 300);
+    });
+
+    // Close results when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('#searchMember') && !e.target.closest('#searchResults')) {
+            resultsDiv.classList.add('hidden');
+        }
+    });
+
+    // Global function to select member
+    window.selectMember = (id, nama) => {
+        memberSelect.value = id;
+        searchInput.value = nama;
+        resultsDiv.classList.add('hidden');
+    };
+});
+</script>
 <script>
 function previewFoto(input, previewId) {
     const preview = document.getElementById(previewId);
