@@ -91,7 +91,6 @@
                     <option value="">Semua Status</option>
                     <option value="aktif" {{ request('status') === 'aktif' ? 'selected' : '' }}>✅ Aktif</option>
                     <option value="alumni" {{ request('status') === 'alumni' ? 'selected' : '' }}>🎓 Alumni</option>
-                    <option value="keluar" {{ request('status') === 'keluar' ? 'selected' : '' }}>❌ Keluar</option>
                 </select>
             </div>
 
@@ -213,7 +212,6 @@
                                         @endif">
                                         <option value="aktif" {{ $member->status === 'aktif' ? 'selected' : '' }}>Aktif</option>
                                         <option value="alumni" {{ $member->status === 'alumni' ? 'selected' : '' }}>Alumni</option>
-                                        <option value="keluar" {{ $member->status === 'keluar' ? 'selected' : '' }}>Keluar</option>
                                     </select>
                                 </div>
                             </form>

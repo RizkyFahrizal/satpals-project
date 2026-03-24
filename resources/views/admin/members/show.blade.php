@@ -47,10 +47,6 @@
                         <span class="px-4 py-1.5 bg-blue-100 text-blue-700 font-semibold rounded-full">
                             🎓 Alumni
                         </span>
-                        @else
-                        <span class="px-4 py-1.5 bg-red-100 text-red-700 font-semibold rounded-full">
-                            ❌ Keluar
-                        </span>
                         @endif
                     </div>
 
