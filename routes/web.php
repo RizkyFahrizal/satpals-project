@@ -80,6 +80,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin.access'])->gr
     
     // Board Member (Struktur Pengurus) Management
     Route::get('/board', [BoardMemberController::class, 'index'])->name('board.index');
+    Route::get('/board/search-members', [BoardMemberController::class, 'searchMembers'])->name('board.search-members');
     Route::post('/board', [BoardMemberController::class, 'store'])->name('board.store');
     Route::put('/board/{boardMember}', [BoardMemberController::class, 'update'])->name('board.update');
     Route::patch('/board/{boardMember}/toggle-status', [BoardMemberController::class, 'toggleStatus'])->name('board.toggle-status');
