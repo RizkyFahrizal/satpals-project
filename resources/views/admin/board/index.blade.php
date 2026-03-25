@@ -295,9 +295,7 @@
                 <div class="relative">
                     <input type="text" id="searchMember" placeholder="Cari anggota (nama/npm)..." 
                         class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 transition-all">
-                    <select name="member_id" id="memberSelect" required class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 transition-all mt-2">
-                        <option value="">-- Pilih Dari Hasil Pencarian --</option>
-                    </select>
+                    <input type="hidden" name="member_id" id="memberInput">
                     <div id="searchResults" class="hidden absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-xl shadow-lg z-10 max-h-48 overflow-y-auto"></div>
                 </div>
                 @endif
@@ -497,9 +495,8 @@
 document.addEventListener('DOMContentLoaded', () => {
     const searchInput = document.getElementById('searchMember');
     const resultsDiv = document.getElementById('searchResults');
-    const memberSelect = document.getElementById('memberSelect');
+    const memberInput = document.getElementById('memberInput');
     const periodeSelect = document.getElementById('periodeSelect');
-    const periodSelect = document.querySelector('select[name="diklat_period_id"]');
 
     if (!searchInput) return;
 
@@ -511,7 +508,8 @@ document.addEventListener('DOMContentLoaded', () => {
             if (searchInput.value.length >= 2) {
                 searchInput.dispatchEvent(new Event('input'));
             }
-            memberSelect.value = ''; // Clear selection
+            memberInput.value = ''; // Clear selection
+            searchInput.value = ''; // Clear search
         });
     }
 
@@ -521,7 +519,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (search.length < 2) {
             resultsDiv.classList.add('hidden');
-            memberSelect.value = '';
+            memberInput.value = '';
             return;
         }
 
@@ -567,8 +565,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Global function to select member
     window.selectMember = (id, nama) => {
-        memberSelect.value = id;
-        searchInput.value = nama;
+        memberInput.value = id;
+        document.getElementById('searchMember').value = nama;
         resultsDiv.classList.add('hidden');
     };
 });
