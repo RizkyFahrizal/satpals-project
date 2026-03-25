@@ -411,9 +411,10 @@
                         {{ strtoupper(substr($board->member->nama_lengkap, 0, 1)) }}
                     @endif
                 </div>
-                <div>
+                <div class="flex-1">
                     <p class="font-bold text-gray-800">{{ $board->member->nama_lengkap }}</p>
                     <p class="text-sm text-gray-500">{{ $board->member->npm }}</p>
+                    <p class="text-xs text-gray-400 mt-1">Periode: {{ $board->periode }}</p>
                 </div>
             </div>
             
@@ -444,6 +445,29 @@
                 <input type="number" name="urutan" value="{{ $board->urutan }}" min="0" 
                     class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-400 focus:ring-2 focus:ring-blue-400/20 transition-all">
             </div>
+
+            <!-- Status -->
+            <div>
+                <label class="flex items-center gap-3">
+                    <input type="checkbox" name="is_active" value="1" {{ $board->is_active ? 'checked' : '' }}
+                        class="w-5 h-5 rounded border-gray-300 text-blue-500 focus:ring-blue-400 cursor-pointer">
+                    <span class="text-sm font-semibold text-gray-700">Status Aktif</span>
+                </label>
+            </div>
+
+            <!-- Periode Diklat Info -->
+            @if($board->diklatPeriod)
+            <div class="bg-blue-50 border border-blue-200 rounded-xl p-4">
+                <p class="text-sm font-semibold text-blue-900 mb-2">Periode Diklat</p>
+                <p class="text-sm text-blue-700">{{ $board->diklatPeriod->nama_periode }} ({{ $board->diklatPeriod->tahun_masuk }})</p>
+                @if($board->tanggal_buka)
+                <p class="text-xs text-blue-600 mt-1">Dibuka: {{ $board->tanggal_buka->format('d/m/Y') }}</p>
+                @endif
+                @if($board->tanggal_tutup)
+                <p class="text-xs text-blue-600">Ditutup: {{ $board->tanggal_tutup->format('d/m/Y') }}</p>
+                @endif
+            </div>
+            @endif
             
             <!-- Foto Upload -->
             <div>

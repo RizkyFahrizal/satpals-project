@@ -156,6 +156,7 @@ class BoardMemberController extends Controller
         $validated = $request->validate([
             'jabatan' => 'required|string',
             'urutan' => 'nullable|integer|min:0',
+            'is_active' => 'nullable|boolean',
             'foto' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
             'hapus_foto' => 'nullable|boolean',
         ]);
@@ -177,6 +178,9 @@ class BoardMemberController extends Controller
         } else {
             unset($validated['foto']);
         }
+
+        // Convert is_active to boolean
+        $validated['is_active'] = (bool) $request->filled('is_active');
 
         unset($validated['hapus_foto']);
         $boardMember->update($validated);
