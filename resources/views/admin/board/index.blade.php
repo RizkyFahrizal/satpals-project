@@ -532,6 +532,8 @@
 </div>
 @endforeach
 
+@endsection
+
 @section('scripts')
 <script>
 // Search Members Functionality
