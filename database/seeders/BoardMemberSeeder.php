@@ -18,7 +18,8 @@ class BoardMemberSeeder extends Seeder
         // Clear existing board members
         BoardMember::truncate();
 
-        $currentPeriode = '2026';
+        // Use BoardMember::getCurrentPeriode() to get proper format (e.g., "2025/2026" for March 2026)
+        $currentPeriode = BoardMember::getCurrentPeriode();
         $diklatPeriodId = 1; // Periode Diklat Angkatan 2023
 
         // Define board structure
