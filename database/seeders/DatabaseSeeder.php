@@ -19,6 +19,7 @@ class DatabaseSeeder extends Seeder
             DiklatPeriodSeeder::class,
             DiklatRegistrationSeeder::class,
             BoardMemberSeeder::class,
+            BoardMemberUserSeeder::class,
         ]);
     }
 }
