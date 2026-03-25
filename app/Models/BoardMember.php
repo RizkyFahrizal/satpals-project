@@ -32,7 +32,6 @@ class BoardMember extends Model
         'user_id',
         'diklat_period_id',
         'jabatan',
-        'divisi',
         'periode',
         'tanggal_buka',
         'tanggal_tutup',
@@ -78,14 +77,6 @@ class BoardMember extends Model
     public function getJabatanLabelAttribute(): string
     {
         return self::JABATAN_OPTIONS[$this->jabatan] ?? $this->jabatan;
-    }
-
-    /**
-     * Get divisi label
-     */
-    public function getDivisiLabelAttribute(): string
-    {
-        return self::DIVISI_OPTIONS[$this->divisi] ?? $this->divisi;
     }
 
     /**

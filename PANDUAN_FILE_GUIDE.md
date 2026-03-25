@@ -193,7 +193,7 @@ README.md (Start here!)
 │
 ├─ Admin UI Documentation
 │  ├─ ADMIN_UI_REDESIGN_README.md
-│  ├─ ADMIN_LAYOUT_GUIDE.md
+│  ├─ ADMIN_LAYOUT_GUIDE.mdx
 │  ├─ ADMIN_THEME_COLORS.md
 │  └─ ADMIN_IMPLEMENTATION_EXAMPLES.md
 │
