@@ -65,9 +65,14 @@ class BoardMemberController extends Controller
         $jabatanOptions = BoardMember::JABATAN_OPTIONS;
 
         // Get diklat periods for form select (only with registered members)
-        $diklatPeriods = DiklatPeriod::whereHas('members', function($q) {
-            $q->where('status', 'aktif');
-        })->orderBy('tahun_masuk', 'desc')->get();
+        $usedDiklatPeriodIds = Member::where('status', 'aktif')
+            ->whereNotNull('diklat_period_id')
+            ->distinct('diklat_period_id')
+            ->pluck('diklat_period_id');
+        
+        $diklatPeriods = DiklatPeriod::whereIn('id', $usedDiklatPeriodIds)
+            ->orderBy('tahun_masuk', 'desc')
+            ->get();
 
         return view('admin.board.index', compact(
             'boardMembers', 
