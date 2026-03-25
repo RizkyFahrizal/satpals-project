@@ -32,11 +32,27 @@ class BoardMemberController extends Controller
             'subsie' => $boardMembers->whereIn('jabatan', BoardMember::JABATAN_SUBSIE),
         ];
 
-        // Get all available periodes
-        $periodeList = BoardMember::distinct()->pluck('periode')->filter()->sort()->reverse()->values();
-        if (!$periodeList->contains($currentPeriode)) {
-            $periodeList->prepend($currentPeriode);
-        }
+        // Get all available periodes (only years where members registered)
+        // Collect tahun_daftar from active members
+        $memberYears = Member::where('status', 'aktif')
+            ->distinct('tahun_daftar')
+            ->pluck('tahun_daftar')
+            ->filter()
+            ->map(fn($year) => $year . '/' . ($year + 1))
+            ->sort()
+            ->reverse()
+            ->values();
+
+        // Also include existing board periods
+        $boardPeriodes = BoardMember::distinct('periode')
+            ->pluck('periode')
+            ->filter()
+            ->sort()
+            ->reverse()
+            ->values();
+
+        // Merge and deduplicate
+        $periodeList = $memberYears->merge($boardPeriodes)->unique()->sort()->reverse()->values();
 
         // Get active members for selection
         $availableMembers = Member::where('status', 'aktif')
@@ -48,8 +64,10 @@ class BoardMemberController extends Controller
 
         $jabatanOptions = BoardMember::JABATAN_OPTIONS;
 
-        // Get diklat periods for form select
-        $diklatPeriods = DiklatPeriod::orderBy('tahun_masuk', 'desc')->get();
+        // Get diklat periods for form select (only with registered members)
+        $diklatPeriods = DiklatPeriod::whereHas('members', function($q) {
+            $q->where('status', 'aktif');
+        })->orderBy('tahun_masuk', 'desc')->get();
 
         return view('admin.board.index', compact(
             'boardMembers', 

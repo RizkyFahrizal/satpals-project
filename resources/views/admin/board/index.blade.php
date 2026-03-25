@@ -263,7 +263,23 @@
         
         <form action="{{ route('admin.board.store') }}" method="POST" enctype="multipart/form-data" class="p-6 space-y-5">
             @csrf
-            <input type="hidden" name="periode" value="{{ $selectedPeriode }}">
+            
+            <!-- Periode Selection -->
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                    Periode <span class="text-red-500">*</span>
+                </label>
+                <select name="periode" id="periodeSelect" required class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 transition-all">
+                    <option value="">-- Pilih Periode --</option>
+                    @foreach($periodeList as $periode)
+                    <option value="{{ $periode }}" {{ $selectedPeriode === $periode ? 'selected' : '' }}>
+                        {{ $periode }}
+                        @if($periode === $currentPeriode) (Aktif) @endif
+                    </option>
+                    @endforeach
+                </select>
+                <p class="text-xs text-gray-500 mt-1">Hanya periode dengan anggota terdaftar</p>
+            </div>
             
             <!-- Member Selection (Searchable) -->
             <div>
@@ -294,9 +310,6 @@
                 </label>
                 <select name="diklat_period_id" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 transition-all">
                     <option value="">-- Tidak Ada (Tanpa Periode) --</option>
-                    @php
-                        $diklatPeriods = \App\Models\DiklatPeriod::orderBy('tahun_masuk', 'desc')->get();
-                    @endphp
                     @foreach($diklatPeriods as $period)
                     <option value="{{ $period->id }}">{{ $period->nama_periode }} ({{ $period->tahun_masuk }})</option>
                     @endforeach
@@ -485,11 +498,22 @@ document.addEventListener('DOMContentLoaded', () => {
     const searchInput = document.getElementById('searchMember');
     const resultsDiv = document.getElementById('searchResults');
     const memberSelect = document.getElementById('memberSelect');
+    const periodeSelect = document.getElementById('periodeSelect');
     const periodSelect = document.querySelector('select[name="diklat_period_id"]');
 
     if (!searchInput) return;
 
     let searchTimeout;
+
+    // Trigger search when periode changes
+    if (periodeSelect) {
+        periodeSelect.addEventListener('change', () => {
+            if (searchInput.value.length >= 2) {
+                searchInput.dispatchEvent(new Event('input'));
+            }
+            memberSelect.value = ''; // Clear selection
+        });
+    }
 
     searchInput.addEventListener('input', async (e) => {
         clearTimeout(searchTimeout);
@@ -501,8 +525,8 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // Get selected period
-        const periode = periodSelect?.value || '';
+        // Get selected period from form (not diklat period)
+        const periode = periodeSelect?.value || '';
 
         searchTimeout = setTimeout(async () => {
             try {
