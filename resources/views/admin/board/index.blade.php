@@ -162,109 +162,90 @@
     </div>
     @endif
 
-    <!-- Subsie Band Section -->
-    @if($grouped['subsie_band']->isNotEmpty())
+    <!-- Subsie Section -->
+    @if($grouped['subsie']->isNotEmpty())
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-        <div class="bg-gradient-to-r from-red-500 to-orange-500 px-6 py-4">
+        <div class="bg-gradient-to-r from-purple-500 to-pink-500 px-6 py-4">
             <h3 class="text-lg font-bold text-white flex items-center gap-2">
-                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M10 9a1 1 0 100-2 1 1 0 000 2zm0 6a1 1 0 100-2 1 1 0 000 2zm0 6a1 1 0 100-2 1 1 0 000 2zm6-18v3h3v2h-3v3h-2v-3h-3V2h3V0h2zm0 6v3h3v2h-3v3h-2v-3h-3v-2h3V8h2z"/>
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
                 </svg>
-                Subsie Band
+                Sub Seksi
             </h3>
         </div>
         <div class="p-6">
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                @foreach($grouped['subsie_band'] as $board)
-                @include('admin.board._member-card', ['board' => $board])
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+                @foreach($grouped['subsie'] as $board)
+                <div class="group relative bg-gradient-to-br from-gray-50 to-white rounded-xl border border-gray-200 p-4 hover:shadow-lg transition-all duration-300">
+                    @if(!$board->is_active)
+                    <span class="absolute top-2 right-2 px-2 py-0.5 bg-red-100 text-red-600 text-xs font-medium rounded-full">Nonaktif</span>
+                    @endif
+                    
+                    <div class="flex flex-col items-center text-center gap-3">
+                        <div class="w-14 h-14 rounded-lg bg-gradient-to-br from-purple-400 to-pink-500 flex items-center justify-center text-white font-bold flex-shrink-0 overflow-hidden">
+                            @if($board->foto)
+                            <img src="{{ asset('storage/' . $board->foto) }}" alt="{{ $board->member->nama_lengkap }}" class="w-full h-full object-cover">
+                            @elseif($board->member->foto)
+                            <img src="{{ asset('storage/' . $board->member->foto) }}" alt="{{ $board->member->nama_lengkap }}" class="w-full h-full object-cover">
+                            @else
+                            {{ strtoupper(substr($board->member->nama_lengkap, 0, 1)) }}
+                            @endif
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-xs text-purple-600 font-semibold mb-1">{{ $board->jabatan_label }}</p>
+                            <h4 class="font-semibold text-gray-800 text-sm truncate">{{ $board->member->nama_lengkap }}</h4>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-3 flex justify-center gap-1">
+                        <button onclick="document.getElementById('editModal{{ $board->id }}').classList.remove('hidden')" 
+                            class="p-1.5 text-blue-500 hover:bg-blue-50 rounded transition-colors" title="Edit">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                            </svg>
+                        </button>
+                        @if(!$board->user)
+                        <form action="{{ route('admin.board.create-account', $board) }}" method="POST" class="inline">
+                            @csrf
+                            <button type="submit" class="p-1.5 text-blue-500 hover:bg-blue-50 rounded transition-colors" title="Buat Akun">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
+                                </svg>
+                            </button>
+                        </form>
+                        @endif
+                        <form action="{{ route('admin.board.toggle-status', $board) }}" method="POST" class="inline">
+                            @csrf
+                            @method('PATCH')
+                            <button type="submit" class="p-1.5 text-gray-500 hover:bg-gray-100 rounded transition-colors" title="{{ $board->is_active ? 'Nonaktifkan' : 'Aktifkan' }}">
+                                @if($board->is_active)
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                                @else
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                                @endif
+                            </button>
+                        </form>
+                        <form action="{{ route('admin.board.destroy', $board) }}" method="POST" class="inline" onsubmit="return confirm('Yakin?')">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="p-1.5 text-red-500 hover:bg-red-50 rounded transition-colors" title="Hapus">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                </svg>
+                            </button>
+                        </form>
+                    </div>
+                </div>
                 @endforeach
             </div>
         </div>
     </div>
     @endif
 
-    <!-- Subsie Peralatan Section -->
-    @if($grouped['subsie_peralatan']->isNotEmpty())
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-        <div class="bg-gradient-to-r from-blue-500 to-cyan-500 px-6 py-4">
-            <h3 class="text-lg font-bold text-white flex items-center gap-2">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
-                </svg>
-                Subsie Peralatan
-            </h3>
-        </div>
-        <div class="p-6">
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                @foreach($grouped['subsie_peralatan'] as $board)
-                @include('admin.board._member-card', ['board' => $board])
-                @endforeach
-            </div>
-        </div>
-    </div>
-    @endif
-
-    <!-- Subsie Humas Section -->
-    @if($grouped['subsie_humas']->isNotEmpty())
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-        <div class="bg-gradient-to-r from-green-500 to-teal-500 px-6 py-4">
-            <h3 class="text-lg font-bold text-white flex items-center gap-2">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.856-1.487M15 10a3 3 0 11-6 0 3 3 0 016 0z"/>
-                </svg>
-                Subsie Humas (PR)
-            </h3>
-        </div>
-        <div class="p-6">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                @foreach($grouped['subsie_humas'] as $board)
-                @include('admin.board._member-card', ['board' => $board])
-                @endforeach
-            </div>
-        </div>
-    </div>
-    @endif
-
-    <!-- Subsie PDD Section -->
-    @if($grouped['subsie_pdd']->isNotEmpty())
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-        <div class="bg-gradient-to-r from-indigo-500 to-purple-500 px-6 py-4">
-            <h3 class="text-lg font-bold text-white flex items-center gap-2">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4v16a2 2 0 002 2h10a2 2 0 002-2V4m0 0L7 4m17 0H3"/>
-                </svg>
-                Subsie PDD
-            </h3>
-        </div>
-        <div class="p-6">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                @foreach($grouped['subsie_pdd'] as $board)
-                @include('admin.board._member-card', ['board' => $board])
-                @endforeach
-            </div>
-        </div>
-    </div>
-    @endif
-
-    <!-- Subsie Kesekretariatan Section -->
-    @if($grouped['subsie_kesekretariatan']->isNotEmpty())
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-        <div class="bg-gradient-to-r from-pink-500 to-rose-500 px-6 py-4">
-            <h3 class="text-lg font-bold text-white flex items-center gap-2">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                </svg>
-                Subsie Kesekretariatan
-            </h3>
-        </div>
-        <div class="p-6">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                @foreach($grouped['subsie_kesekretariatan'] as $board)
-                @include('admin.board._member-card', ['board' => $board])
-                @endforeach
-            </div>
-        </div>
-    </div>
     @endif
 </div>
 
@@ -346,10 +327,20 @@
                         <option value="{{ $key }}">{{ $jabatanOptions[$key] }}</option>
                         @endforeach
                     </optgroup>
-                    <optgroup label="Sub Seksi">
-                        @foreach(['subsie_band', 'subsie_peralatan', 'subsie_humas', 'subsie_pdd', 'subsie_kesekretariatan'] as $key)
-                        <option value="{{ $key }}">{{ $jabatanOptions[$key] }}</option>
-                        @endforeach
+                    <optgroup label="Subsie Band">
+                        <option value="subsie_band">{{ $jabatanOptions['subsie_band'] }}</option>
+                    </optgroup>
+                    <optgroup label="Subsie Peralatan">
+                        <option value="subsie_peralatan">{{ $jabatanOptions['subsie_peralatan'] }}</option>
+                    </optgroup>
+                    <optgroup label="Subsie Humas">
+                        <option value="subsie_humas">{{ $jabatanOptions['subsie_humas'] }}</option>
+                    </optgroup>
+                    <optgroup label="Subsie Produksi & Dokumentasi">
+                        <option value="subsie_pdd">{{ $jabatanOptions['subsie_pdd'] }}</option>
+                    </optgroup>
+                    <optgroup label="Subsie Kesekretariatan">
+                        <option value="subsie_kesekretariatan">{{ $jabatanOptions['subsie_kesekretariatan'] }}</option>
                     </optgroup>
                 </select>
             </div>
@@ -448,10 +439,20 @@
                         <option value="{{ $key }}" {{ $board->jabatan === $key ? 'selected' : '' }}>{{ $jabatanOptions[$key] }}</option>
                         @endforeach
                     </optgroup>
-                    <optgroup label="Sub Seksi">
-                        @foreach(['subsie_band', 'subsie_peralatan', 'subsie_humas', 'subsie_pdd', 'subsie_kesekretariatan'] as $key)
-                        <option value="{{ $key }}" {{ $board->jabatan === $key ? 'selected' : '' }}>{{ $jabatanOptions[$key] }}</option>
-                        @endforeach
+                    <optgroup label="Subsie Band">
+                        <option value="subsie_band" {{ $board->jabatan === 'subsie_band' ? 'selected' : '' }}>{{ $jabatanOptions['subsie_band'] }}</option>
+                    </optgroup>
+                    <optgroup label="Subsie Peralatan">
+                        <option value="subsie_peralatan" {{ $board->jabatan === 'subsie_peralatan' ? 'selected' : '' }}>{{ $jabatanOptions['subsie_peralatan'] }}</option>
+                    </optgroup>
+                    <optgroup label="Subsie Humas">
+                        <option value="subsie_humas" {{ $board->jabatan === 'subsie_humas' ? 'selected' : '' }}>{{ $jabatanOptions['subsie_humas'] }}</option>
+                    </optgroup>
+                    <optgroup label="Subsie Produksi & Dokumentasi">
+                        <option value="subsie_pdd" {{ $board->jabatan === 'subsie_pdd' ? 'selected' : '' }}>{{ $jabatanOptions['subsie_pdd'] }}</option>
+                    </optgroup>
+                    <optgroup label="Subsie Kesekretariatan">
+                        <option value="subsie_kesekretariatan" {{ $board->jabatan === 'subsie_kesekretariatan' ? 'selected' : '' }}>{{ $jabatanOptions['subsie_kesekretariatan'] }}</option>
                     </optgroup>
                 </select>
             </div>
@@ -531,8 +532,6 @@
     </div>
 </div>
 @endforeach
-
-@endsection
 
 @section('scripts')
 <script>
@@ -632,4 +631,5 @@ function previewFoto(input, previewId) {
     }
 }
 </script>
+@endsection
 @endsection
