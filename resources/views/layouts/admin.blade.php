@@ -213,7 +213,7 @@
         <!-- Main Content -->
         <div class="flex-1 lg:ml-64 flex flex-col h-screen">
             <!-- Top Navigation Bar -->
-            <header class="bg-yellow-300 shadow-sm border-b border-yellow-200 sticky top-0 z-20 flex-shrink-0">
+            <header class="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-20 flex-shrink-0">
                 <div class="flex items-center justify-between px-4 lg:px-8 py-4">
                     <!-- Left: Menu Toggle & Title -->
                     <div class="flex items-center gap-4 flex-1 min-w-0">
