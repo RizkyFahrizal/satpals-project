@@ -220,17 +220,12 @@
 
                     <div>
                         <label for="tahun_daftar" class="block text-sm font-semibold text-gray-700 mb-2">
-                            Tahun Daftar <span class="text-red-500">*</span>
+                            Tahun Daftar
                         </label>
-                        <input type="number" id="tahun_daftar" name="tahun_daftar" 
-                            value="{{ old('tahun_daftar', $activePeriod->tahun_masuk ?? 2022) }}"
-                            min="2020" max="{{ date('Y') }}"
-                            class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-400 focus:ring-2 focus:ring-blue-400/20 transition-all"
-                            placeholder="Masukkan tahun daftar" required>
-                        <p class="text-xs text-gray-500 mt-2">Contoh: 2022, 2023, 2024, dll</p>
-                        @error('tahun_daftar')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
+                        <input type="hidden" name="tahun_daftar" value="{{ $activePeriod->tahun_masuk ?? 2022 }}">
+                        <input type="text" id="tahun_daftar" readonly value="{{ $activePeriod->tahun_masuk ?? 2022 }}" 
+                            class="w-full px-4 py-3 rounded-xl border border-gray-300 bg-gray-100 text-gray-700 font-semibold cursor-not-allowed">
+                        <p class="text-xs text-gray-500 mt-2">Tahun daftar otomatis sesuai dengan periode pendaftaran</p>
                     </div>
                     @endif
                 </div>
