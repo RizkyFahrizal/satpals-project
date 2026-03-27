@@ -90,7 +90,7 @@
                     <option value="">Semua Periode</option>
                     @foreach($periods as $period)
                         <option value="{{ $period->id }}" {{ request('period_id') == $period->id ? 'selected' : '' }}>
-                            {{ $period->nama_periode }} ({{ $period->tahun_masuk }})
+                            {{ $period->short_name }}
                         </option>
                     @endforeach
                 </select>
