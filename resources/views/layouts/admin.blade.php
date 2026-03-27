@@ -33,9 +33,9 @@
         <div id="sidebarOverlay" class="fixed inset-0 bg-black/50 lg:hidden hidden z-30" onclick="closeSidebar()"></div>
 
         <!-- Sidebar -->
-        <aside id="sidebar" class="w-64 bg-white shadow-lg flex flex-col fixed lg:relative h-full border-r border-yellow-200 z-40 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out">
+        <aside id="sidebar" class="w-64 bg-white shadow-lg flex flex-col fixed lg:fixed h-screen border-r border-yellow-200 z-40 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out lg:left-0 top-0">
             <!-- Logo Section -->
-            <div class="p-6 border-b border-yellow-200 bg-gradient-to-r from-yellow-50 to-orange-50">
+            <div class="p-6 border-b border-yellow-200 bg-gradient-to-r from-yellow-50 to-orange-50 flex-shrink-0">
                 <div class="flex items-center gap-3 mb-2">
                     <img src="{{ asset('assets/images/logoukm.png') }}" alt="Logo Satya Palapa" class="w-10 h-10 object-contain rounded-lg">
                     <div>
@@ -211,9 +211,9 @@
         </aside>
 
         <!-- Main Content -->
-        <div class="flex-1">
+        <div class="flex-1 lg:ml-64 flex flex-col h-screen">
             <!-- Top Navigation Bar -->
-            <header class="bg-yellow-300 shadow-sm border-b border-yellow-200 sticky top-0 z-20">
+            <header class="bg-yellow-300 shadow-sm border-b border-yellow-200 sticky top-0 z-20 flex-shrink-0">
                 <div class="flex items-center justify-between px-4 lg:px-8 py-4">
                     <!-- Left: Menu Toggle & Title -->
                     <div class="flex items-center gap-4 flex-1 min-w-0">
@@ -262,7 +262,7 @@
             </header>
 
             <!-- Page Content -->
-            <main class="p-4 lg:p-8">
+            <main class="flex-1 overflow-y-auto p-4 lg:p-8">
                 @yield('content')
             </main>
         </div>
