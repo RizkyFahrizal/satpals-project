@@ -139,20 +139,6 @@
                     @enderror
                 </div>
 
-                <!-- Tahun Daftar -->
-                <div>
-                    <label for="tahun_daftar" class="block text-sm font-semibold text-gray-700 mb-2">
-                        Tahun Daftar <span class="text-red-500">*</span>
-                    </label>
-                    <input type="number" name="tahun_daftar" id="tahun_daftar" 
-                        value="{{ old('tahun_daftar', $member->tahun_daftar) }}" required
-                        min="2000" max="{{ now()->year + 1 }}"
-                        class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 transition-all @error('tahun_daftar') border-red-500 @enderror">
-                    @error('tahun_daftar')
-                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                    @enderror
-                </div>
-
                 <!-- Angkatan -->
                 <div>
                     <label for="angkatan" class="block text-sm font-semibold text-gray-700 mb-2">

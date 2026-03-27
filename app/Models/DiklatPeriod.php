@@ -49,6 +49,14 @@ class DiklatPeriod extends Model
     }
 
     /**
+     * Get short display name for filters (e.g., "Angkatan 2023")
+     */
+    public function getShortNameAttribute(): string
+    {
+        return "Angkatan {$this->tahun_masuk}";
+    }
+
+    /**
      * Get status label
      */
     public function getStatusLabelAttribute(): string
