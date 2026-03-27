@@ -15,7 +15,7 @@
         </div>
         <div class="flex-1 min-w-0">
             <p class="text-xs text-purple-600 font-semibold mb-1">{{ $board->jabatan_label }}</p>
-            <h4 class="font-semibold text-gray-800 text-sm truncate">{{ $board->member->nama_lengkap }}</h4>
+            <h4 class="font-semibold text-gray-800 text-sm line-clamp-2" title="{{ $board->member->nama_lengkap }}">{{ $board->member->nama_lengkap }}</h4>
         </div>
     </div>
     
