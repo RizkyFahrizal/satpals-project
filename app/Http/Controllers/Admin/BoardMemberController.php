@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\BoardMember;
 use App\Models\Member;
+use App\Models\DiklatPeriod;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -25,17 +26,40 @@ class BoardMemberController extends Controller
 
         $boardMembers = $query->get();
 
-        // Group by jabatan type
-        $grouped = [
-            'pimpinan' => $boardMembers->whereIn('jabatan', BoardMember::JABATAN_PIMPINAN),
-            'subsie' => $boardMembers->whereIn('jabatan', BoardMember::JABATAN_SUBSIE),
-        ];
+        // Group by jabatan type (per subsie/position)
+        $grouped = [];
+        
+        // Pimpinan
+        $grouped['pimpinan'] = $boardMembers->whereIn('jabatan', BoardMember::JABATAN_PIMPINAN);
+        
+        // Subsie - group individually
+        $grouped['subsie_kesekretariatan'] = $boardMembers->where('jabatan', 'subsie_kesekretariatan');
+        $grouped['subsie_peralatan'] = $boardMembers->where('jabatan', 'subsie_peralatan');
+        $grouped['subsie_humas'] = $boardMembers->where('jabatan', 'subsie_humas');
+        $grouped['subsie_pdd'] = $boardMembers->where('jabatan', 'subsie_pdd');
+        $grouped['subsie_band'] = $boardMembers->where('jabatan', 'subsie_band');
 
-        // Get all available periodes
-        $periodeList = BoardMember::distinct()->pluck('periode')->filter()->sort()->reverse()->values();
-        if (!$periodeList->contains($currentPeriode)) {
-            $periodeList->prepend($currentPeriode);
-        }
+        // Get all available periodes (only years where members registered)
+        // Collect tahun_daftar from active members
+        $memberYears = Member::where('status', 'aktif')
+            ->distinct('tahun_daftar')
+            ->pluck('tahun_daftar')
+            ->filter()
+            ->map(fn($year) => $year . '/' . ($year + 1))
+            ->sort()
+            ->reverse()
+            ->values();
+
+        // Also include existing board periods
+        $boardPeriodes = BoardMember::distinct('periode')
+            ->pluck('periode')
+            ->filter()
+            ->sort()
+            ->reverse()
+            ->values();
+
+        // Merge and deduplicate
+        $periodeList = $memberYears->merge($boardPeriodes)->unique()->sort()->reverse()->values();
 
         // Get active members for selection
         $availableMembers = Member::where('status', 'aktif')
@@ -47,6 +71,16 @@ class BoardMemberController extends Controller
 
         $jabatanOptions = BoardMember::JABATAN_OPTIONS;
 
+        // Get diklat periods for form select (only with registered members)
+        $usedDiklatPeriodIds = Member::where('status', 'aktif')
+            ->whereNotNull('diklat_period_id')
+            ->distinct('diklat_period_id')
+            ->pluck('diklat_period_id');
+        
+        $diklatPeriods = DiklatPeriod::whereIn('id', $usedDiklatPeriodIds)
+            ->orderBy('tahun_masuk', 'desc')
+            ->get();
+
         return view('admin.board.index', compact(
             'boardMembers', 
             'grouped', 
@@ -54,7 +88,8 @@ class BoardMemberController extends Controller
             'selectedPeriode', 
             'currentPeriode',
             'availableMembers',
-            'jabatanOptions'
+            'jabatanOptions',
+            'diklatPeriods'
         ));
     }
 
@@ -65,6 +100,7 @@ class BoardMemberController extends Controller
     {
         $validated = $request->validate([
             'member_id' => 'required|exists:members,id',
+            'diklat_period_id' => 'nullable|exists:diklat_periods,id',
             'jabatan' => 'required|string',
             'periode' => 'required|string',
             'foto' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
@@ -81,6 +117,17 @@ class BoardMemberController extends Controller
         // Get max urutan
         $maxUrutan = BoardMember::where('periode', $validated['periode'])->max('urutan') ?? 0;
 
+        // Get tanggal_buka and tanggal_tutup from diklat_period if provided
+        $tanggalBuka = null;
+        $tanggalTutup = null;
+        if ($validated['diklat_period_id']) {
+            $period = \App\Models\DiklatPeriod::find($validated['diklat_period_id']);
+            if ($period) {
+                $tanggalBuka = $period->tanggal_buka;
+                $tanggalTutup = $period->tanggal_tutup;
+            }
+        }
+
         // Handle foto upload
         $fotoPath = null;
         if ($request->hasFile('foto')) {
@@ -89,8 +136,11 @@ class BoardMemberController extends Controller
 
         $boardMember = BoardMember::create([
             'member_id' => $validated['member_id'],
+            'diklat_period_id' => $validated['diklat_period_id'],
             'jabatan' => $validated['jabatan'],
             'periode' => $validated['periode'],
+            'tanggal_buka' => $tanggalBuka,
+            'tanggal_tutup' => $tanggalTutup,
             'foto' => $fotoPath,
             'is_active' => true,
             'urutan' => $maxUrutan + 1,
@@ -113,6 +163,7 @@ class BoardMemberController extends Controller
         $validated = $request->validate([
             'jabatan' => 'required|string',
             'urutan' => 'nullable|integer|min:0',
+            'is_active' => 'nullable|boolean',
             'foto' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
             'hapus_foto' => 'nullable|boolean',
         ]);
@@ -134,6 +185,9 @@ class BoardMemberController extends Controller
         } else {
             unset($validated['foto']);
         }
+
+        // Convert is_active to boolean
+        $validated['is_active'] = (bool) $request->filled('is_active');
 
         unset($validated['hapus_foto']);
         $boardMember->update($validated);
@@ -174,6 +228,46 @@ class BoardMemberController extends Controller
         $boardMember->delete();
 
         return back()->with('success', 'Pengurus berhasil dihapus dari struktur.');
+    }
+
+    /**
+     * Search members for board position (API endpoint)
+     */
+    public function searchMembers(Request $request)
+    {
+        $search = $request->get('search', '');
+        $periode = $request->get('periode');
+
+        $query = Member::where('status', 'aktif');
+
+        // Search by nama or jabatan from board_members
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('nama_lengkap', 'like', "%{$search}%")
+                  ->orWhere('npm', 'like', "%{$search}%");
+            });
+        }
+
+        // Exclude members who already have position in this periode
+        if ($periode) {
+            $query->whereDoesntHave('boardPositions', function($q) use ($periode) {
+                $q->where('periode', $periode);
+            });
+        }
+
+        $members = $query->select('id', 'nama_lengkap', 'npm', 'prodi')
+            ->limit(10)
+            ->get()
+            ->map(function($member) {
+                return [
+                    'id' => $member->id,
+                    'text' => "{$member->nama_lengkap} ({$member->npm}) - {$member->prodi}",
+                    'nama_lengkap' => $member->nama_lengkap,
+                    'npm' => $member->npm,
+                ];
+            });
+
+        return response()->json($members);
     }
 
     /**

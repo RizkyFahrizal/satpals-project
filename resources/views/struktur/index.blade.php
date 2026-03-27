@@ -77,9 +77,9 @@
                                 <span class="inline-block px-3 py-1 bg-gradient-to-r from-yellow-400 to-orange-500 text-white rounded-full text-xs font-bold mb-1">
                                     {{ $member->jabatan_label }}
                                 </span>
-                                <h3 class="font-bold text-gray-800 text-sm line-clamp-2">{{ $member->member->nama_lengkap ?? 'Belum Ditentukan' }}</h3>
+                                <h3 class="font-bold text-gray-800 text-sm line-clamp-2 overflow-hidden text-ellipsis">{{ $member->member->nama_lengkap ?? 'Belum Ditentukan' }}</h3>
                                 @if($member->member)
-                                    <p class="text-gray-500 text-xs mt-1">{{ $member->member->prodi }}</p>
+                                    <p class="text-gray-500 text-xs mt-1 line-clamp-1">{{ $member->member->prodi }}</p>
                                 @endif
                             </div>
                         </div>
@@ -152,8 +152,8 @@
                                         </div>
                                         <!-- Info -->
                                         <div class="mt-3 w-40">
-                                            <h4 class="font-semibold text-gray-800 text-sm line-clamp-2">{{ $member->member->nama_lengkap }}</h4>
-                                            <p class="text-gray-500 text-xs mt-1">{{ $member->member->prodi }}</p>
+                                            <h4 class="font-semibold text-gray-800 text-sm line-clamp-2 overflow-hidden text-ellipsis">{{ $member->member->nama_lengkap }}</h4>
+                                            <p class="text-gray-500 text-xs mt-1 line-clamp-1">{{ $member->member->prodi }}</p>
                                         </div>
                                     </div>
                                     @endforeach
