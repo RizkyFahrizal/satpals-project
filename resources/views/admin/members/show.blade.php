@@ -132,7 +132,6 @@
                     </div>
                 </div>
             </div>
-
             <!-- UKM Info -->
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
                 <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
@@ -144,8 +143,8 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div class="p-4 bg-gray-50 rounded-xl">
-                        <p class="text-sm text-gray-500 mb-1">Tahun Daftar</p>
-                        <p class="font-semibold text-gray-800">{{ $member->tahun_daftar }}</p>
+                        <p class="text-sm text-gray-500 mb-1">Angkatan</p>
+                        <p class="font-semibold text-gray-800">{{ $member->angkatan }}</p>
                     </div>
                     <div class="p-4 bg-gray-50 rounded-xl">
                         <p class="text-sm text-gray-500 mb-1">Spesifikasi</p>

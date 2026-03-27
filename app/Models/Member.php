@@ -31,7 +31,6 @@ class Member extends Model
         'prodi',
         'spesifikasi',
         'spesifikasi_lainnya',
-        'tahun_daftar',
         'angkatan',
         'status',
         'foto',
@@ -40,7 +39,6 @@ class Member extends Model
     protected $casts = [
         'spesifikasi' => 'array',
         'spesifikasi_lainnya' => 'array',
-        'tahun_daftar' => 'integer',
     ];
 
     /**
@@ -131,7 +129,6 @@ class Member extends Model
             'prodi' => $registration->prodi,
             'spesifikasi' => $registration->spesifikasi,
             'spesifikasi_lainnya' => $registration->spesifikasi_lainnya,
-            'tahun_daftar' => now()->year,
             'angkatan' => $registration->period?->tahun_masuk ?? now()->year,
             'status' => self::STATUS_AKTIF,
         ]);
