@@ -12,15 +12,17 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // Check if tahun_daftar column exists before trying to use it
+        if (!Schema::hasColumn('members', 'tahun_daftar')) {
+            return; // Column already removed in a previous migration
+        }
+
         // Backfill angkatan from diklat_period tahun_masuk where missing
         DB::statement('
             UPDATE members m
-            SET m.angkatan = (
-                SELECT dp.tahun_masuk
-                FROM diklat_registrations dr
-                JOIN diklat_periods dp ON dr.diklat_period_id = dp.id
-                WHERE dr.id = m.diklat_registration_id
-            )
+            JOIN diklat_registrations dr ON m.diklat_registration_id = dr.id
+            JOIN diklat_periods dp ON dr.diklat_period_id = dp.id
+            SET m.angkatan = dp.tahun_masuk
             WHERE m.angkatan IS NULL AND m.diklat_registration_id IS NOT NULL
         ');
 
