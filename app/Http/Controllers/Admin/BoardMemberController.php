@@ -26,11 +26,18 @@ class BoardMemberController extends Controller
 
         $boardMembers = $query->get();
 
-        // Group by jabatan type
-        $grouped = [
-            'pimpinan' => $boardMembers->whereIn('jabatan', BoardMember::JABATAN_PIMPINAN),
-            'subsie' => $boardMembers->whereIn('jabatan', BoardMember::JABATAN_SUBSIE),
-        ];
+        // Group by jabatan type (per subsie/position)
+        $grouped = [];
+        
+        // Pimpinan
+        $grouped['pimpinan'] = $boardMembers->whereIn('jabatan', BoardMember::JABATAN_PIMPINAN);
+        
+        // Subsie - group individually
+        $grouped['subsie_kesekretariatan'] = $boardMembers->where('jabatan', 'subsie_kesekretariatan');
+        $grouped['subsie_peralatan'] = $boardMembers->where('jabatan', 'subsie_peralatan');
+        $grouped['subsie_humas'] = $boardMembers->where('jabatan', 'subsie_humas');
+        $grouped['subsie_pdd'] = $boardMembers->where('jabatan', 'subsie_pdd');
+        $grouped['subsie_band'] = $boardMembers->where('jabatan', 'subsie_band');
 
         // Get all available periodes (only years where members registered)
         // Collect tahun_daftar from active members
