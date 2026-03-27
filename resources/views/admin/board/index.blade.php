@@ -327,20 +327,10 @@
                         <option value="{{ $key }}">{{ $jabatanOptions[$key] }}</option>
                         @endforeach
                     </optgroup>
-                    <optgroup label="Subsie Band">
-                        <option value="subsie_band">{{ $jabatanOptions['subsie_band'] }}</option>
-                    </optgroup>
-                    <optgroup label="Subsie Peralatan">
-                        <option value="subsie_peralatan">{{ $jabatanOptions['subsie_peralatan'] }}</option>
-                    </optgroup>
-                    <optgroup label="Subsie Humas">
-                        <option value="subsie_humas">{{ $jabatanOptions['subsie_humas'] }}</option>
-                    </optgroup>
-                    <optgroup label="Subsie Produksi & Dokumentasi">
-                        <option value="subsie_pdd">{{ $jabatanOptions['subsie_pdd'] }}</option>
-                    </optgroup>
-                    <optgroup label="Subsie Kesekretariatan">
-                        <option value="subsie_kesekretariatan">{{ $jabatanOptions['subsie_kesekretariatan'] }}</option>
+                    <optgroup label="Sub Seksi">
+                        @foreach(['subsie_band', 'subsie_peralatan', 'subsie_humas', 'subsie_pdd', 'subsie_kesekretariatan'] as $key)
+                        <option value="{{ $key }}">{{ $jabatanOptions[$key] }}</option>
+                        @endforeach
                     </optgroup>
                 </select>
             </div>
@@ -439,20 +429,10 @@
                         <option value="{{ $key }}" {{ $board->jabatan === $key ? 'selected' : '' }}>{{ $jabatanOptions[$key] }}</option>
                         @endforeach
                     </optgroup>
-                    <optgroup label="Subsie Band">
-                        <option value="subsie_band" {{ $board->jabatan === 'subsie_band' ? 'selected' : '' }}>{{ $jabatanOptions['subsie_band'] }}</option>
-                    </optgroup>
-                    <optgroup label="Subsie Peralatan">
-                        <option value="subsie_peralatan" {{ $board->jabatan === 'subsie_peralatan' ? 'selected' : '' }}>{{ $jabatanOptions['subsie_peralatan'] }}</option>
-                    </optgroup>
-                    <optgroup label="Subsie Humas">
-                        <option value="subsie_humas" {{ $board->jabatan === 'subsie_humas' ? 'selected' : '' }}>{{ $jabatanOptions['subsie_humas'] }}</option>
-                    </optgroup>
-                    <optgroup label="Subsie Produksi & Dokumentasi">
-                        <option value="subsie_pdd" {{ $board->jabatan === 'subsie_pdd' ? 'selected' : '' }}>{{ $jabatanOptions['subsie_pdd'] }}</option>
-                    </optgroup>
-                    <optgroup label="Subsie Kesekretariatan">
-                        <option value="subsie_kesekretariatan" {{ $board->jabatan === 'subsie_kesekretariatan' ? 'selected' : '' }}>{{ $jabatanOptions['subsie_kesekretariatan'] }}</option>
+                    <optgroup label="Sub Seksi">
+                        @foreach(['subsie_band', 'subsie_peralatan', 'subsie_humas', 'subsie_pdd', 'subsie_kesekretariatan'] as $key)
+                        <option value="{{ $key }}" {{ $board->jabatan === $key ? 'selected' : '' }}>{{ $jabatanOptions[$key] }}</option>
+                        @endforeach
                     </optgroup>
                 </select>
             </div>
