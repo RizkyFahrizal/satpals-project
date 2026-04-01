@@ -124,6 +124,15 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin.access'])->gr
     Route::get('/letters/{letter}/download', [App\Http\Controllers\Admin\LetterArchiveController::class, 'download'])->name('letters.download');
     Route::get('/letters/{letter}/preview', [App\Http\Controllers\Admin\LetterArchiveController::class, 'preview'])->name('letters.preview');
     
+    // Studio Booking Management
+    Route::get('/studio-bookings', [App\Http\Controllers\Admin\StudioBookingController::class, 'index'])->name('studio-bookings.index');
+    Route::get('/studio-bookings/create', [App\Http\Controllers\Admin\StudioBookingController::class, 'create'])->name('studio-bookings.create');
+    Route::post('/studio-bookings', [App\Http\Controllers\Admin\StudioBookingController::class, 'store'])->name('studio-bookings.store');
+    Route::get('/studio-bookings/{booking}', [App\Http\Controllers\Admin\StudioBookingController::class, 'show'])->name('studio-bookings.show');
+    Route::patch('/studio-bookings/{booking}/approve', [App\Http\Controllers\Admin\StudioBookingController::class, 'approve'])->name('studio-bookings.approve');
+    Route::patch('/studio-bookings/{booking}/reject', [App\Http\Controllers\Admin\StudioBookingController::class, 'reject'])->name('studio-bookings.reject');
+    Route::delete('/studio-bookings/{booking}', [App\Http\Controllers\Admin\StudioBookingController::class, 'destroy'])->name('studio-bookings.destroy');
+    
     // User Management (Super Admin only)
     Route::middleware('super.admin')->group(function () {
         Route::get('/users', [UserController::class, 'index'])->name('users.index');
