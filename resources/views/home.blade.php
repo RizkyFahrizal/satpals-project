@@ -129,7 +129,7 @@
             </div>
 
             <!-- Service 4 - Sewa Studio -->
-            <a href="{{ route('studio-bookings.create') }}" class="group bg-white/90 backdrop-blur-sm rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 cursor-pointer hover:-translate-y-2 border border-white/50 block" data-aos="fade-up" data-aos-delay="300">
+            <a href="{{ route('studio-bookings.index') }}" class="group bg-white/90 backdrop-blur-sm rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 cursor-pointer hover:-translate-y-2 border border-white/50 block" data-aos="fade-up" data-aos-delay="300">
                 <div class="w-20 h-20 bg-gradient-to-br from-orange-500 to-red-600 rounded-2xl mb-5 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
                     <!-- Studio/Mic Icon -->
                     <svg class="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 24 24">
