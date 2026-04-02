@@ -26,8 +26,8 @@
                     <div>
                         <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Status</label>
                         <div class="mt-1">
-                            <div class="badge badge-lg {{ $booking->statusBadge['class'] }}">
-                                {{ $booking->statusBadge['text'] }}
+                            <div class="badge badge-lg {{ $booking->statusBadge }}">
+                                {{ $booking->statusLabel }}
                             </div>
                         </div>
                     </div>
@@ -74,29 +74,29 @@
                     <div class="flex justify-between items-start">
                         <div>
                             <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Nama Anggota</label>
-                            <p class="text-lg font-semibold text-gray-800 mt-1">{{ $booking->user->name }}</p>
+                            <p class="text-lg font-semibold text-gray-800 mt-1">{{ $booking->user?->name ?? $booking->nama_pemohon }}</p>
                         </div>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Username/NPM</label>
-                            <p class="text-lg font-semibold text-gray-800 mt-1">{{ $booking->user->username }}</p>
+                            <p class="text-lg font-semibold text-gray-800 mt-1">{{ $booking->user?->username ?? $booking->nomor_identitas }}</p>
                         </div>
 
                         <div>
                             <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Email</label>
-                            <p class="text-lg font-semibold text-gray-800 mt-1">{{ $booking->user->email }}</p>
+                            <p class="text-lg font-semibold text-gray-800 mt-1">{{ $booking->user?->email ?? '-' }}</p>
                         </div>
 
                         <div>
                             <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide">No. Telpon</label>
-                            <p class="text-lg font-semibold text-gray-800 mt-1">{{ $booking->user->phone ?? '-' }}</p>
+                            <p class="text-lg font-semibold text-gray-800 mt-1">{{ $booking->user?->phone ?? '-' }}</p>
                         </div>
 
                         <div>
                             <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Angkatan</label>
-                            <p class="text-lg font-semibold text-gray-800 mt-1">{{ $booking->user->angkatan ?? '-' }}</p>
+                            <p class="text-lg font-semibold text-gray-800 mt-1">{{ $booking->user?->angkatan ?? '-' }}</p>
                         </div>
                     </div>
                 </div>
@@ -164,19 +164,9 @@
                     <dialog id="reject_modal_{{ $booking->id }}" class="modal">
                         <div class="modal-box bg-white max-w-md">
                             <h3 class="font-bold text-lg text-gray-800 mb-4">Tolak Booking?</h3>
-                            <p class="text-gray-600 mb-4">
-                                Anda akan menolak booking studio untuk tanggal {{ \Carbon\Carbon::parse($booking->tanggal_booking)->translatedFormat('d F Y') }}, Sesi {{ $booking->sesiLabel }}.
+                            <p class="text-gray-600 mb-6">
+                                Apakah Anda yakin ingin menolak booking studio untuk tanggal {{ \Carbon\Carbon::parse($booking->tanggal_booking)->translatedFormat('d F Y') }}, Sesi {{ $booking->sesiLabel }}?
                             </p>
-                            
-                            <div class="form-control mb-4">
-                                <label class="label">
-                                    <span class="label-text font-semibold">Alasan Penolakan (Optional)</span>
-                                </label>
-                                <textarea class="textarea textarea-bordered" 
-                                          name="catatan_admin" 
-                                          placeholder="Jelaskan alasan penolakan..."
-                                          rows="3"></textarea>
-                            </div>
 
                             <div class="modal-action">
                                 <button type="button" onclick="document.getElementById('reject_modal_{{ $booking->id }}').close()" class="btn btn-ghost">
@@ -244,20 +234,6 @@
                     @endif
                 </div>
             </div>
-
-            <!-- Delete Button (if rejected/pending) -->
-            @if (in_array($booking->status, ['rejected', 'pending']))
-                <form action="{{ route('admin.studio-bookings.destroy', $booking->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus booking ini?');">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit" class="btn btn-outline btn-error w-full">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
-                        </svg>
-                        Hapus Booking
-                    </button>
-                </form>
-            @endif
         @endif
     </div>
 

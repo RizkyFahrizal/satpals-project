@@ -19,6 +19,8 @@ class StudioBooking extends Model
         'catatan_admin',
         'approved_by',
         'approved_at',
+        'nomor_identitas',
+        'nama_pemohon',
     ];
 
     protected $casts = [

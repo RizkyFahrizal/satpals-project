@@ -35,6 +35,32 @@ class StudioBookingController extends Controller
             ->get()
             ->groupBy('tanggal_booking');
 
+        // Get ALL bookings for table view with search and filter
+        $query = StudioBooking::with(['user', 'approvedBy']);
+
+        // Search by nama_pemohon
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function($q) use ($search) {
+                $q->where('nama_pemohon', 'like', '%' . $search . '%')
+                  ->orWhere('nomor_identitas', 'like', '%' . $search . '%');
+            });
+        }
+
+        // Filter by tanggal_booking
+        if ($request->filled('filter_tanggal')) {
+            $filterTanggal = $request->input('filter_tanggal');
+            $query->whereDate('tanggal_booking', '=', $filterTanggal);
+        }
+
+        // Filter by status
+        if ($request->filled('filter_status')) {
+            $filterStatus = $request->input('filter_status');
+            $query->where('status', $filterStatus);
+        }
+
+        $allBookings = $query->orderBy('created_at', 'desc')->paginate(15);
+
         // Prepare sesi data
         $sesiData = [];
         for ($i = 1; $i <= 4; $i++) {
@@ -58,6 +84,7 @@ class StudioBookingController extends Controller
             'sesiData' => $sesiData,
             'bookingsForMonth' => $bookingsForMonth,
             'pendingBookings' => $pendingBookings,
+            'allBookings' => $allBookings,
         ]);
     }
 
@@ -66,13 +93,9 @@ class StudioBookingController extends Controller
      */
     public function create(Request $request)
     {
-        $selectedDate = $request->input('date');
-        $selectedSesi = $request->input('sesi');
-
-        return view('admin.studio-bookings.create', [
-            'selectedDate' => $selectedDate,
-            'selectedSesi' => $selectedSesi,
-        ]);
+        // Removed - booking harus dari public form, bukan dari admin
+        return redirect()->route('admin.studio-bookings.index')
+            ->with('info', 'Booking harus dilakukan melalui form public');
     }
 
     /**
@@ -80,51 +103,9 @@ class StudioBookingController extends Controller
      */
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'user_npm' => 'required|string',
-            'tanggal_booking' => 'required|date|after_or_equal:today',
-            'sesi' => 'required|integer|in:1,2,3,4',
-            'keperluan' => 'required|string|min:10|max:500',
-        ], [
-            'user_npm.required' => 'NPM/Nama anggota wajib diisi',
-            'tanggal_booking.required' => 'Tanggal booking wajib diisi',
-            'tanggal_booking.after_or_equal' => 'Tanggal tidak boleh di masa lalu',
-            'sesi.required' => 'Sesi wajib dipilih',
-            'sesi.in' => 'Sesi tidak valid',
-            'keperluan.required' => 'Keperluan wajib diisi',
-            'keperluan.min' => 'Keperluan minimal 10 karakter',
-        ]);
-
-        // Get user by NPM (from member) or name
-        $member = Member::where('npm', $validated['user_npm'])
-                         ->orWhere('nama_lengkap', 'like', '%' . $validated['user_npm'] . '%')
-                         ->first();
-
-        if (!$member || !$member->diklatRegistration || !$member->diklatRegistration->user) {
-            return back()
-                ->withInput()
-                ->withErrors(['user_npm' => 'NPM/Nama anggota tidak ditemukan atau belum terdaftar sebagai user']);
-        }
-
-        $user = $member->diklatRegistration->user;
-        $user = $member->diklatRegistration->user;
-
-        // Check if sesi already booked
-        if (!StudioBooking::isSesiAvailable($validated['tanggal_booking'], $validated['sesi'])) {
-            return back()->with('error', 'Sesi ini sudah dipesan pada tanggal tersebut');
-        }
-
-        // Create booking
-        StudioBooking::create([
-            'user_id' => $user->id,
-            'tanggal_booking' => $validated['tanggal_booking'],
-            'sesi' => $validated['sesi'],
-            'keperluan' => $validated['keperluan'],
-            'status' => StudioBooking::STATUS_PENDING,
-        ]);
-
+        // Removed - booking harus dari public form, bukan dari admin
         return redirect()->route('admin.studio-bookings.index')
-            ->with('success', 'Booking berhasil dibuat dan menunggu approval');
+            ->with('info', 'Booking harus dilakukan melalui form public');
     }
 
     /**
@@ -137,7 +118,32 @@ class StudioBookingController extends Controller
     }
 
     /**
+     * Update booking (edit via API/modal)
+     */
+    public function update(Request $request, StudioBooking $booking)
+    {
+        // Hanya bisa edit jika pending atau rejected
+        if (!in_array($booking->status, [StudioBooking::STATUS_PENDING, StudioBooking::STATUS_REJECTED])) {
+            return back()->with('error', 'Hanya booking pending/rejected yang bisa diedit');
+        }
+
+        $validated = $request->validate([
+            'keperluan' => 'required|string|min:10|max:500',
+        ], [
+            'keperluan.required' => 'Keperluan wajib diisi',
+            'keperluan.min' => 'Keperluan minimal 10 karakter',
+            'keperluan.max' => 'Keperluan maksimal 500 karakter',
+        ]);
+
+        $booking->update($validated);
+
+        return back()->with('success', 'Booking berhasil diupdate');
+    }
+
+    /**
      * Approve booking
+     *
+     * @return void
      */
     public function approve(Request $request, StudioBooking $booking)
     {
@@ -168,18 +174,10 @@ class StudioBookingController extends Controller
             return back()->with('error', 'Hanya booking pending yang bisa di-reject');
         }
 
-        $validated = $request->validate([
-            'catatan' => 'required|string|min:5|max:255',
-        ], [
-            'catatan.required' => 'Alasan rejection wajib diisi',
-            'catatan.min' => 'Alasan minimal 5 karakter',
-        ]);
-
         $booking->update([
             'status' => StudioBooking::STATUS_REJECTED,
             'approved_by' => Auth::id(),
             'approved_at' => now(),
-            'catatan_admin' => $validated['catatan'],
         ]);
 
         return back()->with('success', 'Booking berhasil di-reject');
