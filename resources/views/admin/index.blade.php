@@ -24,12 +24,13 @@
 
     <!-- Financial Summary Cards -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
-        <!-- Total Uang UKM -->
+        <!-- Sisa Uang UKM -->
         <div class="bg-white rounded-2xl p-5 lg:p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-gray-500 text-sm font-medium mb-1">Uang UKM Saat Ini</p>
-                    <h2 class="text-2xl lg:text-3xl font-bold text-gray-800">Rp 12.000.000</h2>
+                    <p class="text-gray-500 text-sm font-medium mb-1">Sisa Uang UKM</p>
+                    <h2 class="text-2xl lg:text-3xl font-bold text-gray-800">Rp {{ number_format($totalBalance ?? 12000000, 0, ',', '.') }}</h2>
+                    <p class="text-xs text-gray-400 mt-1">Total Masuk - Total Keluar</p>
                 </div>
                 <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center">
                     <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -39,12 +40,13 @@
             </div>
         </div>
 
-        <!-- Pemasukan Bulan Ini -->
+        <!-- Total Pemasukan -->
         <div class="bg-white rounded-2xl p-5 lg:p-6 shadow-sm border-l-4 border-green-500 hover:shadow-md transition-shadow">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-gray-500 text-sm font-medium mb-1">Pemasukan {{ now()->format('F') }}</p>
-                    <h3 class="text-2xl lg:text-3xl font-bold text-green-600">Rp 175.000</h3>
+                    <p class="text-gray-500 text-sm font-medium mb-1">Total Pemasukan</p>
+                    <h3 class="text-2xl lg:text-3xl font-bold text-green-600">Rp {{ number_format($totalIncome ?? 175000, 0, ',', '.') }}</h3>
+                    <p class="text-xs text-gray-400 mt-1">Semua sumber pemasukan</p>
                 </div>
                 <div class="w-12 h-12 bg-gradient-to-br from-green-400 to-emerald-500 rounded-xl flex items-center justify-center">
                     <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -54,12 +56,13 @@
             </div>
         </div>
 
-        <!-- Pengeluaran Bulan Ini -->
+        <!-- Total Pengeluaran -->
         <div class="bg-white rounded-2xl p-5 lg:p-6 shadow-sm border-l-4 border-red-500 hover:shadow-md transition-shadow">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-gray-500 text-sm font-medium mb-1">Pengeluaran {{ now()->format('F') }}</p>
-                    <h3 class="text-2xl lg:text-3xl font-bold text-red-600">Rp 65.000</h3>
+                    <p class="text-gray-500 text-sm font-medium mb-1">Total Pengeluaran</p>
+                    <h3 class="text-2xl lg:text-3xl font-bold text-red-600">Rp {{ number_format($totalExpense ?? 65000, 0, ',', '.') }}</h3>
+                    <p class="text-xs text-gray-400 mt-1">Barang + Kegiatan</p>
                 </div>
                 <div class="w-12 h-12 bg-gradient-to-br from-red-400 to-rose-500 rounded-xl flex items-center justify-center">
                     <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -72,19 +75,19 @@
 
     <!-- Charts Section -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <!-- Chart: Persewaan Alat -->
+        <!-- Chart: Pemasukan vs Pengeluaran -->
         <div class="bg-white rounded-2xl p-5 lg:p-6 shadow-sm border border-gray-100">
-            <h3 class="text-lg font-semibold text-gray-800 mb-4">📊 Pemasukan Persewaan Alat</h3>
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">💰 Pemasukan vs Pengeluaran</h3>
             <div class="bg-yellow-50 rounded-xl p-4" style="height: 280px;">
-                <canvas id="chartPersewaanAlat"></canvas>
+                <canvas id="chartIncomeExpense"></canvas>
             </div>
         </div>
 
-        <!-- Chart: Booking Studio -->
+        <!-- Chart: Pengeluaran per Kategori -->
         <div class="bg-white rounded-2xl p-5 lg:p-6 shadow-sm border border-gray-100">
-            <h3 class="text-lg font-semibold text-gray-800 mb-4">🎵 Pemasukan Booking Studio</h3>
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">📊 Pengeluaran: Barang vs Kegiatan</h3>
             <div class="bg-yellow-50 rounded-xl p-4" style="height: 280px;">
-                <canvas id="chartBookingStudio"></canvas>
+                <canvas id="chartExpenseCategory"></canvas>
             </div>
         </div>
     </div>
@@ -92,24 +95,24 @@
     <!-- Quick Stats -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div class="bg-white rounded-xl p-4 border border-gray-100 text-center hover:shadow-md transition-shadow">
-            <p class="text-gray-500 text-sm mb-2">Total Anggota</p>
-            <p class="text-2xl font-bold text-gray-800">42</p>
-            <p class="text-xs text-gray-400 mt-1">Aktif</p>
+            <p class="text-gray-500 text-sm mb-2">Pengeluaran Barang</p>
+            <p class="text-2xl font-bold text-gray-800">{{ $expenseItemCount ?? 0 }}</p>
+            <p class="text-xs text-gray-400 mt-1">Total transaksi</p>
         </div>
         <div class="bg-white rounded-xl p-4 border border-gray-100 text-center hover:shadow-md transition-shadow">
-            <p class="text-gray-500 text-sm mb-2">Pendaftaran Diklat</p>
-            <p class="text-2xl font-bold text-yellow-600">15</p>
-            <p class="text-xs text-gray-400 mt-1">Menunggu</p>
+            <p class="text-gray-500 text-sm mb-2">Pengeluaran Kegiatan</p>
+            <p class="text-2xl font-bold text-yellow-600">{{ $expenseEventCount ?? 0 }}</p>
+            <p class="text-xs text-gray-400 mt-1">Total transaksi</p>
         </div>
         <div class="bg-white rounded-xl p-4 border border-gray-100 text-center hover:shadow-md transition-shadow">
-            <p class="text-gray-500 text-sm mb-2">Surat Keluar</p>
-            <p class="text-2xl font-bold text-gray-800">28</p>
-            <p class="text-xs text-gray-400 mt-1">Bulan ini</p>
+            <p class="text-gray-500 text-sm mb-2">Pemasukan</p>
+            <p class="text-2xl font-bold text-green-600">{{ $incomeCount ?? 0 }}</p>
+            <p class="text-xs text-gray-400 mt-1">Total transaksi</p>
         </div>
         <div class="bg-white rounded-xl p-4 border border-gray-100 text-center hover:shadow-md transition-shadow">
-            <p class="text-gray-500 text-sm mb-2">Galeri Kegiatan</p>
-            <p class="text-2xl font-bold text-gray-800">12</p>
-            <p class="text-xs text-gray-400 mt-1">Foto</p>
+            <p class="text-gray-500 text-sm mb-2">Menunggu Approval</p>
+            <p class="text-2xl font-bold text-orange-600">{{ $pendingApproval ?? 0 }}</p>
+            <p class="text-xs text-gray-400 mt-1">Transaksi</p>
         </div>
     </div>
 </div>
@@ -117,31 +120,42 @@
 
 @section('scripts')
 <script>
-    // Chart Persewaan Alat
-    const ctxAlat = document.getElementById('chartPersewaanAlat').getContext('2d');
-    new Chart(ctxAlat, {
+    // Chart: Pemasukan vs Pengeluaran
+    const ctxIncomeExpense = document.getElementById('chartIncomeExpense').getContext('2d');
+    new Chart(ctxIncomeExpense, {
         type: 'bar',
         data: {
             labels: ['Agustus', 'September', 'Oktober', 'November', 'Desember', 'Januari'],
-            datasets: [{
-                label: 'Pemasukan (Rp)',
-                data: [150000, 200000, 180000, 220000, 190000, 175000],
-                backgroundColor: 'rgba(251, 191, 36, 0.8)',
-                borderColor: 'rgba(251, 191, 36, 1)',
-                borderWidth: 0,
-                borderRadius: 8
-            }]
+            datasets: [
+                {
+                    label: 'Pemasukan (Rp)',
+                    data: [350000, 400000, 380000, 420000, 390000, 350000],
+                    backgroundColor: 'rgba(34, 197, 94, 0.8)',
+                    borderColor: 'rgba(34, 197, 94, 1)',
+                    borderWidth: 0,
+                    borderRadius: 8
+                },
+                {
+                    label: 'Pengeluaran (Rp)',
+                    data: [120000, 180000, 160000, 200000, 170000, 150000],
+                    backgroundColor: 'rgba(239, 68, 68, 0.8)',
+                    borderColor: 'rgba(239, 68, 68, 1)',
+                    borderWidth: 0,
+                    borderRadius: 8
+                }
+            ]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
                 legend: {
-                    display: false
+                    display: true,
+                    position: 'top'
                 },
                 title: {
                     display: true,
-                    text: 'Grafik persewaan alat dalam 6 bulan',
+                    text: 'Grafik Pemasukan vs Pengeluaran (6 bulan)',
                     color: '#374151',
                     font: {
                         size: 14,
@@ -170,17 +184,23 @@
         }
     });
 
-    // Chart Booking Studio
-    const ctxStudio = document.getElementById('chartBookingStudio').getContext('2d');
-    new Chart(ctxStudio, {
-        type: 'bar',
+    // Chart: Pengeluaran per Kategori
+    const ctxExpenseCategory = document.getElementById('chartExpenseCategory').getContext('2d');
+    new Chart(ctxExpenseCategory, {
+        type: 'doughnut',
         data: {
-            labels: ['Agustus', 'September', 'Oktober', 'November', 'Desember', 'Januari'],
+            labels: ['Pengeluaran Barang', 'Pengeluaran Kegiatan'],
             datasets: [{
-                label: 'Pemasukan (Rp)',
-                data: [120000, 180000, 160000, 200000, 170000, 150000],
-                backgroundColor: 'rgba(251, 146, 60, 0.8)',
-                borderColor: 'rgba(251, 146, 60, 1)',
+                label: 'Pengeluaran (Rp)',
+                data: [320000, 210000],
+                backgroundColor: [
+                    'rgba(251, 146, 60, 0.8)',
+                    'rgba(251, 191, 36, 0.8)'
+                ],
+                borderColor: [
+                    'rgba(251, 146, 60, 1)',
+                    'rgba(251, 191, 36, 1)'
+                ],
                 borderWidth: 0,
                 borderRadius: 8
             }]
@@ -190,33 +210,23 @@
             maintainAspectRatio: false,
             plugins: {
                 legend: {
-                    display: false
+                    display: true,
+                    position: 'bottom'
                 },
                 title: {
                     display: true,
-                    text: 'Grafik Booking studio dalam 6 bulan',
+                    text: 'Distribusi Pengeluaran (Barang vs Kegiatan)',
                     color: '#374151',
                     font: {
                         size: 14,
                         weight: '500'
                     }
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    grid: {
-                        color: 'rgba(0,0,0,0.05)'
-                    },
-                    ticks: {
-                        callback: function(value) {
-                            return 'Rp ' + value.toLocaleString('id-ID');
-                        }
-                    }
                 },
-                x: {
-                    grid: {
-                        display: false
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return context.label + ': Rp ' + context.parsed.toLocaleString('id-ID');
+                        }
                     }
                 }
             }
