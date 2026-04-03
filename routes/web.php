@@ -7,6 +7,9 @@ use App\Http\Controllers\Admin\BoardMemberController;
 use App\Http\Controllers\Admin\DiklatRegistrationController;
 use App\Http\Controllers\Admin\DiklatPeriodController;
 use App\Http\Controllers\Admin\MemberController;
+use App\Http\Controllers\Admin\ExpenseController;
+use App\Http\Controllers\Admin\IncomeController;
+use App\Http\Controllers\Admin\FinancialDashboardController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DiklatController;
 use App\Http\Controllers\HomeController;
@@ -129,6 +132,31 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin.access'])->gr
     Route::delete('/letters/{letter}', [App\Http\Controllers\Admin\LetterArchiveController::class, 'destroy'])->name('letters.destroy');
     Route::get('/letters/{letter}/download', [App\Http\Controllers\Admin\LetterArchiveController::class, 'download'])->name('letters.download');
     Route::get('/letters/{letter}/preview', [App\Http\Controllers\Admin\LetterArchiveController::class, 'preview'])->name('letters.preview');
+    
+    // Financial Management (Kelola Keuangan)
+    Route::get('/financial', [FinancialDashboardController::class, 'index'])->name('financial.index');
+    
+    // Expenses (Pengeluaran)
+    Route::get('/expenses', [ExpenseController::class, 'index'])->name('expenses.index');
+    Route::get('/expenses/create', [ExpenseController::class, 'create'])->name('expenses.create');
+    Route::post('/expenses', [ExpenseController::class, 'store'])->name('expenses.store');
+    Route::get('/expenses/{expense}', [ExpenseController::class, 'show'])->name('expenses.show');
+    Route::get('/expenses/{expense}/edit', [ExpenseController::class, 'edit'])->name('expenses.edit');
+    Route::put('/expenses/{expense}', [ExpenseController::class, 'update'])->name('expenses.update');
+    Route::post('/expenses/{expense}/approve', [ExpenseController::class, 'approve'])->name('expenses.approve');
+    Route::post('/expenses/{expense}/reject', [ExpenseController::class, 'reject'])->name('expenses.reject');
+    Route::post('/expenses/{expense}/archive', [ExpenseController::class, 'archive'])->name('expenses.archive');
+    Route::delete('/expenses/{expense}', [ExpenseController::class, 'destroy'])->name('expenses.destroy');
+    Route::delete('/expenses/documents/{document}', [ExpenseController::class, 'deleteDocument'])->name('expenses.delete-document');
+    
+    // Income (Pemasukan)
+    Route::get('/income', [IncomeController::class, 'index'])->name('income.index');
+    Route::get('/income/create', [IncomeController::class, 'create'])->name('income.create');
+    Route::post('/income', [IncomeController::class, 'store'])->name('income.store');
+    Route::get('/income/{income}', [IncomeController::class, 'show'])->name('income.show');
+    Route::get('/income/{income}/edit', [IncomeController::class, 'edit'])->name('income.edit');
+    Route::put('/income/{income}', [IncomeController::class, 'update'])->name('income.update');
+    Route::delete('/income/{income}', [IncomeController::class, 'destroy'])->name('income.destroy');
     
     // Studio Booking Management (Admin Only - Approve/Reject)
     Route::get('/studio-bookings', [App\Http\Controllers\Admin\StudioBookingController::class, 'index'])->name('studio-bookings.index');
