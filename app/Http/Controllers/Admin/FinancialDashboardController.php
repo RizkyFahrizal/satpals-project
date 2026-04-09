@@ -70,6 +70,10 @@ class FinancialDashboardController extends Controller
             ];
         }
 
+        // Fetch all expenses and incomes for display
+        $expenses = Expense::with('creator')->latest()->get();
+        $incomes = Income::with('creator')->latest()->get();
+
         return view('admin.financial-dashboard', compact(
             'totalIncome',
             'totalExpense',
@@ -82,7 +86,9 @@ class FinancialDashboardController extends Controller
             'recentIncomes',
             'monthlyData',
             'startDate',
-            'endDate'
+            'endDate',
+            'expenses',
+            'incomes'
         ));
     }
 }
