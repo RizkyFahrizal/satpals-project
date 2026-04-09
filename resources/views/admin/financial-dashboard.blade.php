@@ -148,8 +148,6 @@
     </div>
 </div>
 @endsection
-        <div class="bg-white rounded-lg p-6 border border-gray-100 shadow-sm">
-            <p class="text-sm text-gray-600 mb-2">Total Sisa</p>
             <p class="text-3xl font-bold {{ $totalBalance >= 0 ? 'text-green-600' : 'text-red-600' }}">
                 Rp {{ number_format($totalBalance, 0, ',', '.') }}
             </p>
