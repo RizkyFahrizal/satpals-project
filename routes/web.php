@@ -10,9 +10,12 @@ use App\Http\Controllers\Admin\MemberController;
 use App\Http\Controllers\Admin\ExpenseController;
 use App\Http\Controllers\Admin\IncomeController;
 use App\Http\Controllers\Admin\FinancialDashboardController;
+use App\Http\Controllers\Admin\BandRentalRequestController;
+use App\Http\Controllers\Admin\BandController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DiklatController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\BandRentalController;
 use App\Http\Controllers\KegiatanController;
 use App\Http\Controllers\PrestasiController;
 use App\Http\Controllers\ProfilController;
@@ -47,6 +50,12 @@ Route::get('/diklat/success', [DiklatController::class, 'success'])->name('dikla
 
 // Studio Booking (Public)
 Route::get('/studio-bookings', [\App\Http\Controllers\StudioBookingController::class, 'index'])->name('studio-bookings.index');
+
+// Band Rental (Public)
+Route::get('/bands', [\App\Http\Controllers\BandRentalController::class, 'index'])->name('public.bands.index');
+Route::get('/bands/{band}', [\App\Http\Controllers\BandRentalController::class, 'show'])->name('public.bands.show');
+Route::get('/bands/{band}/rental', [\App\Http\Controllers\BandRentalController::class, 'createRequest'])->name('public.bands.rental-form');
+Route::post('/bands/{band}/rental', [\App\Http\Controllers\BandRentalController::class, 'storeRequest'])->name('public.bands.rental-store');
 Route::get('/studio-bookings/create', [\App\Http\Controllers\StudioBookingController::class, 'create'])->name('studio-bookings.create');
 Route::post('/studio-bookings', [\App\Http\Controllers\StudioBookingController::class, 'store'])->name('studio-bookings.store');
 Route::get('/studio-bookings/success', [\App\Http\Controllers\StudioBookingController::class, 'success'])->name('studio-bookings.success');
@@ -166,6 +175,43 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin.access'])->gr
     Route::post('/studio-bookings/{booking}/approve', [App\Http\Controllers\Admin\StudioBookingController::class, 'approve'])->name('studio-bookings.approve');
     Route::post('/studio-bookings/{booking}/reject', [App\Http\Controllers\Admin\StudioBookingController::class, 'reject'])->name('studio-bookings.reject');
     Route::delete('/studio-bookings/{booking}', [App\Http\Controllers\Admin\StudioBookingController::class, 'destroy'])->name('studio-bookings.destroy');
+    
+    // Band Rental Management (Persewaan Band)
+    Route::get('/bands', [BandController::class, 'index'])->name('bands.index');
+    Route::get('/bands/create', [BandController::class, 'create'])->name('bands.create');
+    Route::post('/bands', [BandController::class, 'store'])->name('bands.store');
+    Route::get('/bands/{band}', [BandController::class, 'show'])->name('bands.show');
+    Route::get('/bands/{band}/edit', [BandController::class, 'edit'])->name('bands.edit');
+    Route::put('/bands/{band}', [BandController::class, 'update'])->name('bands.update');
+    Route::patch('/bands/{band}/toggle-availability', [BandController::class, 'toggleAvailability'])->name('bands.toggle-availability');
+    Route::delete('/bands/{band}', [BandController::class, 'destroy'])->name('bands.destroy');
+    
+    // Band Members
+    Route::post('/bands/{band}/members', [BandController::class, 'storeMember'])->name('bands.members.store');
+    Route::put('/bands/{band}/members/{member}', [BandController::class, 'updateMember'])->name('bands.members.update');
+    Route::delete('/bands/{band}/members/{member}', [BandController::class, 'deleteMember'])->name('bands.members.delete');
+    
+    // Band Genres
+    Route::post('/bands/{band}/genres', [BandController::class, 'storeGenre'])->name('bands.genres.store');
+    Route::delete('/bands/{band}/genres/{genre}', [BandController::class, 'deleteGenre'])->name('bands.genres.delete');
+    
+    // Band Portfolios
+    Route::post('/bands/{band}/portfolios', [BandController::class, 'storePortfolio'])->name('bands.portfolios.store');
+    Route::put('/bands/{band}/portfolios/{portfolio}', [BandController::class, 'updatePortfolio'])->name('bands.portfolios.update');
+    Route::delete('/bands/{band}/portfolios/{portfolio}', [BandController::class, 'deletePortfolio'])->name('bands.portfolios.delete');
+    
+    // Band MOU
+    Route::post('/bands/{band}/mou', [BandController::class, 'storeMOU'])->name('bands.mou.store');
+    Route::patch('/bands/{band}/mou/toggle', [BandController::class, 'toggleMOUStatus'])->name('bands.mou.toggle');
+    Route::delete('/bands/{band}/mou', [BandController::class, 'deleteMOU'])->name('bands.mou.delete');
+    
+    // Band Rental Requests Management
+    Route::get('/band-rentals', [BandRentalRequestController::class, 'index'])->name('band-rentals.index');
+    Route::get('/band-rentals/{rental}', [BandRentalRequestController::class, 'show'])->name('band-rentals.show');
+    Route::patch('/band-rentals/{rental}/approve', [BandRentalRequestController::class, 'approve'])->name('band-rentals.approve');
+    Route::patch('/band-rentals/{rental}/reject', [BandRentalRequestController::class, 'reject'])->name('band-rentals.reject');
+    Route::patch('/band-rentals/{rental}/complete', [BandRentalRequestController::class, 'complete'])->name('band-rentals.complete');
+    Route::delete('/band-rentals/{rental}', [BandRentalRequestController::class, 'destroy'])->name('band-rentals.destroy');
     
     // User Management (Super Admin only)
     Route::middleware('super.admin')->group(function () {
