@@ -16,6 +16,7 @@ class Income extends Model
         'description',
         'nominal',
         'source',
+        'income_date',
         'created_by',
     ];
 
@@ -27,5 +28,10 @@ class Income extends Model
     public function creator()
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function documents()
+    {
+        return $this->hasMany(IncomeDocument::class);
     }
 }
