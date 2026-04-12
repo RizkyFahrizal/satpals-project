@@ -46,29 +46,53 @@ class FinancialDashboardController extends Controller
             ->limit(5)
             ->get();
 
-        // Monthly breakdown for charts
-        $monthlyData = [];
-        for ($i = 5; $i >= 0; $i--) {
-            $date = Carbon::now()->subMonths($i);
-            $monthKey = $date->format('Y-m');
-            $monthLabel = $date->locale('id')->translatedFormat('M Y');
-            
-            $income = Income::whereYear('created_at', $date->year)
-                ->whereMonth('created_at', $date->month)
-                ->sum('nominal');
-            
-            $expense = Expense::approved()
-                ->whereYear('created_at', $date->year)
-                ->whereMonth('created_at', $date->month)
-                ->sum('nominal');
-            
-            $monthlyData[] = [
-                'month' => $monthLabel,
-                'income' => $income,
-                'expense' => $expense,
-                'balance' => $income - $expense
-            ];
+        // Fetch all expenses and incomes for display - combined
+        $expenses = Expense::with('creator')
+            ->whereBetween('created_at', [$startDate, $endDate])
+            ->latest()
+            ->get();
+        
+        $incomes = Income::with('creator')
+            ->whereBetween('created_at', [$startDate, $endDate])
+            ->latest()
+            ->get();
+
+        // Combine transactions and sort by date
+        $allTransactions = collect();
+        
+        // Add expenses
+        foreach ($expenses as $expense) {
+            $allTransactions->push([
+                'id' => $expense->id,
+                'title' => $expense->title,
+                'nominal' => $expense->nominal,
+                'creator' => $expense->creator,
+                'date' => $expense->created_at,
+                'type' => 'expense',
+                'expense_type' => $expense->type,
+                'status' => $expense->status,
+                'route' => route('admin.expenses.show', $expense),
+                'model' => $expense
+            ]);
         }
+        
+        // Add incomes
+        foreach ($incomes as $income) {
+            $allTransactions->push([
+                'id' => $income->id,
+                'title' => $income->title,
+                'nominal' => $income->nominal,
+                'creator' => $income->creator,
+                'date' => $income->created_at,
+                'type' => 'income',
+                'source' => $income->source,
+                'route' => route('admin.income.show', $income),
+                'model' => $income
+            ]);
+        }
+        
+        // Sort by date descending
+        $allTransactions = $allTransactions->sortByDesc('date')->values();
 
         return view('admin.financial-dashboard', compact(
             'totalIncome',
@@ -78,11 +102,9 @@ class FinancialDashboardController extends Controller
             'kegiatanExpense',
             'pendingExpense',
             'pendingCount',
-            'recentExpenses',
-            'recentIncomes',
-            'monthlyData',
             'startDate',
-            'endDate'
+            'endDate',
+            'allTransactions'
         ));
     }
 }

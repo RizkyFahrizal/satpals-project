@@ -15,6 +15,8 @@ class Expense extends Model
         'description',
         'nominal',
         'status',
+        'expense_date',
+        'category',
         'created_by',
         'approved_at',
         'rejection_reason',
@@ -22,6 +24,7 @@ class Expense extends Model
 
     protected $casts = [
         'approved_at' => 'datetime',
+        'expense_date' => 'date',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];

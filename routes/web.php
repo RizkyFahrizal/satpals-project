@@ -157,6 +157,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin.access'])->gr
     Route::get('/income/{income}/edit', [IncomeController::class, 'edit'])->name('income.edit');
     Route::put('/income/{income}', [IncomeController::class, 'update'])->name('income.update');
     Route::delete('/income/{income}', [IncomeController::class, 'destroy'])->name('income.destroy');
+    Route::delete('/income/documents/{document}', [IncomeController::class, 'deleteDocument'])->name('income.delete-document');
     
     // Studio Booking Management (Admin Only - Approve/Reject)
     Route::get('/studio-bookings', [App\Http\Controllers\Admin\StudioBookingController::class, 'index'])->name('studio-bookings.index');

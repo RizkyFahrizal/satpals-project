@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Income;
+use App\Models\IncomeDocument;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class IncomeController extends Controller
 {
@@ -57,11 +59,27 @@ class IncomeController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'nominal' => 'required|numeric|min:1000',
-            'source' => 'nullable|string|max:255',
+            'income_date' => 'required|date',
+            'documents' => 'nullable|array',
+            'documents.*' => 'file|mimes:pdf,doc,docx,jpg,jpeg,png|max:10240',
+            'document_types.*' => 'nullable|string|max:100',
         ]);
 
         $validated['created_by'] = Auth::id();
         $income = Income::create($validated);
+
+        // Handle file uploads
+        if ($request->hasFile('documents')) {
+            foreach ($request->file('documents') as $index => $file) {
+                $path = $file->store('incomes', 'public');
+                IncomeDocument::create([
+                    'income_id' => $income->id,
+                    'file_path' => $path,
+                    'document_type' => $request->input('document_types.' . $index),
+                    'original_name' => $file->getClientOriginalName(),
+                ]);
+            }
+        }
 
         return redirect()->route('admin.income.show', $income)->with('success', 'Pemasukan berhasil ditambahkan');
     }
@@ -71,7 +89,7 @@ class IncomeController extends Controller
      */
     public function show(Income $income)
     {
-        $income->load('creator');
+        $income->load('creator', 'documents');
         return view('admin.income.show', compact('income'));
     }
 
@@ -80,6 +98,7 @@ class IncomeController extends Controller
      */
     public function edit(Income $income)
     {
+        $income->load('documents');
         return view('admin.income.edit', compact('income'));
     }
 
@@ -92,10 +111,26 @@ class IncomeController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'nominal' => 'required|numeric|min:1000',
-            'source' => 'nullable|string|max:255',
+            'income_date' => 'required|date',
+            'documents' => 'nullable|array',
+            'documents.*' => 'file|mimes:pdf,doc,docx,jpg,jpeg,png|max:10240',
+            'document_types.*' => 'nullable|string|max:100',
         ]);
 
         $income->update($validated);
+
+        // Handle new file uploads
+        if ($request->hasFile('documents')) {
+            foreach ($request->file('documents') as $index => $file) {
+                $path = $file->store('incomes', 'public');
+                IncomeDocument::create([
+                    'income_id' => $income->id,
+                    'file_path' => $path,
+                    'document_type' => $request->input('document_types.' . $index),
+                    'original_name' => $file->getClientOriginalName(),
+                ]);
+            }
+        }
 
         return redirect()->route('admin.income.show', $income)->with('success', 'Pemasukan berhasil diubah');
     }
@@ -105,8 +140,30 @@ class IncomeController extends Controller
      */
     public function destroy(Income $income)
     {
+        // Delete all associated documents
+        foreach ($income->documents as $doc) {
+            Storage::disk('public')->delete($doc->file_path);
+            $doc->delete();
+        }
+        
         $income->delete();
 
         return redirect()->route('admin.income.index')->with('success', 'Pemasukan berhasil dihapus');
+    }
+
+    /**
+     * Delete a specific document.
+     */
+    public function deleteDocument(IncomeDocument $document)
+    {
+        $income = $document->income;
+        
+        // Delete file from storage
+        Storage::disk('public')->delete($document->file_path);
+        
+        // Delete record
+        $document->delete();
+
+        return redirect()->route('admin.income.show', $income)->with('success', 'Dokumen berhasil dihapus');
     }
 }
