@@ -93,7 +93,7 @@
             </a>
 
             <!-- Service 2 - Persewaan Alat -->
-            <div class="group bg-white/90 backdrop-blur-sm rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 cursor-pointer hover:-translate-y-2 border border-white/50" data-aos="fade-up" data-aos-delay="100">
+            <a href="{{ route('equipment.index') }}" class="group bg-white/90 backdrop-blur-sm rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 cursor-pointer hover:-translate-y-2 border border-white/50" data-aos="fade-up" data-aos-delay="100">
                 <div class="w-20 h-20 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl mb-5 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
                     <!-- Guitar/Instrument Icon -->
                     <svg class="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 24 24">
@@ -108,7 +108,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
                     </svg>
                 </div>
-            </div>
+            </a>
 
             <!-- Service 3 - Persewaan Band -->
             <a href="{{ route('public.bands.index') }}" class="group bg-white/90 backdrop-blur-sm rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 cursor-pointer hover:-translate-y-2 border border-white/50 block" data-aos="fade-up" data-aos-delay="200">

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Mail\BookingApprovedMail;
 use App\Models\EquipmentRentalRequest;
 use App\Models\EquipmentRentalRequestItem;
 use Illuminate\Http\Request;
@@ -306,20 +307,9 @@ class EquipmentRentalRequestController extends Controller
     private function sendApprovalEmail(EquipmentRentalRequest $rentalRequest)
     {
         try {
-            $data = [
-                'order_number' => $rentalRequest->order_number,
-                'renter_name' => $rentalRequest->renter_name,
-                'rental_location' => $rentalRequest->rental_location,
-                'start_date' => $rentalRequest->start_date->format('d-m-Y'),
-                'end_date' => $rentalRequest->end_date->format('d-m-Y'),
-                'total_price' => number_format($rentalRequest->total_price, 0, ',', '.'),
-            ];
-
-            // Send email using mail facade
-            // Mail::send('emails.equipment-rental-approved', $data, function ($message) use ($rentalRequest) {
-            //     $message->to($rentalRequest->renter_email)
-            //         ->subject('Permintaan Rental Peralatan Anda Telah Disetujui');
-            // });
+            // Send email with PDF invoice attachment
+            Mail::to($rentalRequest->renter_email)
+                ->send(new BookingApprovedMail($rentalRequest));
         } catch (\Exception $e) {
             \Log::error('Failed to send approval email: ' . $e->getMessage());
         }

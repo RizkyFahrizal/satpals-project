@@ -64,7 +64,7 @@
             </div>
             @endif
 
-            <form action="{{ route('public.bands.rental-store', $band) }}" method="POST">
+            <form action="{{ route('bands.rental-store', $band) }}" method="POST">
                 @csrf
 
                 <!-- Renter Name -->
@@ -160,7 +160,7 @@
                     <button type="submit" class="btn btn-primary flex-1">
                         <i class="fas fa-check mr-2"></i> Kirim Permohonan
                     </button>
-                    <a href="{{ route('public.bands.show', $band) }}" class="btn btn-ghost flex-1">Batal</a>
+                    <a href="{{ route('bands.show', $band) }}" class="btn btn-ghost flex-1">Batal</a>
                 </div>
             </form>
         </div>
