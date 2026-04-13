@@ -33,7 +33,7 @@ class BandRentalController extends Controller
 
         $band->load(['members', 'genres', 'portfolios', 'mou']);
         
-        return view('public.bands.show', compact('band'));
+        return view('bands.show', compact('band'));
     }
 
     /**
@@ -46,7 +46,7 @@ class BandRentalController extends Controller
                 ->with('error', 'Band ini tidak tersedia untuk disewa');
         }
 
-        return view('public.bands.rental-form', compact('band'));
+        return view('bands.rental-form', compact('band'));
     }
 
     /**

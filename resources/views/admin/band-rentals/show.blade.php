@@ -120,6 +120,54 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Social Media Section -->
+                @if($rental->band->whatsapp_number || $rental->band->instagram_username || $rental->band->tiktok_username || $rental->band->youtube_url)
+                <div class="mt-6 border-t pt-6">
+                    <h3 class="font-bold text-gray-800 mb-4">Kontak & Social Media</h3>
+                    <div class="grid grid-cols-2 gap-3">
+                        @if($rental->band->whatsapp_number)
+                        <a href="https://wa.me/{{ $rental->band->whatsapp_number }}" target="_blank" class="flex items-center gap-2 p-3 bg-green-50 rounded hover:bg-green-100 transition">
+                            <i class="fas fa-whatsapp text-green-600 text-lg"></i>
+                            <div>
+                                <p class="text-xs text-gray-600">WhatsApp</p>
+                                <p class="text-sm font-semibold text-gray-800">{{ $rental->band->whatsapp_number }}</p>
+                            </div>
+                        </a>
+                        @endif
+
+                        @if($rental->band->instagram_username)
+                        <a href="https://instagram.com/{{ $rental->band->instagram_username }}" target="_blank" class="flex items-center gap-2 p-3 bg-pink-50 rounded hover:bg-pink-100 transition">
+                            <i class="fas fa-instagram text-pink-600 text-lg"></i>
+                            <div>
+                                <p class="text-xs text-gray-600">Instagram</p>
+                                <p class="text-sm font-semibold text-gray-800">@{{ $rental->band->instagram_username }}</p>
+                            </div>
+                        </a>
+                        @endif
+
+                        @if($rental->band->tiktok_username)
+                        <a href="https://tiktok.com/@{{ $rental->band->tiktok_username }}" target="_blank" class="flex items-center gap-2 p-3 bg-black/5 rounded hover:bg-black/10 transition">
+                            <i class="fas fa-tiktok text-black text-lg"></i>
+                            <div>
+                                <p class="text-xs text-gray-600">TikTok</p>
+                                <p class="text-sm font-semibold text-gray-800">@{{ $rental->band->tiktok_username }}</p>
+                            </div>
+                        </a>
+                        @endif
+
+                        @if($rental->band->youtube_url)
+                        <a href="{{ $rental->band->youtube_url }}" target="_blank" class="flex items-center gap-2 p-3 bg-red-50 rounded hover:bg-red-100 transition">
+                            <i class="fas fa-youtube text-red-600 text-lg"></i>
+                            <div>
+                                <p class="text-xs text-gray-600">YouTube</p>
+                                <p class="text-sm font-semibold text-gray-800">Channel</p>
+                            </div>
+                        </a>
+                        @endif
+                    </div>
+                </div>
+                @endif
             </div>
 
             <!-- Notes Section -->
