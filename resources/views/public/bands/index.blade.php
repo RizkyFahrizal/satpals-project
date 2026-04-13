@@ -85,10 +85,10 @@
 
                     <!-- Actions -->
                     <div class="card-actions gap-2">
-                        <a href="{{ route('public.bands.show', $band) }}" class="btn btn-outline btn-sm flex-1">
+                        <a href="{{ route('bands.show', $band) }}" class="btn btn-outline btn-sm flex-1">
                             <i class="fas fa-eye"></i> Detail
                         </a>
-                        <a href="{{ route('public.bands.rental-form', $band) }}" class="btn btn-primary btn-sm flex-1">
+                        <a href="{{ route('bands.rental-form', $band) }}" class="btn btn-primary btn-sm flex-1">
                             <i class="fas fa-check"></i> Sewa
                         </a>
                     </div>

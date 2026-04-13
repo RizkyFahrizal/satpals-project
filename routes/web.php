@@ -12,6 +12,13 @@ use App\Http\Controllers\Admin\IncomeController;
 use App\Http\Controllers\Admin\FinancialDashboardController;
 use App\Http\Controllers\Admin\BandRentalRequestController;
 use App\Http\Controllers\Admin\BandController;
+use App\Http\Controllers\Admin\EquipmentController;
+use App\Http\Controllers\Admin\EquipmentRentalRequestController;
+use App\Http\Controllers\EquipmentPublicController;
+use App\Http\Controllers\CartController;
+use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\BookingController;
+use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DiklatController;
 use App\Http\Controllers\HomeController;
@@ -42,6 +49,26 @@ Route::get('/prestasi', [PrestasiController::class, 'index'])->name('prestasi.in
 Route::get('/prestasi/{achievement}', [PrestasiController::class, 'show'])->name('prestasi.show');
 Route::get('/kegiatan', [KegiatanController::class, 'index'])->name('kegiatan.index');
 Route::get('/kegiatan/{activity}', [KegiatanController::class, 'show'])->name('kegiatan.show');
+
+// Equipment Rental (Public)
+Route::get('/equipment', [EquipmentPublicController::class, 'index'])->name('equipment.index');
+Route::get('/equipment/{equipment}', [EquipmentPublicController::class, 'show'])->name('equipment.show');
+Route::post('/equipment/{equipment}/add-to-cart', [EquipmentPublicController::class, 'addToCart'])->name('equipment.add-to-cart');
+
+Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
+Route::post('/cart/{equipment_id}', [CartController::class, 'update'])->name('cart.update');
+Route::delete('/cart/{equipment_id}', [CartController::class, 'remove'])->name('cart.remove');
+Route::delete('/cart', [CartController::class, 'clear'])->name('cart.clear');
+
+Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
+Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
+
+Route::get('/bookings', [BookingController::class, 'index'])->name('bookings.index');
+Route::get('/bookings/{booking}', [BookingController::class, 'show'])->name('bookings.show');
+
+// Invoice PDF (Public)
+Route::get('/invoices/{booking}/download', [InvoiceController::class, 'download'])->name('invoice.download');
+Route::get('/invoices/{booking}/view', [InvoiceController::class, 'view'])->name('invoice.view');
 
 // Diklat Registration (Public)
 Route::get('/diklat/register', [DiklatController::class, 'create'])->name('diklat.register');
@@ -212,6 +239,19 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin.access'])->gr
     Route::patch('/band-rentals/{rental}/reject', [BandRentalRequestController::class, 'reject'])->name('band-rentals.reject');
     Route::patch('/band-rentals/{rental}/complete', [BandRentalRequestController::class, 'complete'])->name('band-rentals.complete');
     Route::delete('/band-rentals/{rental}', [BandRentalRequestController::class, 'destroy'])->name('band-rentals.destroy');
+    
+    // Equipment Rental Management
+    Route::resource('/equipment', EquipmentController::class);
+    Route::patch('/equipment/{equipment}/toggle-availability', [EquipmentController::class, 'toggleAvailability'])->name('equipment.toggleAvailability');
+    
+    // Equipment Rental Requests Management
+    Route::get('/equipment-rental-requests', [EquipmentRentalRequestController::class, 'index'])->name('equipment-rental-requests.index');
+    Route::get('/equipment-rental-requests/{request}', [EquipmentRentalRequestController::class, 'show'])->name('equipment-rental-requests.show');
+    Route::patch('/equipment-rental-requests/{request}/approve', [EquipmentRentalRequestController::class, 'approve'])->name('equipment-rental-requests.approve');
+    Route::patch('/equipment-rental-requests/{request}/reject', [EquipmentRentalRequestController::class, 'reject'])->name('equipment-rental-requests.reject');
+    Route::patch('/equipment-rental-requests/{request}/mark-in-progress', [EquipmentRentalRequestController::class, 'markInProgress'])->name('equipment-rental-requests.mark-in-progress');
+    Route::patch('/equipment-rental-requests/{request}/complete', [EquipmentRentalRequestController::class, 'complete'])->name('equipment-rental-requests.complete');
+    Route::delete('/equipment-rental-requests/{request}', [EquipmentRentalRequestController::class, 'destroy'])->name('equipment-rental-requests.destroy');
     
     // User Management (Super Admin only)
     Route::middleware('super.admin')->group(function () {

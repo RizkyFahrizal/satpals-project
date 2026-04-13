@@ -8,7 +8,7 @@
     <div class="bg-white border-b">
         <div class="container mx-auto px-4 py-4 flex justify-between items-center">
             <h1 class="text-3xl font-bold text-gray-800">{{ $band->band_name }}</h1>
-            <a href="{{ route('public.bands.index') }}" class="btn btn-ghost">
+            <a href="{{ route('bands.index') }}" class="btn btn-ghost">
                 <i class="fas fa-arrow-left"></i> Kembali
             </a>
         </div>
@@ -130,7 +130,7 @@
                             <p class="text-2xl font-bold">Rp {{ number_format($band->price_per_event, 0, ',', '.') }}</p>
                         </div>
                     </div>
-                    <a href="{{ route('public.bands.rental-form', $band) }}" class="btn btn-white w-full text-green-600 font-bold">
+                    <a href="{{ route('bands.rental-form', $band) }}" class="btn btn-white w-full text-green-600 font-bold">
                         <i class="fas fa-shopping-cart"></i> Sewa Sekarang
                     </a>
                 </div>
