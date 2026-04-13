@@ -12,6 +12,8 @@ use App\Http\Controllers\Admin\IncomeController;
 use App\Http\Controllers\Admin\FinancialDashboardController;
 use App\Http\Controllers\Admin\BandRentalRequestController;
 use App\Http\Controllers\Admin\BandController;
+use App\Http\Controllers\Admin\EquipmentController;
+use App\Http\Controllers\Admin\EquipmentRentalRequestController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DiklatController;
 use App\Http\Controllers\HomeController;
@@ -212,6 +214,19 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin.access'])->gr
     Route::patch('/band-rentals/{rental}/reject', [BandRentalRequestController::class, 'reject'])->name('band-rentals.reject');
     Route::patch('/band-rentals/{rental}/complete', [BandRentalRequestController::class, 'complete'])->name('band-rentals.complete');
     Route::delete('/band-rentals/{rental}', [BandRentalRequestController::class, 'destroy'])->name('band-rentals.destroy');
+    
+    // Equipment Rental Management
+    Route::resource('/equipment', EquipmentController::class);
+    Route::patch('/equipment/{equipment}/toggle-availability', [EquipmentController::class, 'toggleAvailability'])->name('equipment.toggleAvailability');
+    
+    // Equipment Rental Requests Management
+    Route::get('/equipment-rental-requests', [EquipmentRentalRequestController::class, 'index'])->name('equipment-rental-requests.index');
+    Route::get('/equipment-rental-requests/{request}', [EquipmentRentalRequestController::class, 'show'])->name('equipment-rental-requests.show');
+    Route::patch('/equipment-rental-requests/{request}/approve', [EquipmentRentalRequestController::class, 'approve'])->name('equipment-rental-requests.approve');
+    Route::patch('/equipment-rental-requests/{request}/reject', [EquipmentRentalRequestController::class, 'reject'])->name('equipment-rental-requests.reject');
+    Route::patch('/equipment-rental-requests/{request}/mark-in-progress', [EquipmentRentalRequestController::class, 'markInProgress'])->name('equipment-rental-requests.mark-in-progress');
+    Route::patch('/equipment-rental-requests/{request}/complete', [EquipmentRentalRequestController::class, 'complete'])->name('equipment-rental-requests.complete');
+    Route::delete('/equipment-rental-requests/{request}', [EquipmentRentalRequestController::class, 'destroy'])->name('equipment-rental-requests.destroy');
     
     // User Management (Super Admin only)
     Route::middleware('super.admin')->group(function () {
