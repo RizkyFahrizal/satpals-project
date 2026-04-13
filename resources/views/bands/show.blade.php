@@ -155,7 +155,7 @@
                             <i class="fas fa-instagram text-pink-600 text-xl"></i>
                             <div class="flex-1">
                                 <p class="text-sm text-gray-600">Instagram</p>
-                                <p class="font-semibold text-gray-800">@{{ $band->instagram_username }}</p>
+                                <p class="font-semibold text-gray-800">{{ $band->instagram_username }}</p>
                             </div>
                         </a>
                         @endif
