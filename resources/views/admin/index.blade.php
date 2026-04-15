@@ -120,16 +120,22 @@
 
 @section('scripts')
 <script>
+    // Data dari controller (backend)
+    const chartMonths = {!! json_encode($monthlyData['months']) !!};
+    const chartIncomeData = {!! json_encode($monthlyData['income']) !!};
+    const chartExpenseData = {!! json_encode($monthlyData['expense']) !!};
+    const expenseCategoryData = {!! json_encode($expenseByCategory) !!};
+
     // Chart: Pemasukan vs Pengeluaran
     const ctxIncomeExpense = document.getElementById('chartIncomeExpense').getContext('2d');
     new Chart(ctxIncomeExpense, {
         type: 'bar',
         data: {
-            labels: ['Agustus', 'September', 'Oktober', 'November', 'Desember', 'Januari'],
+            labels: chartMonths,
             datasets: [
                 {
                     label: 'Pemasukan (Rp)',
-                    data: [350000, 400000, 380000, 420000, 390000, 350000],
+                    data: chartIncomeData,
                     backgroundColor: 'rgba(34, 197, 94, 0.8)',
                     borderColor: 'rgba(34, 197, 94, 1)',
                     borderWidth: 0,
@@ -137,7 +143,7 @@
                 },
                 {
                     label: 'Pengeluaran (Rp)',
-                    data: [120000, 180000, 160000, 200000, 170000, 150000],
+                    data: chartExpenseData,
                     backgroundColor: 'rgba(239, 68, 68, 0.8)',
                     borderColor: 'rgba(239, 68, 68, 1)',
                     borderWidth: 0,
@@ -155,7 +161,7 @@
                 },
                 title: {
                     display: true,
-                    text: 'Grafik Pemasukan vs Pengeluaran (6 bulan)',
+                    text: 'Grafik Pemasukan vs Pengeluaran (6 bulan terakhir)',
                     color: '#374151',
                     font: {
                         size: 14,
@@ -192,7 +198,10 @@
             labels: ['Pengeluaran Barang', 'Pengeluaran Kegiatan'],
             datasets: [{
                 label: 'Pengeluaran (Rp)',
-                data: [320000, 210000],
+                data: [
+                    expenseCategoryData.barang || 0,
+                    expenseCategoryData.kegiatan || 0
+                ],
                 backgroundColor: [
                     'rgba(251, 146, 60, 0.8)',
                     'rgba(251, 191, 36, 0.8)'

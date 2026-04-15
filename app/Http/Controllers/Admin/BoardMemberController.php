@@ -39,27 +39,14 @@ class BoardMemberController extends Controller
         $grouped['subsie_pdd'] = $boardMembers->where('jabatan', 'subsie_pdd');
         $grouped['subsie_band'] = $boardMembers->where('jabatan', 'subsie_band');
 
-        // Get all available periodes (only years where members registered)
-        // Collect tahun_daftar from active members
-        $memberYears = Member::where('status', 'aktif')
-            ->distinct('tahun_daftar')
-            ->pluck('tahun_daftar')
-            ->filter()
-            ->map(fn($year) => $year . '/' . ($year + 1))
-            ->sort()
-            ->reverse()
-            ->values();
-
-        // Also include existing board periods
-        $boardPeriodes = BoardMember::distinct('periode')
+        // Get all available periodes from existing board records only
+        $periodeList = BoardMember::select('periode')
+            ->distinct()
             ->pluck('periode')
             ->filter()
             ->sort()
             ->reverse()
             ->values();
-
-        // Merge and deduplicate
-        $periodeList = $memberYears->merge($boardPeriodes)->unique()->sort()->reverse()->values();
 
         // Get active members for selection
         $availableMembers = Member::where('status', 'aktif')
@@ -74,7 +61,8 @@ class BoardMemberController extends Controller
         // Get diklat periods for form select (only with registered members)
         $usedDiklatPeriodIds = Member::where('status', 'aktif')
             ->whereNotNull('diklat_period_id')
-            ->distinct('diklat_period_id')
+            ->select('diklat_period_id')
+            ->distinct()
             ->pluck('diklat_period_id');
         
         $diklatPeriods = DiklatPeriod::whereIn('id', $usedDiklatPeriodIds)
