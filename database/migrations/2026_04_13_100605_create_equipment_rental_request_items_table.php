@@ -23,8 +23,8 @@ return new class extends Migration
             $table->timestamps();
 
             // Foreign keys
-            $table->foreign('equipment_rental_request_id')->references('id')->on('equipment_rental_requests')->onDelete('cascade');
-            $table->foreign('equipment_rental_id')->references('id')->on('equipment_rentals')->onDelete('cascade');
+            $table->foreign('equipment_rental_request_id', 'erri_id_fk')->references('id')->on('equipment_rental_requests')->onDelete('cascade');
+            $table->foreign('equipment_rental_id', 'erri_eq_fk')->references('id')->on('equipment_rentals')->onDelete('cascade');
         });
     }
 

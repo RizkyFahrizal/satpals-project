@@ -33,7 +33,6 @@ class DiklatRegistration extends Model
         'spesifikasi',
         'spesifikasi_lainnya',
         'tahun_masuk',
-        'tahun_daftar',
         'bukti_pembayaran',
         'riwayat_penyakit',
         'riwayat_alergi',
@@ -44,7 +43,6 @@ class DiklatRegistration extends Model
         'spesifikasi' => 'array',
         'spesifikasi_lainnya' => 'array',
         'tahun_masuk' => 'integer',
-        'tahun_daftar' => 'integer',
     ];
 
     public function getSpesifikasiLabelsAttribute(): array

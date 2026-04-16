@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Income;
 use App\Models\IncomeDocument;
+use App\Models\IncomeApproval;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -18,13 +19,17 @@ class IncomeController extends Controller
     {
         $query = Income::with('creator')->latest();
 
-        // Search
+        // Search by title, description
         if ($request->search) {
             $query->where(function ($q) use ($request) {
                 $q->where('title', 'like', "%{$request->search}%")
-                  ->orWhere('description', 'like', "%{$request->search}%")
-                  ->orWhere('source', 'like', "%{$request->search}%");
+                  ->orWhere('description', 'like', "%{$request->search}%");
             });
+        }
+
+        // Filter by status
+        if ($request->status && $request->status !== 'all') {
+            $query->where('status', $request->status);
         }
 
         $incomes = $query->paginate(15);
@@ -81,7 +86,7 @@ class IncomeController extends Controller
             }
         }
 
-        return redirect()->route('admin.income.show', $income)->with('success', 'Pemasukan berhasil ditambahkan');
+        return redirect()->route('admin.financial.index')->with('success', 'Pemasukan berhasil ditambahkan');
     }
 
     /**
@@ -90,7 +95,13 @@ class IncomeController extends Controller
     public function show(Income $income)
     {
         $income->load('creator', 'documents');
-        return view('admin.income.show', compact('income'));
+        
+        // Check authorization
+        $canManage = $this->canManageIncome();
+        $canEdit = $canManage;
+        $canDelete = $canManage;
+        
+        return view('admin.income.show', compact('income', 'canManage', 'canEdit', 'canDelete'));
     }
 
     /**
@@ -98,6 +109,11 @@ class IncomeController extends Controller
      */
     public function edit(Income $income)
     {
+        if (!$this->canManageIncome()) {
+            return redirect()->route('admin.income.show', $income)
+                ->with('error', 'Anda tidak memiliki otorisasi untuk mengubah pemasukan');
+        }
+
         $income->load('documents');
         return view('admin.income.edit', compact('income'));
     }
@@ -132,7 +148,7 @@ class IncomeController extends Controller
             }
         }
 
-        return redirect()->route('admin.income.show', $income)->with('success', 'Pemasukan berhasil diubah');
+        return redirect()->route('admin.financial.index')->with('success', 'Pemasukan berhasil diubah');
     }
 
     /**
@@ -140,6 +156,10 @@ class IncomeController extends Controller
      */
     public function destroy(Income $income)
     {
+        if (!$this->canManageIncome()) {
+            return redirect()->back()->with('error', 'Anda tidak memiliki otorisasi untuk menghapus pemasukan');
+        }
+
         // Delete all associated documents
         foreach ($income->documents as $doc) {
             Storage::disk('public')->delete($doc->file_path);
@@ -148,7 +168,7 @@ class IncomeController extends Controller
         
         $income->delete();
 
-        return redirect()->route('admin.income.index')->with('success', 'Pemasukan berhasil dihapus');
+        return redirect()->route('admin.financial.index')->with('success', 'Pemasukan berhasil dihapus');
     }
 
     /**
@@ -157,6 +177,10 @@ class IncomeController extends Controller
     public function deleteDocument(IncomeDocument $document)
     {
         $income = $document->income;
+
+        if (!$this->canManageIncome()) {
+            return redirect()->back()->with('error', 'Anda tidak memiliki otorisasi untuk menghapus dokumen pemasukan');
+        }
         
         // Delete file from storage
         Storage::disk('public')->delete($document->file_path);
@@ -165,5 +189,109 @@ class IncomeController extends Controller
         $document->delete();
 
         return redirect()->route('admin.income.show', $income)->with('success', 'Dokumen berhasil dihapus');
+    }
+
+    /**
+     * Check if user can manage income (admin or bendahara only)
+     */
+    private function canManageIncome()
+    {
+        $user = Auth::user();
+
+        // Check if user is admin
+        if ($user->role === 'admin') {
+            return true;
+        }
+
+        // Check if user is an active board member with leadership roles (Ketua Umum, Wakil Ketua Umum)
+        $isLeadership = \App\Models\BoardMember::where('user_id', $user->id)
+            ->where('is_active', true)
+            ->whereIn('jabatan', ['ketua_umum', 'wakil_ketua_umum'])
+            ->exists();
+
+        if ($isLeadership) {
+            return true;
+        }
+
+        // Check if user is Bendahara (jabatan must be 'bendahara' only)
+        $isBendahara = \App\Models\BoardMember::where('user_id', $user->id)
+            ->where('is_active', true)
+            ->where('jabatan', 'bendahara')
+            ->exists();
+
+        return $isBendahara;
+    }
+
+    /**
+     * Approve income
+     */
+    public function approve(Request $request, Income $income)
+    {
+        // Check authorization
+        if (!$this->canManageIncome()) {
+            return redirect()->back()->with('error', 'Anda tidak memiliki otorisasi untuk menyetujui pemasukan. Hanya admin atau pengurus aktif (Ketua Umum, Wakil Ketua Umum, Bendahara) yang dapat menyetujui.');
+        }
+
+        if ($income->status !== 'pending') {
+            return redirect()->back()->with('error', 'Pemasukan ini tidak pending');
+        }
+
+        $validated = $request->validate([
+            'notes' => 'nullable|string',
+        ]);
+
+        IncomeApproval::create([
+            'income_id' => $income->id,
+            'approved_by' => Auth::id(),
+            'approval_status' => 'approved',
+            'notes' => $validated['notes'] ?? null,
+            'approved_at' => now(),
+        ]);
+
+        // Check if all approvals are done (need 1 approval for income)
+        $approvedCount = IncomeApproval::where('income_id', $income->id)
+            ->where('approval_status', 'approved')
+            ->count();
+
+        if ($approvedCount >= 1) {
+            $income->update([
+                'status' => 'approved',
+                'approved_at' => now(),
+            ]);
+        }
+
+        return redirect()->back()->with('success', 'Pemasukan berhasil disetujui');
+    }
+
+    /**
+     * Reject income
+     */
+    public function reject(Request $request, Income $income)
+    {
+        // Check authorization
+        if (!$this->canManageIncome()) {
+            return redirect()->back()->with('error', 'Anda tidak memiliki otorisasi untuk menolak pemasukan. Hanya admin atau pengurus aktif (Ketua Umum, Wakil Ketua Umum, Bendahara) yang dapat menolak.');
+        }
+
+        if ($income->status !== 'pending') {
+            return redirect()->back()->with('error', 'Pemasukan ini tidak pending');
+        }
+
+        $validated = $request->validate([
+            'rejection_reason' => 'required|string|min:10',
+        ]);
+
+        $income->update([
+            'status' => 'rejected',
+        ]);
+
+        IncomeApproval::create([
+            'income_id' => $income->id,
+            'approved_by' => Auth::id(),
+            'approval_status' => 'rejected',
+            'notes' => $validated['rejection_reason'],
+        ]);
+
+        return redirect()->back()->with('success', 'Pemasukan berhasil ditolak');
     }
 }

@@ -44,7 +44,7 @@ class EquipmentPublicController extends Controller
             ->distinct('category')
             ->pluck('category');
 
-        return view('public.equipment.index', [
+        return view('equipment.index', [
             'equipments' => $equipments,
             'categories' => $categories,
             'selectedCategory' => $request->category ?? null,
@@ -64,7 +64,7 @@ class EquipmentPublicController extends Controller
                 ->where('is_available', true)
                 ->findOrFail($id);
 
-            return view('public.equipment.show', [
+            return view('equipment.show', [
                 'equipment' => $equipment,
                 'units' => $equipment->units,
             ]);

@@ -122,7 +122,7 @@ class ExpenseController extends Controller
             ]);
         }
 
-        return redirect()->route('admin.expenses.show', $expense)->with('success', 'Pengeluaran berhasil ditambahkan');
+        return redirect()->route('admin.financial.index')->with('success', 'Pengeluaran berhasil ditambahkan');
     }
 
     /**
@@ -131,7 +131,13 @@ class ExpenseController extends Controller
     public function show(Expense $expense)
     {
         $expense->load(['creator', 'documents', 'approvals.approver']);
-        return view('admin.expenses.show', compact('expense'));
+        
+        // Check authorization
+        $canApprove = $this->canApproveExpense();
+        $canEdit = $expense->status === 'pending' && $canApprove;
+        $canDelete = $expense->status === 'pending' && $canApprove;
+        
+        return view('admin.expenses.show', compact('expense', 'canApprove', 'canEdit', 'canDelete'));
     }
 
     /**
@@ -139,6 +145,11 @@ class ExpenseController extends Controller
      */
     public function edit(Expense $expense)
     {
+        if (!$this->canApproveExpense()) {
+            return redirect()->route('admin.expenses.show', $expense)
+                ->with('error', 'Anda tidak memiliki otorisasi untuk mengubah pengeluaran');
+        }
+
         if ($expense->status !== 'pending') {
             return redirect()->route('admin.expenses.show', $expense)
                 ->with('error', 'Hanya pengeluaran yang pending dapat diubah');
@@ -195,7 +206,7 @@ class ExpenseController extends Controller
             ]);
         }
 
-        return redirect()->route('admin.expenses.show', $expense)->with('success', 'Pengeluaran berhasil diubah');
+        return redirect()->route('admin.financial.index')->with('success', 'Pengeluaran berhasil diubah');
     }
 
     /**
@@ -217,7 +228,7 @@ class ExpenseController extends Controller
      */
     /**
      * Check if user can approve expenses
-     * Admin or active board member (ketua_umum, wakil_ketua_umum, bendahara) can approve
+     * Admin or active board member with specific roles (ketua_umum, wakil_ketua_umum) and bendahara subsie can approve
      */
     private function canApproveExpense()
     {
@@ -228,13 +239,23 @@ class ExpenseController extends Controller
             return true;
         }
 
-        // Check if user is an active board member with specific roles
-        $activeBoardMember = \App\Models\BoardMember::where('user_id', $user->id)
+        // Check if user is an active board member with specific roles (Ketua Umum, Wakil Ketua Umum)
+        $isLeadership = \App\Models\BoardMember::where('user_id', $user->id)
             ->where('is_active', true)
-            ->whereIn('jabatan', ['ketua_umum', 'wakil_ketua_umum', 'bendahara'])
+            ->whereIn('jabatan', ['ketua_umum', 'wakil_ketua_umum'])
             ->exists();
 
-        return $activeBoardMember;
+        if ($isLeadership) {
+            return true;
+        }
+
+        // Check if user is Bendahara (jabatan must be 'bendahara' only)
+        $isBendahara = \App\Models\BoardMember::where('user_id', $user->id)
+            ->where('is_active', true)
+            ->where('jabatan', 'bendahara')
+            ->exists();
+
+        return $isBendahara;
     }
 
     public function approve(Request $request, Expense $expense)
@@ -327,6 +348,10 @@ class ExpenseController extends Controller
      */
     public function destroy(Expense $expense)
     {
+        if (!$this->canApproveExpense()) {
+            return redirect()->back()->with('error', 'Anda tidak memiliki otorisasi untuk menghapus pengeluaran');
+        }
+
         if ($expense->status !== 'pending') {
             return redirect()->back()->with('error', 'Hanya pengeluaran pending yang dapat dihapus');
         }
@@ -339,6 +364,6 @@ class ExpenseController extends Controller
 
         $expense->delete();
 
-        return redirect()->route('admin.expenses.index')->with('success', 'Pengeluaran berhasil dihapus');
+        return redirect()->route('admin.financial.index')->with('success', 'Pengeluaran berhasil dihapus');
     }
 }

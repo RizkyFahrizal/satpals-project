@@ -48,47 +48,65 @@
 
         <!-- Action Buttons -->
         @if($expense->status === 'pending')
-            <div class="flex flex-wrap gap-2">
-                <button class="btn btn-sm btn-success" onclick="approveModal.showModal()">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            @if(!$canApprove)
+                <div class="alert alert-warning">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4v2m0-12a9 9 0 110 18 9 9 0 010-18z" />
                     </svg>
-                    Setujui
-                </button>
-                <button class="btn btn-sm btn-error" onclick="rejectModal.showModal()">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                    Tolak
-                </button>
-                <a href="{{ route('admin.expenses.edit', $expense) }}" class="btn btn-sm btn-outline">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                    </svg>
-                    Edit
-                </a>
-                <form action="{{ route('admin.expenses.destroy', $expense) }}" method="POST" class="inline" onsubmit="return confirm('Yakin hapus?')">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit" class="btn btn-sm btn-ghost text-error">
+                    <span>Anda tidak memiliki otorisasi untuk melakukan aksi pada pengeluaran ini. Hanya Admin, Ketua Umum, Wakil Ketua Umum, atau Bendahara Subsie yang dapat melakukan aksi.</span>
+                </div>
+            @else
+                <div class="flex flex-wrap gap-2">
+                    <button class="btn btn-sm btn-success" onclick="approveModal.showModal()">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                         </svg>
-                        Hapus
+                        Setujui
                     </button>
-                </form>
-            </div>
+                    <button class="btn btn-sm btn-error" onclick="rejectModal.showModal()">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                        Tolak
+                    </button>
+                    <a href="{{ route('admin.expenses.edit', $expense) }}" class="btn btn-sm btn-outline">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                        Edit
+                    </a>
+                    <form action="{{ route('admin.expenses.destroy', $expense) }}" method="POST" class="inline" onsubmit="return confirm('Yakin hapus?')">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-sm btn-ghost text-error">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                            Hapus
+                        </button>
+                    </form>
+                </div>
+            @endif
         @elseif($expense->status === 'approved')
             <div class="flex flex-wrap gap-2">
-                <form action="{{ route('admin.expenses.archive', $expense) }}" method="POST" class="inline">
-                    @csrf
-                    <button type="submit" class="btn btn-sm btn-outline">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9-4v4m0 0v4" />
+                @if($canApprove)
+                    <form action="{{ route('admin.expenses.archive', $expense) }}" method="POST" class="inline">
+                        @csrf
+                        <button type="submit" class="btn btn-sm btn-outline">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9-4v4m0 0v4" />
+                            </svg>
+                            Arsipkan
+                        </button>
+                    </form>
+                @else
+                    <div class="alert alert-info">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
-                        Arsipkan
-                    </button>
-                </form>
+                        <span>Pengeluaran ini telah disetujui.</span>
+                    </div>
+                @endif
             </div>
         @endif
     </div>
@@ -117,7 +135,7 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                 </svg>
                             </a>
-                            @if($expense->status === 'pending')
+                            @if($expense->status === 'pending' && $canDelete)
                                 <form action="{{ route('admin.expenses.delete-document', $doc) }}" method="POST" class="inline" onsubmit="return confirm('Yakin hapus dokumen?')">
                                     @csrf
                                     @method('DELETE')
@@ -165,7 +183,7 @@
 
     <!-- Back Button -->
     <div>
-        <a href="{{ route('admin.expenses.index') }}" class="btn btn-outline">Kembali</a>
+        <a href="{{ route('admin.financial.index') }}" class="btn btn-outline">Kembali</a>
     </div>
 </div>
 
@@ -194,14 +212,42 @@
         <form action="{{ route('admin.expenses.reject', $expense) }}" method="POST">
             @csrf
             <div class="py-4">
-                <label class="block text-sm font-semibold text-gray-700 mb-2">Alasan Penolakan</label>
-                <textarea name="rejection_reason" class="textarea textarea-bordered w-full" rows="3" required></textarea>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Alasan Penolakan <span class="text-red-500">*</span></label>
+                <textarea id="expenseRejectionReason" name="rejection_reason" class="textarea textarea-bordered w-full" rows="3" required placeholder="Tulis alasan penolakan minimal 10 karakter..." oninput="validateExpenseRejectLength()"></textarea>
+                
+                <!-- Character count alert -->
+                <div id="expenseRejectAlert" class="alert alert-warning mt-3 hidden">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4v2m0-12a9 9 0 110 18 9 9 0 010-18z" />
+                    </svg>
+                    <span>Alasan penolakan harus minimal 10 karakter. Saat ini: <strong id="expenseCharCount">0</strong>/10</span>
+                </div>
             </div>
             <div class="modal-action">
-                <button type="submit" class="btn btn-error">Tolak</button>
+                <button id="expenseRejectBtn" type="submit" class="btn btn-error" disabled>Tolak</button>
                 <button type="button" class="btn" onclick="rejectModal.close()">Batal</button>
             </div>
         </form>
     </div>
 </dialog>
+
+<script>
+function validateExpenseRejectLength() {
+    const textarea = document.getElementById('expenseRejectionReason');
+    const alert = document.getElementById('expenseRejectAlert');
+    const charCount = document.getElementById('expenseCharCount');
+    const submitBtn = document.getElementById('expenseRejectBtn');
+    const length = textarea.value.trim().length;
+    
+    charCount.textContent = length;
+    
+    if (length < 10) {
+        alert.classList.remove('hidden');
+        submitBtn.disabled = true;
+    } else {
+        alert.classList.add('hidden');
+        submitBtn.disabled = false;
+    }
+}
+</script>
 @endsection

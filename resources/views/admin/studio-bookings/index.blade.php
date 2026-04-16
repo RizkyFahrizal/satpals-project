@@ -52,9 +52,10 @@
     @endif
 
     <!-- Tabs Navigation -->
-    <div class="tabs tabs-lifted bg-white shadow-lg rounded-t-lg">
-        <input type="radio" name="studio_tabs" label="📋 Daftar Booking" class="tab" checked />
-        <div class="tab-content bg-white rounded-lg shadow-lg p-6">
+    <div class="tabs tabs-lifted">
+        <!-- Tab 1: Daftar Booking -->
+        <input type="radio" name="studio_tabs" class="tab" aria-label="📋 Daftar Booking" checked />
+        <div class="tab-content bg-base-100 border-base-300 rounded-box p-6">
             <!-- All Bookings Table -->
             <div class="space-y-4">
                 <div class="flex justify-between items-center">
@@ -245,8 +246,9 @@
             </div>
         </div>
 
-        <input type="radio" name="studio_tabs" label="📅 Kalender" class="tab" />
-        <div class="tab-content bg-white rounded-lg shadow-lg p-6">
+        <!-- Tab 2: Kalender Booking -->
+        <input type="radio" name="studio_tabs" class="tab" aria-label="📅 Kalender Booking" />
+        <div class="tab-content bg-base-100 border-base-300 rounded-box p-6">
             <!-- Calendar View (Original) -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <!-- Main Calendar Area -->

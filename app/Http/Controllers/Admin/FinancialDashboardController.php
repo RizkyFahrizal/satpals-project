@@ -20,7 +20,7 @@ class FinancialDashboardController extends Controller
         $endDate = $request->end_date ? Carbon::parse($request->end_date) : Carbon::now()->endOfMonth();
 
         // Calculate totals for the period
-        $totalIncome = Income::whereBetween('created_at', [$startDate, $endDate])->sum('nominal');
+        $totalIncome = Income::approved()->whereBetween('created_at', [$startDate, $endDate])->sum('nominal');
         $totalExpense = Expense::approved()->whereBetween('created_at', [$startDate, $endDate])->sum('nominal');
         $totalBalance = $totalIncome - $totalExpense;
 
@@ -40,18 +40,21 @@ class FinancialDashboardController extends Controller
             ->limit(5)
             ->get();
 
-        $recentIncomes = Income::with('creator')
+        $recentIncomes = Income::approved()
+            ->with('creator')
             ->whereBetween('created_at', [$startDate, $endDate])
             ->orderBy('created_at', 'desc')
             ->limit(5)
             ->get();
 
         // Fetch all expenses and incomes for display - combined
+        // Note: Show ALL expenses (not filtered by status) but calculations only count approved
         $expenses = Expense::with('creator')
             ->whereBetween('created_at', [$startDate, $endDate])
             ->latest()
             ->get();
         
+        // Note: Show ALL incomes (pending + approved + rejected) but calculations only count approved
         $incomes = Income::with('creator')
             ->whereBetween('created_at', [$startDate, $endDate])
             ->latest()
@@ -85,7 +88,7 @@ class FinancialDashboardController extends Controller
                 'creator' => $income->creator,
                 'date' => $income->created_at,
                 'type' => 'income',
-                'source' => $income->source,
+                'status' => $income->status ?? 'pending',
                 'route' => route('admin.income.show', $income),
                 'model' => $income
             ]);
@@ -93,6 +96,34 @@ class FinancialDashboardController extends Controller
         
         // Sort by date descending
         $allTransactions = $allTransactions->sortByDesc('date')->values();
+
+        // Apply filters to transactions
+        // Filter by type (income/expense)
+        if ($request->filter_type && $request->filter_type !== 'all') {
+            $allTransactions = $allTransactions->filter(function ($transaction) use ($request) {
+                return $transaction['type'] === $request->filter_type;
+            });
+        }
+
+        // Filter by status
+        if ($request->filter_status && $request->filter_status !== 'all') {
+            $allTransactions = $allTransactions->filter(function ($transaction) use ($request) {
+                return $transaction['status'] === $request->filter_status;
+            });
+        }
+
+        // Filter by expense type (barang/kegiatan) - only for expenses
+        if ($request->filter_expense_type && $request->filter_expense_type !== 'all') {
+            $allTransactions = $allTransactions->filter(function ($transaction) use ($request) {
+                if ($transaction['type'] === 'expense') {
+                    return $transaction['expense_type'] === $request->filter_expense_type;
+                }
+                return false;
+            });
+        }
+
+        // Reset indices after filtering
+        $allTransactions = $allTransactions->values();
 
         return view('admin.financial-dashboard', compact(
             'totalIncome',

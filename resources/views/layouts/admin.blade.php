@@ -34,9 +34,9 @@
         <div id="sidebarOverlay" class="fixed inset-0 bg-black/50 lg:hidden hidden z-30" onclick="closeSidebar()"></div>
 
         <!-- Sidebar -->
-        <aside id="sidebar" class="w-64 bg-white shadow-lg flex flex-col fixed lg:fixed h-screen border-r border-gray-200 z-40 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out lg:left-0 top-0">
+        <aside id="sidebar" class="w-64 bg-yellow-50 shadow-lg flex flex-col fixed lg:fixed h-screen border-r border-gray-200 z-40 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out lg:left-0 top-0">
             <!-- Logo Section -->
-            <div class="p-6 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-gray-100 flex-shrink-0">
+            <div class="p-6 border-b border-gray-200 bg-yellow-50/60 flex-shrink-0">
                 <div class="flex items-center gap-3 mb-2">
                     <img src="{{ asset('assets/images/logoukm.png') }}" alt="Logo Satya Palapa" class="w-10 h-10 object-contain rounded-lg">
                     <div>
@@ -145,7 +145,7 @@
                     </li>
 
                     <li>
-                        <a href="{{ route('admin.equipment.index') }}" class="flex items-center gap-3 px-4 py-3 text-gray-700 font-medium {{ request()->routeIs('admin.equipment.*') || request()->routeIs('admin.equipment-rental-requests.*') ? 'bg-gradient-to-r from-purple-400 to-pink-400 text-gray-900 shadow-md rounded-xl' : 'hover:bg-yellow-50 rounded-lg transition-colors' }}">
+                        <a href="{{ route('admin.equipment.index') }}" class="flex items-center gap-3 px-4 py-3 text-gray-700 font-medium {{ request()->routeIs('admin.equipment.*') || request()->routeIs('admin.equipment-rental-requests.*') ? 'bg-gradient-to-r from-yellow-400 to-orange-400 text-gray-900 shadow-md rounded-xl' : 'hover:bg-yellow-50 rounded-lg transition-colors' }}">
                            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"></path>
                             </svg>
@@ -163,7 +163,7 @@
                     </li>
 
                     <li>
-                        <a href="{{ route('admin.studio-bookings.index') }}" class="flex items-center gap-3 px-4 py-3 text-gray-700 font-medium hover:bg-yellow-50 rounded-lg transition-colors {{ request()->routeIs('admin.studio-bookings.*') ? 'bg-yellow-100 text-yellow-900' : '' }}">
+                        <a href="{{ route('admin.studio-bookings.index') }}" class="flex items-center gap-3 px-4 py-3 text-gray-700 font-medium {{ request()->routeIs('admin.studio-bookings.*') ? 'bg-gradient-to-r from-yellow-400 to-orange-400 text-gray-900 shadow-md rounded-xl' : 'hover:bg-yellow-50 rounded-lg transition-colors' }}">
                             <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
                             </svg>
@@ -198,7 +198,7 @@
             </nav>
 
             <!-- Logout Button -->
-            <div class="p-4 border-t border-gray-200 bg-gray-50">
+            <div class="p-4 border-t border-gray-200 bg-yellow-50/60">
                 <form action="{{ route('logout') }}" method="POST">
                     @csrf
                     <button type="submit" class="w-full flex items-center gap-3 px-4 py-3 text-red-600 font-medium hover:bg-red-50 rounded-lg transition-colors">

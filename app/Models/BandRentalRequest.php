@@ -16,6 +16,8 @@ class BandRentalRequest extends Model
         'renter_phone',
         'rental_purpose',
         'performance_date',
+        'performance_start_time',
+        'performance_end_time',
         'status',
         'admin_notes',
     ];

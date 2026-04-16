@@ -39,14 +39,21 @@ class BoardMemberController extends Controller
         $grouped['subsie_pdd'] = $boardMembers->where('jabatan', 'subsie_pdd');
         $grouped['subsie_band'] = $boardMembers->where('jabatan', 'subsie_band');
 
-        // Get all available periodes from existing board records only
-        $periodeList = BoardMember::select('periode')
+        // Get all available periodes from members angkatan (not from board_members)
+        $angkatanList = Member::where('status', 'aktif')
             ->distinct()
-            ->pluck('periode')
+            ->pluck('angkatan')
             ->filter()
+            ->map(fn($tahun) => (int)$tahun)
             ->sort()
             ->reverse()
             ->values();
+        
+        // Convert angkatan to periode format: "tahun+1 / tahun+2"
+        $periodeList = $angkatanList->mapWithKeys(function($tahun) {
+            $periode = ($tahun + 1) . '/' . ($tahun + 2);
+            return [$periode => $periode];
+        })->values();
 
         // Get active members for selection
         $availableMembers = Member::where('status', 'aktif')

@@ -173,7 +173,6 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin.access'])->gr
     Route::get('/financial', [FinancialDashboardController::class, 'index'])->name('financial.index');
     
     // Expenses (Pengeluaran)
-    Route::get('/expenses', [ExpenseController::class, 'index'])->name('expenses.index');
     Route::get('/expenses/create', [ExpenseController::class, 'create'])->name('expenses.create');
     Route::post('/expenses', [ExpenseController::class, 'store'])->name('expenses.store');
     Route::get('/expenses/{expense}', [ExpenseController::class, 'show'])->name('expenses.show');
@@ -186,12 +185,13 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin.access'])->gr
     Route::delete('/expenses/documents/{document}', [ExpenseController::class, 'deleteDocument'])->name('expenses.delete-document');
     
     // Income (Pemasukan)
-    Route::get('/income', [IncomeController::class, 'index'])->name('income.index');
     Route::get('/income/create', [IncomeController::class, 'create'])->name('income.create');
     Route::post('/income', [IncomeController::class, 'store'])->name('income.store');
     Route::get('/income/{income}', [IncomeController::class, 'show'])->name('income.show');
     Route::get('/income/{income}/edit', [IncomeController::class, 'edit'])->name('income.edit');
     Route::put('/income/{income}', [IncomeController::class, 'update'])->name('income.update');
+    Route::post('/income/{income}/approve', [IncomeController::class, 'approve'])->name('income.approve');
+    Route::post('/income/{income}/reject', [IncomeController::class, 'reject'])->name('income.reject');
     Route::delete('/income/{income}', [IncomeController::class, 'destroy'])->name('income.destroy');
     Route::delete('/income/documents/{document}', [IncomeController::class, 'deleteDocument'])->name('income.delete-document');
     

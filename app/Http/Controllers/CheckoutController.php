@@ -28,7 +28,7 @@ class CheckoutController extends Controller
             $total += $item['price_per_day'] * $item['quantity'];
         }
 
-        return view('public.checkout.index', [
+        return view('checkout.index', [
             'cart' => $cart,
             'total' => $total,
             'duration_days' => $duration_days,

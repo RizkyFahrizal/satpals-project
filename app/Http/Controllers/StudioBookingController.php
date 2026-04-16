@@ -139,7 +139,7 @@ class StudioBookingController extends Controller
         }
 
         // Create booking
-        StudioBooking::create([
+        $booking = StudioBooking::create([
             'user_id' => $user?->id,
             'tanggal_booking' => $validated['tanggal_booking'],
             'sesi' => $validated['sesi'],
@@ -148,6 +148,9 @@ class StudioBookingController extends Controller
             'nomor_identitas' => $validated['npm'],
             'nama_pemohon' => $validated['nama_lengkap'],
         ]);
+
+        // Flash booking ID to session for success page
+        session()->flash('booking_id', $booking->id);
 
         return redirect()->route('studio-bookings.success')
             ->with('success', 'Booking berhasil dibuat! Admin akan segera memproses permohonan Anda.');
@@ -158,6 +161,24 @@ class StudioBookingController extends Controller
      */
     public function success()
     {
-        return view('studio-bookings.success');
+        // Get booking ID from session flash
+        $bookingId = session('booking_id');
+
+        // If no booking_id in session, try to get latest booking for current user
+        if (!$bookingId && auth()->check()) {
+            $booking = StudioBooking::where('user_id', auth()->id())
+                ->latest()
+                ->first();
+        } else {
+            $booking = $bookingId ? StudioBooking::find($bookingId) : null;
+        }
+
+        // If no booking found, redirect back to index
+        if (!$booking) {
+            return redirect()->route('studio-bookings.index')
+                ->with('error', 'Booking tidak ditemukan');
+        }
+
+        return view('studio-bookings.success', compact('booking'));
     }
 }

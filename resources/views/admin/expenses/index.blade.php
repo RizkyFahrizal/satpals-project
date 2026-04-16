@@ -40,7 +40,7 @@
 
         <!-- Search & Filter -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <form method="GET" action="{{ route('admin.expenses.index') }}" class="flex gap-2">
+            <form method="GET" action="{{ route('admin.financial.index') }}" class="flex gap-2">
                 <input type="text" name="search" placeholder="Cari judul, deskripsi..." value="{{ request('search') }}" 
                        class="input input-bordered input-sm flex-1">
                 <button type="submit" class="btn btn-sm btn-outline">
@@ -50,7 +50,7 @@
                 </button>
             </form>
 
-            <form method="GET" action="{{ route('admin.expenses.index') }}" class="flex gap-2">
+            <form method="GET" action="{{ route('admin.financial.index') }}" class="flex gap-2">
                 <select name="type" onchange="this.form.submit()" class="select select-bordered select-sm flex-1">
                     <option value="all">Semua Tipe</option>
                     <option value="barang" {{ request('type') === 'barang' ? 'selected' : '' }}>Barang</option>
@@ -58,7 +58,7 @@
                 </select>
             </form>
 
-            <form method="GET" action="{{ route('admin.expenses.index') }}" class="flex gap-2">
+            <form method="GET" action="{{ route('admin.financial.index') }}" class="flex gap-2">
                 <select name="status" onchange="this.form.submit()" class="select select-bordered select-sm flex-1">
                     <option value="all">Semua Status</option>
                     <option value="pending" {{ request('status') === 'pending' ? 'selected' : '' }}>Pending</option>

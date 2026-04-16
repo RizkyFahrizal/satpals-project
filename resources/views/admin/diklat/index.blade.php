@@ -237,22 +237,17 @@
                             </div>
                         </td>
                         <td class="px-6 py-4 text-center">
+                            @if($reg->status === 'pending')
                             <form action="{{ route('admin.diklat.update-status', $reg) }}" method="POST" class="inline">
                                 @csrf
                                 @method('PATCH')
                                 <div class="relative inline-block">
                                     <select name="status" onchange="this.form.submit()" 
                                         class="appearance-none cursor-pointer pl-4 pr-10 py-2 rounded-full text-sm font-medium border-2 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2
-                                        @if($reg->status === 'pending') 
-                                            bg-gradient-to-r from-yellow-400 to-orange-400 text-gray-800 border-yellow-300 focus:ring-yellow-400
-                                        @elseif($reg->status === 'approved')
-                                            bg-gradient-to-r from-green-400 to-emerald-500 text-white border-green-400 focus:ring-green-400
-                                        @else
-                                            bg-gradient-to-r from-red-400 to-rose-500 text-white border-red-400 focus:ring-red-400
-                                        @endif">
-                                        <option value="pending" {{ $reg->status === 'pending' ? 'selected' : '' }}>⏳ Menunggu</option>
-                                        <option value="approved" {{ $reg->status === 'approved' ? 'selected' : '' }}>✅ Diterima</option>
-                                        <option value="rejected" {{ $reg->status === 'rejected' ? 'selected' : '' }}>❌ Ditolak</option>
+                                        bg-gradient-to-r from-yellow-400 to-orange-400 text-gray-800 border-yellow-300 focus:ring-yellow-400">
+                                        <option value="pending" selected>⏳ Menunggu</option>
+                                        <option value="approved">✅ Diterima</option>
+                                        <option value="rejected">❌ Ditolak</option>
                                     </select>
                                     <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
                                         <svg class="w-4 h-4 text-current opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -261,6 +256,15 @@
                                     </div>
                                 </div>
                             </form>
+                            @elseif($reg->status === 'approved')
+                            <span class="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium bg-gradient-to-r from-green-400 to-emerald-500 text-white border-2 border-green-400">
+                                ✅ Diterima
+                            </span>
+                            @else
+                            <span class="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium bg-gradient-to-r from-red-400 to-rose-500 text-white border-2 border-red-400">
+                                ❌ Ditolak
+                            </span>
+                            @endif
                         </td>
                         <td class="px-6 py-4">
                             <div class="flex items-center justify-center gap-2">

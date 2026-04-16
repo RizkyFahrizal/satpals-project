@@ -51,7 +51,7 @@
                     </div>
                     <div class="bg-gray-50 p-4 rounded">
                         <p class="text-gray-600 text-sm">Tanggal Pertunjukan</p>
-                        <p class="font-bold text-gray-800">{{ $rental->performance_date->format('d M Y H:i') }}</p>
+                        <p class="font-bold text-gray-800">{{ $rental->performance_date->format('d M Y') }}</p>
                     </div>
                     <div class="bg-gray-50 p-4 rounded">
                         <p class="text-gray-600 text-sm">Status</p>
@@ -68,6 +68,20 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Performance Times -->
+                @if($rental->performance_start_time && $rental->performance_end_time)
+                <div class="grid grid-cols-2 gap-4 mb-6">
+                    <div class="bg-green-50 p-4 rounded border-l-4 border-green-500">
+                        <p class="text-gray-600 text-sm font-semibold">Waktu Mulai</p>
+                        <p class="font-bold text-gray-800 text-lg">{{ $rental->performance_start_time }}</p>
+                    </div>
+                    <div class="bg-red-50 p-4 rounded border-l-4 border-red-500">
+                        <p class="text-gray-600 text-sm font-semibold">Waktu Berakhir</p>
+                        <p class="font-bold text-gray-800 text-lg">{{ $rental->performance_end_time }}</p>
+                    </div>
+                </div>
+                @endif
 
                 <!-- Rental Purpose -->
                 <div class="mb-6">

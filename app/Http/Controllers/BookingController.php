@@ -27,7 +27,7 @@ class BookingController extends Controller
         $bookings = $query->orderBy('created_at', 'desc')->paginate(10);
         $statuses = ['pending', 'approved', 'rejected', 'in_progress', 'done'];
 
-        return view('public.bookings.index', [
+        return view('bookings.index', [
             'bookings' => $bookings,
             'statuses' => $statuses,
             'selectedStatus' => $request->status ?? null,
@@ -42,7 +42,7 @@ class BookingController extends Controller
     {
         $booking = EquipmentRentalRequest::with('items.equipment')->findOrFail($id);
 
-        return view('public.bookings.show', [
+        return view('bookings.show', [
             'booking' => $booking,
         ]);
     }

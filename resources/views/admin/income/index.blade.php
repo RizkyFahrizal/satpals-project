@@ -32,14 +32,27 @@
 
         <!-- Search -->
         <div class="mb-6">
-            <form method="GET" action="{{ route('admin.income.index') }}" class="flex gap-2">
-                <input type="text" name="search" placeholder="Cari judul, deskripsi, sumber..." value="{{ request('search') }}" 
-                       class="input input-bordered input-sm flex-1">
-                <button type="submit" class="btn btn-sm btn-outline">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                    </svg>
-                </button>
+            <form method="GET" action="{{ route('admin.income.index') }}" class="space-y-4">
+                <div class="flex flex-col lg:flex-row gap-4">
+                    <input type="text" name="search" placeholder="Cari judul, deskripsi..." value="{{ request('search') }}" 
+                           class="input input-bordered input-sm flex-1">
+                    <select name="status" class="select select-bordered select-sm w-full lg:w-48">
+                        <option value="all" {{ request('status') === 'all' || !request('status') ? 'selected' : '' }}>Semua Status</option>
+                        <option value="pending" {{ request('status') === 'pending' ? 'selected' : '' }}>⏳ Pending</option>
+                        <option value="approved" {{ request('status') === 'approved' ? 'selected' : '' }}>✓ Approved</option>
+                        <option value="rejected" {{ request('status') === 'rejected' ? 'selected' : '' }}>✕ Rejected</option>
+                    </select>
+                    <button type="submit" class="btn btn-sm btn-outline">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                    </button>
+                    @if(request('search') || request('status'))
+                        <a href="{{ route('admin.income.index') }}" class="btn btn-sm btn-ghost">
+                            Reset
+                        </a>
+                    @endif
+                </div>
             </form>
         </div>
 
@@ -49,7 +62,7 @@
                 <thead class="border-b-2 border-gray-200">
                     <tr>
                         <th class="text-left py-3 px-4 font-semibold text-gray-700">Judul</th>
-                        <th class="text-left py-3 px-4 font-semibold text-gray-700">Sumber</th>
+                        <th class="text-center py-3 px-4 font-semibold text-gray-700">Status</th>
                         <th class="text-right py-3 px-4 font-semibold text-gray-700">Nominal</th>
                         <th class="text-left py-3 px-4 font-semibold text-gray-700">Dibuat oleh</th>
                         <th class="text-left py-3 px-4 font-semibold text-gray-700">Tanggal</th>
@@ -64,7 +77,16 @@
                                     {{ $income->title }}
                                 </a>
                             </td>
-                            <td class="py-3 px-4 text-gray-700">{{ $income->source ?? '-' }}</td>
+                            <td class="py-3 px-4 text-center">
+                                @php
+                                    $status = $income->status ?? 'pending';
+                                    $statusColor = $status === 'approved' ? 'badge-success' : ($status === 'rejected' ? 'badge-error' : 'badge-warning');
+                                    $statusIcon = $status === 'approved' ? '✓' : ($status === 'rejected' ? '✕' : '⏳');
+                                @endphp
+                                <span class="badge {{ $statusColor }} text-white font-semibold" title="{{ ucfirst($status) }}">
+                                    {{ $statusIcon }}
+                                </span>
+                            </td>
                             <td class="py-3 px-4 text-right font-semibold text-green-600">
                                 Rp {{ number_format($income->nominal, 0, ',', '.') }}
                             </td>

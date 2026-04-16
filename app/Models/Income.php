@@ -18,9 +18,13 @@ class Income extends Model
         'source',
         'income_date',
         'created_by',
+        'status',
+        'approved_at',
     ];
 
     protected $casts = [
+        'income_date' => 'date',
+        'approved_at' => 'datetime',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
@@ -33,5 +37,25 @@ class Income extends Model
     public function documents()
     {
         return $this->hasMany(IncomeDocument::class);
+    }
+
+    public function approvals()
+    {
+        return $this->hasMany(IncomeApproval::class);
+    }
+
+    public function scopeApproved($query)
+    {
+        return $query->where('status', 'approved');
+    }
+
+    public function scopePending($query)
+    {
+        return $query->where('status', 'pending');
+    }
+
+    public function scopeRejected($query)
+    {
+        return $query->where('status', 'rejected');
     }
 }

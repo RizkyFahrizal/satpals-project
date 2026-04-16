@@ -78,13 +78,27 @@
                 <!-- No Telepon -->
                 <div>
                     <label for="no_telepon" class="block text-sm font-semibold text-gray-700 mb-2">
-                        No. Telepon <span class="text-red-500">*</span>
+                        No. Telepon Pribadi <span class="text-red-500">*</span>
                     </label>
                     <input type="text" name="no_telepon" id="no_telepon" 
                         value="{{ old('no_telepon') }}" required
                         class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 transition-all @error('no_telepon') border-red-500 @enderror"
                         placeholder="08xxxxxxxxxx">
                     @error('no_telepon')
+                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <!-- No Telepon Orang Tua -->
+                <div>
+                    <label for="no_telepon_ortu" class="block text-sm font-semibold text-gray-700 mb-2">
+                        No. Telepon Orang Tua
+                    </label>
+                    <input type="text" name="no_telepon_ortu" id="no_telepon_ortu" 
+                        value="{{ old('no_telepon_ortu') }}"
+                        class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 transition-all @error('no_telepon_ortu') border-red-500 @enderror"
+                        placeholder="08xxxxxxxxxx">
+                    @error('no_telepon_ortu')
                     <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                     @enderror
                 </div>
@@ -207,6 +221,34 @@
                     <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                     @enderror
                 </div>
+
+                <!-- Riwayat Penyakit -->
+                <div class="md:col-span-2">
+                    <label for="riwayat_penyakit" class="block text-sm font-semibold text-gray-700 mb-2">
+                        Riwayat Penyakit
+                    </label>
+                    <p class="text-xs text-gray-500 mb-3">Tuliskan riwayat penyakit jika ada (opsional)</p>
+                    <textarea name="riwayat_penyakit" id="riwayat_penyakit" rows="3"
+                        class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 transition-all resize-none @error('riwayat_penyakit') border-red-500 @enderror"
+                        placeholder="Contoh: Asma, alergi obat, dll">{{ old('riwayat_penyakit') }}</textarea>
+                    @error('riwayat_penyakit')
+                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <!-- Riwayat Alergi -->
+                <div class="md:col-span-2">
+                    <label for="riwayat_alergi" class="block text-sm font-semibold text-gray-700 mb-2">
+                        Riwayat Alergi Makanan
+                    </label>
+                    <p class="text-xs text-gray-500 mb-3">Tuliskan alergi makanan jika ada (opsional)</p>
+                    <textarea name="riwayat_alergi" id="riwayat_alergi" rows="3"
+                        class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 transition-all resize-none @error('riwayat_alergi') border-red-500 @enderror"
+                        placeholder="Contoh: Alergi seafood, alergi kacang, dll">{{ old('riwayat_alergi') }}</textarea>
+                    @error('riwayat_alergi')
+                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
             </div>
 
             <!-- Submit Buttons -->
@@ -236,6 +278,7 @@
                 <p class="font-semibold mb-1">Catatan:</p>
                 <ul class="list-disc list-inside space-y-1">
                     <li>Anggota juga bisa ditambahkan otomatis dari pendaftaran diklat yang disetujui</li>
+                    <li>Data kesehatan (riwayat penyakit, alergi, no tlp ortu) akan diisi otomatis dari diklat registration jika ada</li>
                     <li>NPM harus unik dan tidak boleh sama dengan anggota lain</li>
                     <li>Foto bersifat opsional dan bisa ditambahkan nanti</li>
                 </ul>

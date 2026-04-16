@@ -180,7 +180,10 @@
             datesGrid.className = 'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2';
 
             for (const date of dates) {
-                const dateStr = date.toISOString().split('T')[0];
+                // Format date string using local timezone (not UTC)
+                const dateStr = date.getFullYear() + '-' + 
+                                String(date.getMonth() + 1).padStart(2, '0') + '-' + 
+                                String(date.getDate()).padStart(2, '0');
                 const hasBooking = bookingsByDate[dateStr];
                 const bookedSessions = hasBooking ? Object.keys(hasBooking) : [];
                 const allSessionsBooked = bookedSessions.length === 4;
@@ -207,7 +210,10 @@
     }
 
     function showSessionDetail(dateStr, bookings) {
-        const dateObj = new Date(dateStr);
+        // Parse date string manually to avoid timezone issues
+        const [year, month, day] = dateStr.split('-').map(Number);
+        const dateObj = new Date(year, month - 1, day);
+        
         const dateFormatted = dateObj.toLocaleDateString('id-ID', { 
             weekday: 'long', 
             year: 'numeric', 

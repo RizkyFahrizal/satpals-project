@@ -274,7 +274,7 @@
                     </option>
                     @endforeach
                 </select>
-                <p class="text-xs text-gray-500 mt-1">Hanya periode dengan anggota terdaftar</p>
+                <p class="text-xs text-gray-500 mt-1">Periode berdasarkan angkatan anggota UKM yang tersedia</p>
             </div>
             
             <!-- Member Selection (Searchable) -->

@@ -18,7 +18,7 @@ class CartController extends Controller
             $total += $item['price_per_day'] * $item['quantity'];
         }
 
-        return view('public.cart.index', [
+        return view('cart.index', [
             'cart' => $cart,
             'total' => $total,
         ]);

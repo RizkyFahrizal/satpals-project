@@ -59,6 +59,8 @@ class BandRentalController extends Controller
             'renter_phone' => 'required|string|max:20',
             'rental_purpose' => 'required|string',
             'performance_date' => 'required|date|after:today',
+            'performance_start_time' => 'required|date_format:H:i',
+            'performance_end_time' => 'required|date_format:H:i|after:performance_start_time',
         ]);
 
         $validated['band_id'] = $band->id;
