@@ -128,18 +128,20 @@ class BoardMember extends Model
     }
 
     /**
-     * Get current periode (academic year format)
+     * Get current periode (academic year format: tahun / tahun+1)
+     * Format: tahun+1 / tahun+2 relative to angkatan
      */
     public static function getCurrentPeriode(): string
     {
         $year = now()->year;
         $month = now()->month;
         
-        // If before July, use previous year
+        // If before July, still in previous academic year
         if ($month < 7) {
             return ($year - 1) . '/' . $year;
         }
         
+        // After July, in current academic year
         return $year . '/' . ($year + 1);
     }
 }

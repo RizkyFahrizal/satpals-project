@@ -1,0 +1,43 @@
+@startuml FinancialManagement_Pengurus
+
+title Financial Management - Kelola Keuangan (Pengurus)
+
+start
+
+:Pengurus buka dashboard;
+:View ringkasan keuangan;
+
+:View transaction list;
+:Apply filter (date, type, status);
+
+:Pilih aksi;
+
+if (Input baru?) then (Ya)
+  :Klik "Tambah Income/Expense";
+  :Isi form;
+  :Upload bukti;
+  :Submit;
+  :Status = pending;
+else (Review)
+  :Klik transaksi;
+  :View detail + bukti;
+  
+  if (Pending?) then (Ya)
+    :Waiting approval;
+  else (No)
+    if (Approved?) then (Ya)
+      :Show approved info;
+      :Display in report;
+    else (Rejected)
+      :Show reject reason;
+      :Can edit & resubmit;
+    endif
+  endif
+endif
+
+:View financial report;
+:Export PDF/Excel;
+
+stop
+
+@enduml

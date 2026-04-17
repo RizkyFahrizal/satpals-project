@@ -31,13 +31,5 @@ class UserSeeder extends Seeder
             'email_verified_at' => now(),
         ]);
 
-        // Public - Zhilan
-        User::create([
-            'name' => 'Zhilan',
-            'email' => 'zhilan@satpals.com',
-            'password' => Hash::make('password123'),
-            'role' => User::ROLE_PUBLIC,
-            'email_verified_at' => now(),
-        ]);
     }
 }

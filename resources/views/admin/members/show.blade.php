@@ -68,6 +68,15 @@
                             {{ $member->no_telepon }}
                         </a>
 
+                        @if($member->no_telepon_ortu)
+                        <a href="tel:{{ $member->no_telepon_ortu }}" class="flex items-center justify-center gap-2 text-gray-600 hover:text-yellow-600 transition-colors text-sm">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+                            </svg>
+                            (Ortu) {{ $member->no_telepon_ortu }}
+                        </a>
+                        @endif
+
                         <div class="flex items-center justify-center gap-2 text-gray-600">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
@@ -176,6 +185,57 @@
                     <p class="text-sm text-blue-600">{{ $member->diklatRegistration->created_at->format('d M Y') }}</p>
                 </div>
                 @endif
+            </div>
+
+            <!-- Health & Emergency Info -->
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4v.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    Informasi Kesehatan & Darurat
+                </h3>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <!-- No Telepon Orang Tua -->
+                    <div class="p-4 bg-green-50 rounded-xl border border-green-100">
+                        <p class="text-sm font-semibold text-green-700 mb-2">No. Telepon Orang Tua</p>
+                        @if($member->no_telepon_ortu)
+                            <a href="tel:{{ $member->no_telepon_ortu }}" class="font-semibold text-green-700 hover:text-green-800 flex items-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+                                </svg>
+                                {{ $member->no_telepon_ortu }}
+                            </a>
+                        @else
+                            <span class="text-gray-400">-</span>
+                        @endif
+                    </div>
+
+                    <!-- Riwayat Penyakit -->
+                    <div class="p-4 bg-red-50 rounded-xl border border-red-100">
+                        <p class="text-sm font-semibold text-red-700 mb-2">Riwayat Penyakit</p>
+                        <p class="text-gray-700 text-sm">
+                            @if($member->riwayat_penyakit)
+                                {{ $member->riwayat_penyakit }}
+                            @else
+                                <span class="text-gray-400">-</span>
+                            @endif
+                        </p>
+                    </div>
+
+                    <!-- Riwayat Alergi -->
+                    <div class="p-4 bg-orange-50 rounded-xl border border-orange-100">
+                        <p class="text-sm font-semibold text-orange-700 mb-2">Riwayat Alergi Makanan</p>
+                        <p class="text-gray-700 text-sm">
+                            @if($member->riwayat_alergi)
+                                {{ $member->riwayat_alergi }}
+                            @else
+                                <span class="text-gray-400">-</span>
+                            @endif
+                        </p>
+                    </div>
+                </div>
             </div>
 
             <!-- Board Position History -->

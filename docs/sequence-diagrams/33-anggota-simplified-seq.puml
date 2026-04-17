@@ -1,0 +1,27 @@
+@startuml Anggota_Status_Simplified_v2
+
+title Sequence Diagram - Kelola Anggota UKM Simplified Status (Iterasi 2)
+
+actor Admin
+participant System
+database Database
+
+Admin -> System: Buka halaman Kelola Anggota
+System -> Database: Query member dengan filter (active/inactive)
+Database --> System: Return daftar anggota
+System --> Admin: Tampilkan tabel anggota dengan 2 status badge
+
+Admin -> System: Klik icon status pada anggota (Active -> Inactive)
+
+System -> System: Validasi member status
+System -> Database: Update member.status = inactive
+Database --> System: Success
+
+System --> Admin: Tampilkan badge status berubah menjadi "Inactive"
+
+Admin -> System: Klik icon status (Inactive -> Active)
+System -> Database: Update member.status = active
+Database --> System: Success
+System --> Admin: Tampilkan badge status berubah menjadi "Active"
+
+@enduml

@@ -1,0 +1,48 @@
+@startuml Studio_Management_Admin_Seq
+
+title Sequence Diagram - Management Booking Studio (Admin/Pengurus)
+
+actor Admin
+participant "Admin Panel" as Panel
+participant System
+database Database
+
+Admin -> Panel: Buka dashboard booking
+Panel -> Database: Query all bookings + statistics
+Database --> Panel: Return bookings + stats
+Panel --> Admin: Tampilkan dashboard
+
+Admin -> Panel: Search booking (filter/search)
+Panel -> Database: Query bookings dengan filter
+Database --> Panel: Return filtered bookings
+Panel --> Admin: Tampilkan hasil search
+
+Admin -> Panel: Klik booking untuk detail
+Panel -> Database: Query booking detail + customer info
+Database --> Panel: Return detail
+Panel --> Admin: Tampilkan booking detail
+
+Admin -> Panel: Klik "Approve" pada pending booking
+Panel -> System: Update booking status = confirmed
+System -> Database: Save status change
+System -> System: Send notification to customer
+Panel --> Admin: Show success message
+
+Admin -> Panel: Klik "Check In" pada confirmed booking
+Panel -> System: Update status = in-progress
+System -> Database: Save status change
+Panel --> Admin: Show check in success
+
+Admin -> Panel: Klik "Check Out" saat selesai
+Panel -> System: Record checkout time
+System -> System: Calculate actual duration
+System -> System: Check for extra charges
+System -> Database: Update status = completed
+Panel --> Admin: Show receipt summary
+
+Admin -> Panel: View booking reports
+Panel -> Database: Aggregate booking data (by studio, by date, etc)
+Database --> Panel: Return analytics
+Panel --> Admin: Tampilkan charts + statistics
+
+@enduml

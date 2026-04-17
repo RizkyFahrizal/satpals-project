@@ -1,0 +1,41 @@
+@startuml FinancialManagement_ApprovalPengurus
+
+title Financial Management - Approval Process (Pengurus: Ketua/Wakil/Bendahara)
+
+start
+
+:Pengurus (Ketua/Wakil/Bendahara) buka dashboard;
+:View pending transactions;
+
+:Filter by status = pending;
+
+if (Ada pending?) then (Ya)
+  :Klik transaksi pending;
+  :Review detail:;
+  :- Deskripsi;
+  :- Nominal;
+  :- Bukti dokumen;
+  
+  if (Valid & sesuai?) then (Ya)
+    :Klik tombol "Approve";
+    :Update status = approved;
+    :Masuk ke laporan keuangan;
+    :Kirim notifikasi ke yang input;
+  else (Tidak)
+    :Klik tombol "Reject";
+    :Input alasan reject (min 10 karakter);
+    :Update status = rejected;
+    :Kirim notifikasi rejection;
+  endif
+else (Tidak)
+  :Show "Semua transaksi sudah disetujui";
+endif
+
+:View financial report;
+:- Lihat summary income/expense;
+:- Lihat breakdown kategori;
+:- Export laporan;
+
+stop
+
+@enduml

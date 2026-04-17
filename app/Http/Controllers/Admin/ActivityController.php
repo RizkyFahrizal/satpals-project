@@ -133,60 +133,93 @@ class ActivityController extends Controller
      */
     public function update(Request $request, Activity $activity): RedirectResponse
     {
-        $validated = $request->validate([
-            'judul_kegiatan' => 'required|string|max:255',
-            'tujuan_kegiatan' => 'nullable|string',
-            'deskripsi' => 'nullable|string',
-            'ketua_pelaksana' => 'nullable|string|max:255',
-            'divisi' => 'nullable|array',
-            'divisi.*.nama_divisi' => 'nullable|string|max:255',
-            'divisi.*.ketua_divisi' => 'nullable|string|max:255',
-            'tanggal_kegiatan' => 'required|date',
-            'waktu_mulai' => 'nullable|date_format:H:i',
-            'waktu_selesai' => 'nullable|date_format:H:i',
-            'tempat_kegiatan' => 'nullable|string|max:255',
-            'foto_1' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
-            'foto_2' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
-            'foto_3' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
-            'is_published' => 'boolean',
-        ]);
+        try {
+            // Get current activity data SEBELUM update
+            $originalData = $activity->getAttributes();
 
-        // Handle photo uploads and removals
-        foreach (['foto_1', 'foto_2', 'foto_3'] as $foto) {
-            // Check if photo should be removed
-            if ($request->boolean("remove_{$foto}")) {
-                if ($activity->$foto) {
-                    Storage::disk('public')->delete($activity->$foto);
+            $validated = $request->validate([
+                'judul_kegiatan' => 'required|string|max:255',
+                'tujuan_kegiatan' => 'nullable|string',
+                'deskripsi' => 'nullable|string',
+                'ketua_pelaksana' => 'nullable|string|max:255',
+                'divisi' => 'nullable|array',
+                'divisi.*.nama_divisi' => 'nullable|string|max:255',
+                'divisi.*.ketua_divisi' => 'nullable|string|max:255',
+                'tanggal_kegiatan' => 'required|date',
+                'waktu_mulai' => 'nullable|date_format:H:i',
+                'waktu_selesai' => 'nullable|date_format:H:i',
+                'tempat_kegiatan' => 'nullable|string|max:255',
+                'foto_1' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+                'foto_2' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+                'foto_3' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+                'is_published' => 'nullable|boolean',
+            ]);
+
+            // Prepare update data - HANYA field yang benar-benar diubah
+            $updateData = [];
+
+            // Required fields - always include
+            $updateData['judul_kegiatan'] = $validated['judul_kegiatan'];
+            $updateData['tanggal_kegiatan'] = $validated['tanggal_kegiatan'];
+
+            // Nullable text fields - PRESERVE original jika null/empty
+            $textFields = ['tujuan_kegiatan', 'deskripsi', 'ketua_pelaksana', 'waktu_mulai', 'waktu_selesai', 'tempat_kegiatan'];
+            foreach ($textFields as $field) {
+                // Jika tidak null dari validation, include
+                if ($validated[$field] !== null) {
+                    $updateData[$field] = $validated[$field];
+                } else {
+                    // Jika null, preserve original value
+                    $updateData[$field] = $originalData[$field] ?? null;
                 }
-                $validated[$foto] = null;
             }
-            // Check if new photo uploaded
-            elseif ($request->hasFile($foto)) {
-                // Delete old photo
-                if ($activity->$foto) {
-                    Storage::disk('public')->delete($activity->$foto);
+
+            // Handle photos
+            foreach (['foto_1', 'foto_2', 'foto_3'] as $foto) {
+                if ($request->boolean("remove_{$foto}")) {
+                    if ($activity->$foto) {
+                        Storage::disk('public')->delete($activity->$foto);
+                    }
+                    $updateData[$foto] = null;
+                } elseif ($request->hasFile($foto)) {
+                    if ($activity->$foto) {
+                        Storage::disk('public')->delete($activity->$foto);
+                    }
+                    $updateData[$foto] = $request->file($foto)->store('activities', 'public');
+                } else {
+                    // Preserve original photo
+                    $updateData[$foto] = $originalData[$foto] ?? null;
                 }
-                $validated[$foto] = $request->file($foto)->store('activities', 'public');
+            }
+
+            // Handle divisi - SANGAT PENTING: preserve original jika tidak ada divisi baru
+            if (isset($validated['divisi']) && is_array($validated['divisi']) && !empty($validated['divisi'])) {
+                $filteredDivisi = array_filter($validated['divisi'], function ($item) {
+                    return !empty($item['nama_divisi']) || !empty($item['ketua_divisi']);
+                });
+                
+                if (!empty($filteredDivisi)) {
+                    $updateData['divisi'] = array_values($filteredDivisi);
+                } else {
+                    // Jika semua divisi kosong, PRESERVE original
+                    $updateData['divisi'] = $originalData['divisi'] ?? null;
+                }
             } else {
-                // Keep existing photo
-                unset($validated[$foto]);
+                // Jika divisi field tidak ada di request, preserve original
+                $updateData['divisi'] = $originalData['divisi'] ?? null;
             }
+
+            // Handle is_published
+            $updateData['is_published'] = $request->boolean('is_published', $originalData['is_published'] ?? false);
+
+            $activity->update($updateData);
+
+            return redirect()->route('admin.activities.index')
+                ->with('success', 'Kegiatan berhasil diperbarui!');
+        } catch (\Exception $e) {
+            return back()->withInput()
+                ->with('error', 'Gagal menyimpan kegiatan: ' . $e->getMessage());
         }
-
-        // Filter empty divisi entries
-        if (isset($validated['divisi'])) {
-            $validated['divisi'] = array_filter($validated['divisi'], function ($item) {
-                return !empty($item['nama_divisi']) || !empty($item['ketua_divisi']);
-            });
-            $validated['divisi'] = array_values($validated['divisi']);
-        }
-
-        $validated['is_published'] = $request->boolean('is_published');
-
-        $activity->update($validated);
-
-        return redirect()->route('admin.activities.index')
-            ->with('success', 'Kegiatan berhasil diperbarui!');
     }
 
     /**

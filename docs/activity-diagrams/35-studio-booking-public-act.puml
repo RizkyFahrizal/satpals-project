@@ -1,0 +1,70 @@
+@startuml Studio_Booking_Public_Flow
+
+title Activity Diagram - Proses Booking Studio (Public)
+
+start
+
+:User buka halaman katalog studio;
+:View daftar studio tersedia;
+
+:Search/filter studio berdasarkan:;
+:- Tipe studio (recording/latihan);
+:- Harga;
+:- Kapasitas;
+
+:Pilih 1 studio;
+:Lihat detail: foto, deskripsi, harga/jam;
+
+:Klik tombol "Book Now";
+
+:Isi form booking:;
+:- Tanggal booking;
+:- Jam mulai & jam selesai;
+:- Durasi;
+:- Tujuan penggunaan;
+
+if (Tanggal/jam tersedia?) then (Ya)
+  :Hitung total harga;
+  :Display di form;
+else (Tidak)
+  :Show error "Tidak tersedia";
+  :Suggest waktu alternatif;
+  stop
+endif
+
+:Review detail booking;
+:Klik tombol "Lanjut ke Checkout";
+
+:Input data penyewa:;
+:- Nama lengkap;
+:- Email;
+:- Nomor telepon;
+:- Alamat;
+
+:Pilih metode pembayaran;
+:- Transfer bank;
+:- E-wallet;
+:- Cash (jika ada);
+
+:Review ringkasan order;
+:Total harga akhir;
+
+:Klik tombol "Confirm & Pay";
+
+if (Pembayaran sukses?) then (Ya)
+  :Generate booking confirmation;
+  :Kirim email confirmation;
+  :Display booking code;
+  :Redirect ke halaman "My Bookings";
+else (Gagal)
+  :Show error message;
+  :Offer retry atau cancel;
+  stop
+endif
+
+:User lihat booking aktif di "My Bookings";
+:Status: Pending/Confirmed/Completed;
+
+stop
+
+@enduml

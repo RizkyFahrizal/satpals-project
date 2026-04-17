@@ -214,18 +214,8 @@
 
                     @if($isOpen && $activePeriod)
                     <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-lg">
-                        <p class="text-blue-800 font-semibold">Tahun Masuk: <span class="text-lg">{{ $activePeriod->tahun_masuk }}</span></p>
+                        <p class="text-blue-800 font-semibold">Tahun Masuk (Angkatan): <span class="text-lg">{{ $activePeriod->tahun_masuk }}</span></p>
                         <p class="text-blue-700 text-sm mt-1">Sesuai dengan periode pendaftaran yang sedang dibuka</p>
-                    </div>
-
-                    <div>
-                        <label for="tahun_daftar" class="block text-sm font-semibold text-gray-700 mb-2">
-                            Tahun Daftar
-                        </label>
-                        <input type="hidden" name="tahun_daftar" value="{{ $activePeriod->tahun_masuk ?? 2022 }}">
-                        <input type="text" id="tahun_daftar" readonly value="{{ $activePeriod->tahun_masuk ?? 2022 }}" 
-                            class="w-full px-4 py-3 rounded-xl border border-gray-300 bg-gray-100 text-gray-700 font-semibold cursor-not-allowed">
-                        <p class="text-xs text-gray-500 mt-2">Tahun daftar otomatis sesuai dengan periode pendaftaran</p>
                     </div>
                     @endif
                 </div>

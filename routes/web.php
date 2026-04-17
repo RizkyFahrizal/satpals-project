@@ -7,9 +7,22 @@ use App\Http\Controllers\Admin\BoardMemberController;
 use App\Http\Controllers\Admin\DiklatRegistrationController;
 use App\Http\Controllers\Admin\DiklatPeriodController;
 use App\Http\Controllers\Admin\MemberController;
+use App\Http\Controllers\Admin\ExpenseController;
+use App\Http\Controllers\Admin\IncomeController;
+use App\Http\Controllers\Admin\FinancialDashboardController;
+use App\Http\Controllers\Admin\BandRentalRequestController;
+use App\Http\Controllers\Admin\BandController;
+use App\Http\Controllers\Admin\EquipmentController;
+use App\Http\Controllers\Admin\EquipmentRentalRequestController;
+use App\Http\Controllers\EquipmentPublicController;
+use App\Http\Controllers\CartController;
+use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\BookingController;
+use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DiklatController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\BandRentalController;
 use App\Http\Controllers\KegiatanController;
 use App\Http\Controllers\PrestasiController;
 use App\Http\Controllers\ProfilController;
@@ -37,10 +50,42 @@ Route::get('/prestasi/{achievement}', [PrestasiController::class, 'show'])->name
 Route::get('/kegiatan', [KegiatanController::class, 'index'])->name('kegiatan.index');
 Route::get('/kegiatan/{activity}', [KegiatanController::class, 'show'])->name('kegiatan.show');
 
+// Equipment Rental (Public)
+Route::get('/equipment', [EquipmentPublicController::class, 'index'])->name('equipment.index');
+Route::get('/equipment/{equipment}', [EquipmentPublicController::class, 'show'])->name('equipment.show');
+Route::post('/equipment/{equipment}/add-to-cart', [EquipmentPublicController::class, 'addToCart'])->name('equipment.add-to-cart');
+
+Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
+Route::post('/cart/{equipment_id}', [CartController::class, 'update'])->name('cart.update');
+Route::delete('/cart/{equipment_id}', [CartController::class, 'remove'])->name('cart.remove');
+Route::delete('/cart', [CartController::class, 'clear'])->name('cart.clear');
+
+Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
+Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
+
+Route::get('/bookings', [BookingController::class, 'index'])->name('bookings.index');
+Route::get('/bookings/{booking}', [BookingController::class, 'show'])->name('bookings.show');
+
+// Invoice PDF (Public)
+Route::get('/invoices/{booking}/download', [InvoiceController::class, 'download'])->name('invoice.download');
+Route::get('/invoices/{booking}/view', [InvoiceController::class, 'view'])->name('invoice.view');
+
 // Diklat Registration (Public)
 Route::get('/diklat/register', [DiklatController::class, 'create'])->name('diklat.register');
 Route::post('/diklat/register', [DiklatController::class, 'store'])->name('diklat.store');
 Route::get('/diklat/success', [DiklatController::class, 'success'])->name('diklat.success');
+
+// Studio Booking (Public)
+Route::get('/studio-bookings', [\App\Http\Controllers\StudioBookingController::class, 'index'])->name('studio-bookings.index');
+
+// Band Rental (Public)
+Route::get('/bands', [\App\Http\Controllers\BandRentalController::class, 'index'])->name('public.bands.index');
+Route::get('/bands/{band}', [\App\Http\Controllers\BandRentalController::class, 'show'])->name('public.bands.show');
+Route::get('/bands/{band}/rental', [\App\Http\Controllers\BandRentalController::class, 'createRequest'])->name('public.bands.rental-form');
+Route::post('/bands/{band}/rental', [\App\Http\Controllers\BandRentalController::class, 'storeRequest'])->name('public.bands.rental-store');
+Route::get('/studio-bookings/create', [\App\Http\Controllers\StudioBookingController::class, 'create'])->name('studio-bookings.create');
+Route::post('/studio-bookings', [\App\Http\Controllers\StudioBookingController::class, 'store'])->name('studio-bookings.store');
+Route::get('/studio-bookings/success', [\App\Http\Controllers\StudioBookingController::class, 'success'])->name('studio-bookings.success');
 
 // Auth Routes
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
@@ -123,6 +168,90 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin.access'])->gr
     Route::delete('/letters/{letter}', [App\Http\Controllers\Admin\LetterArchiveController::class, 'destroy'])->name('letters.destroy');
     Route::get('/letters/{letter}/download', [App\Http\Controllers\Admin\LetterArchiveController::class, 'download'])->name('letters.download');
     Route::get('/letters/{letter}/preview', [App\Http\Controllers\Admin\LetterArchiveController::class, 'preview'])->name('letters.preview');
+    
+    // Financial Management (Kelola Keuangan)
+    Route::get('/financial', [FinancialDashboardController::class, 'index'])->name('financial.index');
+    
+    // Expenses (Pengeluaran)
+    Route::get('/expenses/create', [ExpenseController::class, 'create'])->name('expenses.create');
+    Route::post('/expenses', [ExpenseController::class, 'store'])->name('expenses.store');
+    Route::get('/expenses/{expense}', [ExpenseController::class, 'show'])->name('expenses.show');
+    Route::get('/expenses/{expense}/edit', [ExpenseController::class, 'edit'])->name('expenses.edit');
+    Route::put('/expenses/{expense}', [ExpenseController::class, 'update'])->name('expenses.update');
+    Route::post('/expenses/{expense}/approve', [ExpenseController::class, 'approve'])->name('expenses.approve');
+    Route::post('/expenses/{expense}/reject', [ExpenseController::class, 'reject'])->name('expenses.reject');
+    Route::post('/expenses/{expense}/archive', [ExpenseController::class, 'archive'])->name('expenses.archive');
+    Route::delete('/expenses/{expense}', [ExpenseController::class, 'destroy'])->name('expenses.destroy');
+    Route::delete('/expenses/documents/{document}', [ExpenseController::class, 'deleteDocument'])->name('expenses.delete-document');
+    
+    // Income (Pemasukan)
+    Route::get('/income/create', [IncomeController::class, 'create'])->name('income.create');
+    Route::post('/income', [IncomeController::class, 'store'])->name('income.store');
+    Route::get('/income/{income}', [IncomeController::class, 'show'])->name('income.show');
+    Route::get('/income/{income}/edit', [IncomeController::class, 'edit'])->name('income.edit');
+    Route::put('/income/{income}', [IncomeController::class, 'update'])->name('income.update');
+    Route::post('/income/{income}/approve', [IncomeController::class, 'approve'])->name('income.approve');
+    Route::post('/income/{income}/reject', [IncomeController::class, 'reject'])->name('income.reject');
+    Route::delete('/income/{income}', [IncomeController::class, 'destroy'])->name('income.destroy');
+    Route::delete('/income/documents/{document}', [IncomeController::class, 'deleteDocument'])->name('income.delete-document');
+    
+    // Studio Booking Management (Admin Only - Approve/Reject)
+    Route::get('/studio-bookings', [App\Http\Controllers\Admin\StudioBookingController::class, 'index'])->name('studio-bookings.index');
+    Route::get('/studio-bookings/{booking}', [App\Http\Controllers\Admin\StudioBookingController::class, 'show'])->name('studio-bookings.show');
+    Route::patch('/studio-bookings/{booking}', [App\Http\Controllers\Admin\StudioBookingController::class, 'update'])->name('studio-bookings.update');
+    Route::post('/studio-bookings/{booking}/approve', [App\Http\Controllers\Admin\StudioBookingController::class, 'approve'])->name('studio-bookings.approve');
+    Route::post('/studio-bookings/{booking}/reject', [App\Http\Controllers\Admin\StudioBookingController::class, 'reject'])->name('studio-bookings.reject');
+    Route::delete('/studio-bookings/{booking}', [App\Http\Controllers\Admin\StudioBookingController::class, 'destroy'])->name('studio-bookings.destroy');
+    
+    // Band Rental Management (Persewaan Band)
+    Route::get('/bands', [BandController::class, 'index'])->name('bands.index');
+    Route::get('/bands/create', [BandController::class, 'create'])->name('bands.create');
+    Route::post('/bands', [BandController::class, 'store'])->name('bands.store');
+    Route::get('/bands/{band}', [BandController::class, 'show'])->name('bands.show');
+    Route::get('/bands/{band}/edit', [BandController::class, 'edit'])->name('bands.edit');
+    Route::put('/bands/{band}', [BandController::class, 'update'])->name('bands.update');
+    Route::patch('/bands/{band}/toggle-availability', [BandController::class, 'toggleAvailability'])->name('bands.toggle-availability');
+    Route::delete('/bands/{band}', [BandController::class, 'destroy'])->name('bands.destroy');
+    
+    // Band Members
+    Route::post('/bands/{band}/members', [BandController::class, 'storeMember'])->name('bands.members.store');
+    Route::put('/bands/{band}/members/{member}', [BandController::class, 'updateMember'])->name('bands.members.update');
+    Route::delete('/bands/{band}/members/{member}', [BandController::class, 'deleteMember'])->name('bands.members.delete');
+    
+    // Band Genres
+    Route::post('/bands/{band}/genres', [BandController::class, 'storeGenre'])->name('bands.genres.store');
+    Route::delete('/bands/{band}/genres/{genre}', [BandController::class, 'deleteGenre'])->name('bands.genres.delete');
+    
+    // Band Portfolios
+    Route::post('/bands/{band}/portfolios', [BandController::class, 'storePortfolio'])->name('bands.portfolios.store');
+    Route::put('/bands/{band}/portfolios/{portfolio}', [BandController::class, 'updatePortfolio'])->name('bands.portfolios.update');
+    Route::delete('/bands/{band}/portfolios/{portfolio}', [BandController::class, 'deletePortfolio'])->name('bands.portfolios.delete');
+    
+    // Band MOU
+    Route::post('/bands/{band}/mou', [BandController::class, 'storeMOU'])->name('bands.mou.store');
+    Route::patch('/bands/{band}/mou/toggle', [BandController::class, 'toggleMOUStatus'])->name('bands.mou.toggle');
+    Route::delete('/bands/{band}/mou', [BandController::class, 'deleteMOU'])->name('bands.mou.delete');
+    
+    // Band Rental Requests Management
+    Route::get('/band-rentals', [BandRentalRequestController::class, 'index'])->name('band-rentals.index');
+    Route::get('/band-rentals/{rental}', [BandRentalRequestController::class, 'show'])->name('band-rentals.show');
+    Route::patch('/band-rentals/{rental}/approve', [BandRentalRequestController::class, 'approve'])->name('band-rentals.approve');
+    Route::patch('/band-rentals/{rental}/reject', [BandRentalRequestController::class, 'reject'])->name('band-rentals.reject');
+    Route::patch('/band-rentals/{rental}/complete', [BandRentalRequestController::class, 'complete'])->name('band-rentals.complete');
+    Route::delete('/band-rentals/{rental}', [BandRentalRequestController::class, 'destroy'])->name('band-rentals.destroy');
+    
+    // Equipment Rental Management
+    Route::resource('/equipment', EquipmentController::class);
+    Route::patch('/equipment/{equipment}/toggle-availability', [EquipmentController::class, 'toggleAvailability'])->name('equipment.toggleAvailability');
+    
+    // Equipment Rental Requests Management
+    Route::get('/equipment-rental-requests', [EquipmentRentalRequestController::class, 'index'])->name('equipment-rental-requests.index');
+    Route::get('/equipment-rental-requests/{request}', [EquipmentRentalRequestController::class, 'show'])->name('equipment-rental-requests.show');
+    Route::patch('/equipment-rental-requests/{request}/approve', [EquipmentRentalRequestController::class, 'approve'])->name('equipment-rental-requests.approve');
+    Route::patch('/equipment-rental-requests/{request}/reject', [EquipmentRentalRequestController::class, 'reject'])->name('equipment-rental-requests.reject');
+    Route::patch('/equipment-rental-requests/{request}/mark-in-progress', [EquipmentRentalRequestController::class, 'markInProgress'])->name('equipment-rental-requests.mark-in-progress');
+    Route::patch('/equipment-rental-requests/{request}/complete', [EquipmentRentalRequestController::class, 'complete'])->name('equipment-rental-requests.complete');
+    Route::delete('/equipment-rental-requests/{request}', [EquipmentRentalRequestController::class, 'destroy'])->name('equipment-rental-requests.destroy');
     
     // User Management (Super Admin only)
     Route::middleware('super.admin')->group(function () {

@@ -1,0 +1,50 @@
+@startuml BandRental_Public_Seq
+
+title Sequence Diagram - Band Rental (Public)
+
+actor User
+participant "Web App" as App
+participant System
+database Database
+
+User -> App: Buka katalog band
+App -> Database: Query daftar band available
+Database --> App: Return band list
+App --> User: Tampilkan katalog
+
+User -> App: Pilih band
+App -> Database: Query detail band + price
+Database --> App: Return details
+App --> User: Tampilkan detail
+
+User -> App: Isi form rental (tanggal, durasi)
+App -> System: Check availability
+System -> Database: Query existing rentals
+Database --> System: Return rentals
+System -> System: Check conflict
+System --> App: Available atau not
+
+alt Tersedia
+  App --> User: Show total harga
+else Tidak tersedia
+  App --> User: Show error + alternatives
+end
+
+User -> App: Klik "Checkout"
+User -> App: Isi data penyewa + payment method
+App --> User: Show ringkasan order
+
+User -> App: Klik "Confirm & Pay"
+App -> System: Process payment
+System --> App: Payment success/fail
+
+alt Payment berhasil
+  System -> Database: Create rental record
+  System -> Database: Update band availability
+  System -> App: Send confirmation email
+  App --> User: Show confirmation code
+else Payment gagal
+  App --> User: Show error message
+end
+
+@enduml

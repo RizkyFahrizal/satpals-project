@@ -1,0 +1,50 @@
+@startuml FinancialManagement_ApprovalSeq
+
+title Sequence Diagram - Financial Approval (Pengurus: Ketua/Wakil/Bendahara)
+
+actor Pengurus
+participant "Dashboard" as Dashboard
+participant System
+database Database
+
+Pengurus -> Dashboard: Buka dashboard keuangan
+Dashboard -> Database: Query pending transactions
+Database --> Dashboard: Return pending list
+Dashboard --> Pengurus: Tampilkan pending transactions
+
+Pengurus -> Dashboard: Filter by status = pending
+Dashboard -> Database: Query pending only
+Database --> Dashboard: Return pending transactions
+Dashboard --> Pengurus: Tampilkan filtered list
+
+Pengurus -> Dashboard: Klik pending transaction
+Dashboard -> Database: Query transaction detail + bukti
+Database --> Dashboard: Return detail
+Dashboard --> Pengurus: Tampilkan untuk review
+
+Pengurus -> Dashboard: Review transaksi
+
+alt Valid & sesuai
+  Pengurus -> Dashboard: Klik "Approve"
+  Dashboard -> System: Update status = approved
+  System -> Database: Save status change
+  System -> Database: Include in financial report
+  System -> System: Send approval notification
+  Database --> System: Success
+  System --> Dashboard: Show success
+else Tidak valid
+  Pengurus -> Dashboard: Klik "Reject"
+  Pengurus -> Dashboard: Input alasan reject
+  Dashboard -> System: Update status = rejected
+  System -> Database: Save status + reason
+  System -> System: Send rejection notification
+  Database --> System: Success
+  System --> Dashboard: Show success
+end
+
+Pengurus -> Dashboard: View financial report
+Dashboard -> Database: Calculate: approved income - approved expense = balance
+Database --> Dashboard: Return calculations
+Dashboard --> Pengurus: Tampilkan summary & charts
+
+@enduml

@@ -1,0 +1,368 @@
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
+use App\Mail\BookingApprovedMail;
+use App\Models\EquipmentRentalRequest;
+use App\Models\EquipmentRentalRequestItem;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
+
+class EquipmentRentalRequestController extends Controller
+{
+    /**
+     * Display a listing of the resource.
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\Response
+     */
+    public function index(Request $request)
+    {
+        try {
+            $query = EquipmentRentalRequest::query();
+
+            // Filter by status
+            if ($request->has('status') && $request->status !== null && $request->status !== '') {
+                $query->where('status', $request->status);
+            }
+
+            // Search by order number or renter name
+            if ($request->has('search') && $request->search !== '') {
+                $query->where('order_number', 'like', '%' . $request->search . '%')
+                    ->orWhere('renter_name', 'like', '%' . $request->search . '%');
+            }
+
+            // Date range filter
+            if ($request->has('start_date') && $request->start_date !== '') {
+                $query->whereDate('start_date', '>=', $request->start_date);
+            }
+            if ($request->has('end_date') && $request->end_date !== '') {
+                $query->whereDate('start_date', '<=', $request->end_date);
+            }
+
+            // Sort
+            $sortBy = $request->get('sort_by', 'created_at');
+            $sortOrder = $request->get('sort_order', 'desc');
+            $query->orderBy($sortBy, $sortOrder);
+
+            // Paginate
+            $requests = $query->paginate(15)->appends($request->query());
+
+            return view('admin.equipment-rental-requests.index', [
+                'requests' => $requests,
+                'selectedStatus' => $request->get('status'),
+                'searchTerm' => $request->get('search'),
+                'startDate' => $request->get('start_date'),
+                'endDate' => $request->get('end_date'),
+            ]);
+        } catch (\Exception $e) {
+            return redirect()->route('admin.equipment-rental-requests.index')
+                ->with('error', 'Gagal memuat data permintaan rental: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Display the specified resource.
+     *
+     * @param int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function show($id)
+    {
+        try {
+            $rentalRequest = EquipmentRentalRequest::with('items.equipment')->findOrFail($id);
+
+            return view('admin.equipment-rental-requests.show', [
+                'rentalRequest' => $rentalRequest,
+            ]);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return redirect()->route('admin.equipment-rental-requests.index')
+                ->with('error', 'Permintaan rental tidak ditemukan.');
+        } catch (\Exception $e) {
+            return redirect()->route('admin.equipment-rental-requests.index')
+                ->with('error', 'Gagal membuka detail permintaan rental: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Approve a rental request.
+     *
+     * @param int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function approve($id)
+    {
+        try {
+            $rentalRequest = EquipmentRentalRequest::findOrFail($id);
+
+            if ($rentalRequest->status !== 'pending') {
+                return redirect()->route('admin.equipment-rental-requests.index')
+                    ->with('error', 'Hanya permintaan yang pending yang dapat disetujui.');
+            }
+
+            DB::beginTransaction();
+
+            $rentalRequest->update([
+                'status' => 'approved',
+                'admin_notes' => $rentalRequest->admin_notes . "\n[Disetujui oleh " . Auth::user()->name . " pada " . now()->format('d-m-Y H:i:s') . "]",
+            ]);
+
+            // Send approval email
+            $this->sendApprovalEmail($rentalRequest);
+
+            DB::commit();
+
+            return redirect()->route('admin.equipment-rental-requests.show', $id)
+                ->with('success', 'Permintaan rental berhasil disetujui. Email notifikasi telah dikirim.');
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            DB::rollBack();
+            return redirect()->route('admin.equipment-rental-requests.index')
+                ->with('error', 'Permintaan rental tidak ditemukan.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->route('admin.equipment-rental-requests.index')
+                ->with('error', 'Gagal menyetujui permintaan rental: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Reject a rental request.
+     *
+     * @param int $id
+     * @param Request $request
+     * @return \Illuminate\Http\Response
+     */
+    public function reject(Request $request, $id)
+    {
+        try {
+            $rentalRequest = EquipmentRentalRequest::findOrFail($id);
+
+            if ($rentalRequest->status !== 'pending') {
+                return redirect()->route('admin.equipment-rental-requests.index')
+                    ->with('error', 'Hanya permintaan yang pending yang dapat ditolak.');
+            }
+
+            $validated = $request->validate([
+                'rejection_reason' => 'required|string|max:1000',
+            ]);
+
+            DB::beginTransaction();
+
+            $rentalRequest->update([
+                'status' => 'rejected',
+                'admin_notes' => ($rentalRequest->admin_notes ? $rentalRequest->admin_notes . "\n" : '') .
+                    "[Ditolak oleh " . Auth::user()->name . " pada " . now()->format('d-m-Y H:i:s') . "]\n" .
+                    "Alasan: " . $validated['rejection_reason'],
+            ]);
+
+            // Send rejection email
+            $this->sendRejectionEmail($rentalRequest, $validated['rejection_reason']);
+
+            DB::commit();
+
+            return redirect()->route('admin.equipment-rental-requests.index')
+                ->with('success', 'Permintaan rental berhasil ditolak. Email notifikasi telah dikirim.');
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            DB::rollBack();
+            return redirect()->route('admin.equipment-rental-requests.index')
+                ->with('error', 'Permintaan rental tidak ditemukan.');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return redirect()->back()
+                ->withErrors($e->errors())
+                ->withInput();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->route('admin.equipment-rental-requests.index')
+                ->with('error', 'Gagal menolak permintaan rental: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Mark a rental request as in progress.
+     *
+     * @param int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function markInProgress($id)
+    {
+        try {
+            $rentalRequest = EquipmentRentalRequest::findOrFail($id);
+
+            if ($rentalRequest->status !== 'approved') {
+                return redirect()->route('admin.equipment-rental-requests.index')
+                    ->with('error', 'Hanya permintaan yang disetujui yang dapat dimulai.');
+            }
+
+            DB::beginTransaction();
+
+            $rentalRequest->update([
+                'status' => 'in_progress',
+                'admin_notes' => $rentalRequest->admin_notes . "\n[Dimulai oleh " . Auth::user()->name . " pada " . now()->format('d-m-Y H:i:s') . "]",
+            ]);
+
+            DB::commit();
+
+            return redirect()->route('admin.equipment-rental-requests.show', $id)
+                ->with('success', 'Permintaan rental berhasil dimulai.');
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            DB::rollBack();
+            return redirect()->route('admin.equipment-rental-requests.index')
+                ->with('error', 'Permintaan rental tidak ditemukan.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->route('admin.equipment-rental-requests.index')
+                ->with('error', 'Gagal memulai permintaan rental: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Mark a rental request as complete.
+     *
+     * @param int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function complete($id)
+    {
+        try {
+            $rentalRequest = EquipmentRentalRequest::findOrFail($id);
+
+            if ($rentalRequest->status !== 'in_progress') {
+                return redirect()->route('admin.equipment-rental-requests.index')
+                    ->with('error', 'Hanya permintaan yang sedang berlangsung yang dapat diselesaikan.');
+            }
+
+            DB::beginTransaction();
+
+            $rentalRequest->update([
+                'status' => 'done',
+                'admin_notes' => $rentalRequest->admin_notes . "\n[Diselesaikan oleh " . Auth::user()->name . " pada " . now()->format('d-m-Y H:i:s') . "]",
+            ]);
+
+            // Send completion email
+            $this->sendCompletionEmail($rentalRequest);
+
+            DB::commit();
+
+            return redirect()->route('admin.equipment-rental-requests.show', $id)
+                ->with('success', 'Permintaan rental berhasil diselesaikan. Email notifikasi telah dikirim.');
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            DB::rollBack();
+            return redirect()->route('admin.equipment-rental-requests.index')
+                ->with('error', 'Permintaan rental tidak ditemukan.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->route('admin.equipment-rental-requests.index')
+                ->with('error', 'Gagal menyelesaikan permintaan rental: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Remove the specified resource from storage (only rejected requests).
+     *
+     * @param int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy($id)
+    {
+        try {
+            $rentalRequest = EquipmentRentalRequest::findOrFail($id);
+
+            if ($rentalRequest->status !== 'rejected') {
+                return redirect()->route('admin.equipment-rental-requests.index')
+                    ->with('error', 'Hanya permintaan yang ditolak yang dapat dihapus.');
+            }
+
+            DB::beginTransaction();
+
+            // Delete related items
+            $rentalRequest->items()->delete();
+
+            // Delete rental request
+            $rentalRequest->delete();
+
+            DB::commit();
+
+            return redirect()->route('admin.equipment-rental-requests.index')
+                ->with('success', 'Permintaan rental berhasil dihapus.');
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            DB::rollBack();
+            return redirect()->route('admin.equipment-rental-requests.index')
+                ->with('error', 'Permintaan rental tidak ditemukan.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->route('admin.equipment-rental-requests.index')
+                ->with('error', 'Gagal menghapus permintaan rental: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Send approval email to renter.
+     *
+     * @param EquipmentRentalRequest $rentalRequest
+     * @return void
+     */
+    private function sendApprovalEmail(EquipmentRentalRequest $rentalRequest)
+    {
+        try {
+            // Send email with PDF invoice attachment
+            Mail::to($rentalRequest->renter_email)
+                ->send(new BookingApprovedMail($rentalRequest));
+        } catch (\Exception $e) {
+            \Log::error('Failed to send approval email: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Send rejection email to renter.
+     *
+     * @param EquipmentRentalRequest $rentalRequest
+     * @param string $rejectionReason
+     * @return void
+     */
+    private function sendRejectionEmail(EquipmentRentalRequest $rentalRequest, $rejectionReason)
+    {
+        try {
+            $data = [
+                'order_number' => $rentalRequest->order_number,
+                'renter_name' => $rentalRequest->renter_name,
+                'rejection_reason' => $rejectionReason,
+            ];
+
+            // Send email using mail facade
+            // Mail::send('emails.equipment-rental-rejected', $data, function ($message) use ($rentalRequest) {
+            //     $message->to($rentalRequest->renter_email)
+            //         ->subject('Permintaan Rental Peralatan Anda Telah Ditolak');
+            // });
+        } catch (\Exception $e) {
+            \Log::error('Failed to send rejection email: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Send completion email to renter.
+     *
+     * @param EquipmentRentalRequest $rentalRequest
+     * @return void
+     */
+    private function sendCompletionEmail(EquipmentRentalRequest $rentalRequest)
+    {
+        try {
+            $data = [
+                'order_number' => $rentalRequest->order_number,
+                'renter_name' => $rentalRequest->renter_name,
+                'end_date' => $rentalRequest->end_date->format('d-m-Y'),
+            ];
+
+            // Send email using mail facade
+            // Mail::send('emails.equipment-rental-completed', $data, function ($message) use ($rentalRequest) {
+            //     $message->to($rentalRequest->renter_email)
+            //         ->subject('Rental Peralatan Anda Telah Selesai');
+            // });
+        } catch (\Exception $e) {
+            \Log::error('Failed to send completion email: ' . $e->getMessage());
+        }
+    }
+}

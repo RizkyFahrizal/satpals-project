@@ -1,0 +1,36 @@
+@startuml EquipmentRental_Management
+
+title Equipment Rental - Management Persewaan Alat (Pengurus)
+
+start
+
+:Pengurus buka dashboard;
+:View statistik rental;
+
+:View rental list dengan filter;
+
+:Pilih rental;
+
+if (Pending?) then (Ya)
+  :Review detail;
+  :Klik "Approve";
+  :Update = confirmed;
+else (Tidak)
+  if (Confirmed?) then (Ya)
+    :Klik "Start Rental";
+    :Record pickup;
+    :Update = in-use;
+  else (Tidak)
+    :Klik "End Rental";
+    :Check condition;
+    :Add extra fee;
+    :Update = returned;
+  endif
+endif
+
+:View reports;
+:Export data;
+
+stop
+
+@enduml
