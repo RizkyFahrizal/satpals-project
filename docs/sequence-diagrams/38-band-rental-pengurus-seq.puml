@@ -1,0 +1,52 @@
+@startuml BandRental_Management_Seq
+
+title Sequence Diagram - Band Rental Management (Pengurus)
+
+actor Pengurus
+participant "Dashboard" as Dashboard
+participant System
+database Database
+
+Pengurus -> Dashboard: Buka dashboard persewaan
+Dashboard -> Database: Query all rentals + stats
+Database --> Dashboard: Return data
+Dashboard --> Pengurus: Tampilkan dashboard
+
+Pengurus -> Dashboard: Filter rental (status, date)
+Dashboard -> Database: Query with filter
+Database --> Dashboard: Return filtered rentals
+Dashboard --> Pengurus: Tampilkan hasil
+
+Pengurus -> Dashboard: Klik rental untuk detail
+Dashboard -> Database: Query rental detail + customer
+Database --> Dashboard: Return detail
+Dashboard --> Pengurus: Tampilkan detail
+
+Pengurus -> Dashboard: Klik "Approve" (pending rental)
+Dashboard -> System: Update status = confirmed
+System -> Database: Save status change
+System -> System: Send notification to customer
+Dashboard --> Pengurus: Show success
+
+Pengurus -> Dashboard: Klik "Start Rental"
+Dashboard -> System: Verify customer pickup
+System -> Dashboard: Ask condition check
+Pengurus -> System: Confirm condition awal
+System -> Database: Update status = in-use
+System -> Database: Record start time
+Dashboard --> Pengurus: Show confirmation
+
+Pengurus -> Dashboard: Klik "End Rental"
+Dashboard -> System: Record return
+Dashboard -> Pengurus: Ask condition + extra fees
+Pengurus -> System: Confirm (damage/late)
+System -> Database: Update status = returned
+System -> Database: Calculate final cost
+Dashboard --> Pengurus: Show receipt
+
+Pengurus -> Dashboard: View rental reports
+Dashboard -> Database: Aggregate rental data
+Database --> Dashboard: Return analytics
+Dashboard --> Pengurus: Show charts & reports
+
+@enduml

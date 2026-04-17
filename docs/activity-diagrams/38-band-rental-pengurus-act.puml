@@ -1,0 +1,36 @@
+@startuml BandRental_Management
+
+title Band Rental - Management Persewaan (Pengurus)
+
+start
+
+:Pengurus buka dashboard;
+:View statistik rental;
+
+:View rental list dengan filter;
+
+:Pilih rental dari list;
+
+if (Pending?) then (Ya)
+  :Review detail;
+  :Klik "Approve";
+  :Kirim notifikasi;
+else (Tidak)
+  if (Confirmed?) then (Ya)
+    :Klik "Start Rental";
+    :Verify pickup;
+    :Update = in-use;
+  else (Tidak)
+    :View rental;
+    :Check kondisi barang;
+    :Add extra fee;
+    :Update = returned;
+  endif
+endif
+
+:View reports;
+:Export data;
+
+stop
+
+@enduml

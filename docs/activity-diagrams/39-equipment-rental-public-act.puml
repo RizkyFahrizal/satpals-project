@@ -1,0 +1,53 @@
+@startuml EquipmentRental_Public
+
+title Equipment Rental - Proses Persewaan Alat (Public)
+
+start
+
+:User buka halaman katalog alat;
+:View daftar equipment tersedia;
+
+:Search/filter by:;
+:- Kategori (drum, gitar, keyboard, dll);
+:- Harga;
+:- Kondisi;
+
+:Pilih 1 equipment;
+:Lihat detail: foto, spec, harga/hari;
+
+:Klik "Rent Now";
+
+:Isi form:;
+:- Tanggal mulai;
+:- Durasi (hari);
+:- Tujuan;
+
+if (Tersedia?) then (Ya)
+  :Hitung total harga;
+else (Tidak)
+  :Show error;
+  stop
+endif
+
+:Klik "Checkout";
+
+:Input data penyewa;
+:Pilih payment method;
+:Review ringkasan;
+
+:Klik "Confirm & Pay";
+
+if (Payment OK?) then (Ya)
+  :Generate confirmation;
+  :Email terkirim;
+  :Show rental code;
+else (Gagal)
+  stop
+endif
+
+:View My Rentals;
+:Track status rental;
+
+stop
+
+@enduml

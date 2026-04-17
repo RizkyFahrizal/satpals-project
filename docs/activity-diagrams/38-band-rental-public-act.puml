@@ -1,0 +1,63 @@
+@startuml BandRental_Public
+
+title Band Rental - Proses Persewaan (Public)
+
+start
+
+:User buka halaman katalog band;
+:View daftar band tersedia;
+
+:Search/filter band by:;
+:- Tipe (drum set, gitar, keyboard, dll);
+:- Harga;
+:- Rating;
+
+:Pilih 1 band;
+:Lihat detail: foto, deskripsi, spek, harga/hari;
+
+:Klik tombol "Rent Now";
+
+:Isi form rental:;
+:- Tanggal mulai rental;
+:- Durasi (hari);
+:- Tujuan penggunaan;
+
+if (Tersedia?) then (Ya)
+  :Hitung total harga;
+  :Display di form;
+else (Tidak)
+  :Show error "Tidak tersedia";
+  :Suggest alternatif;
+  stop
+endif
+
+:Klik "Lanjut ke Checkout";
+
+:Input data penyewa:;
+:- Nama lengkap;
+:- Email;
+:- Telepon;
+:- Alamat;
+
+:Pilih metode pembayaran;
+:Transfer/E-wallet/Cash;
+
+:Review ringkasan;
+:Klik "Confirm & Pay";
+
+if (Pembayaran OK?) then (Ya)
+  :Generate rental confirmation;
+  :Kirim email;
+  :Display rental code;
+  :Redirect ke "My Rentals";
+else (Gagal)
+  :Show error;
+  stop
+endif
+
+:View rental aktif;
+:Status: Pending/Confirmed/In Use/Returned;
+
+stop
+
+@enduml

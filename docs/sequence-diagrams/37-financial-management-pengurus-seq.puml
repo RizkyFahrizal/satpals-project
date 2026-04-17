@@ -1,0 +1,52 @@
+@startuml FinancialManagement_Pengurus_Seq
+
+title Sequence Diagram - Kelola Keuangan (Pengurus)
+
+actor Pengurus
+participant "Dashboard" as Dashboard
+participant System
+database Database
+
+Pengurus -> Dashboard: Buka halaman keuangan
+Dashboard -> Database: Query income + expense
+Database --> Dashboard: Return transactions
+Dashboard --> Pengurus: Tampilkan dashboard
+
+Pengurus -> Dashboard: Input transaksi baru
+Pengurus -> Dashboard: Isi form (judul, nominal, kategori)
+Dashboard -> System: Validate form
+System --> Dashboard: Valid / Invalid
+
+alt Form valid
+  System -> Database: Create transaction (status=pending)
+  System -> System: Send notification to admin
+  Database --> System: Success
+  System --> Dashboard: Show success message
+else Form invalid
+  System --> Dashboard: Show error message
+end
+
+Pengurus -> Dashboard: Filter transactions
+Dashboard -> Database: Query transactions dengan filter
+Database --> Dashboard: Return filtered list
+Dashboard --> Pengurus: Tampilkan filtered transactions
+
+Pengurus -> Dashboard: Klik transaksi untuk detail
+Dashboard -> Database: Query transaction detail
+Database --> Dashboard: Return detail + bukti
+Dashboard --> Pengurus: Tampilkan detail
+
+alt Status = Approved
+  Dashboard --> Pengurus: Show "Approved by admin"
+else Status = Rejected
+  Dashboard --> Pengurus: Show alasan reject + option edit
+else Status = Pending
+  Dashboard --> Pengurus: Show "Waiting approval"
+end
+
+Pengurus -> Dashboard: Lihat laporan keuangan
+Dashboard -> Database: Aggregate transactions (approved only)
+Database --> Dashboard: Return summary data
+Dashboard --> Pengurus: Tampilkan charts & reports
+
+@enduml

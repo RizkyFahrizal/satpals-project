@@ -1,0 +1,47 @@
+@startuml EquipmentRental_Management_Seq
+
+title Sequence Diagram - Equipment Rental Management (Pengurus)
+
+actor Pengurus
+participant "Dashboard" as Dash
+participant System
+database DB
+
+Pengurus -> Dash: Open dashboard
+Dash -> DB: Query rentals + stats
+DB --> Dash: Return data
+Dash --> Pengurus: Show dashboard
+
+Pengurus -> Dash: Filter rentals
+Dash -> DB: Query with filter
+DB --> Dash: Return rentals
+Dash --> Pengurus: Show results
+
+Pengurus -> Dash: Click rental
+Dash -> DB: Query detail
+DB --> Dash: Return detail
+Dash --> Pengurus: Show detail
+
+Pengurus -> Dash: Approve pending
+Dash -> System: Update status = confirmed
+System -> DB: Save
+System -> System: Send notification
+Dash --> Pengurus: Show success
+
+Pengurus -> Dash: Start rental
+Dash -> System: Record pickup
+System -> DB: Update status = in-use
+Dash --> Pengurus: Show confirmation
+
+Pengurus -> Dash: End rental
+Dash -> Pengurus: Ask condition check
+Pengurus -> System: Confirm + extra fees
+System -> DB: Update status = returned
+Dash --> Pengurus: Show receipt
+
+Pengurus -> Dash: View reports
+Dash -> DB: Aggregate data
+DB --> Dash: Return analytics
+Dash --> Pengurus: Show charts
+
+@enduml

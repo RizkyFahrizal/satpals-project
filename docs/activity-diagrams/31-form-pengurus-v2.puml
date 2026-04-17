@@ -1,0 +1,119 @@
+@startuml Form_Pengurus_v2
+title Activity Diagram - Form Tambah/Edit Pengurus UKM (Iterasi 2)
+
+start
+:Admin klik "Tambah Pengurus" atau "Edit Pengurus";
+
+if (Action) then (Tambah)
+    :Buka modal form tambah;
+    :Form kosong;
+else (Edit)
+    :Buka modal form edit;
+    :Populate form dengan data existing;
+endif
+
+partition "SELECT PERIODE (NEW IN V2)" {
+    note right
+    **NEW IN ITERASI 2:**
+    - Field "Periode" baru & mandatory
+    - Dropdown dari tabel diklat_periods
+    - Format: "2026 - Periode 1", "2026 - Periode 2"
+    - Auto-fill tanggal_buka & tanggal_tutup
+    - Kontrol status pengurus sesuai periode aktif
+    end note
+    
+    :Display label "Periode *";
+    :Show dropdown list periode;
+    :Admin pilih periode dari dropdown;
+    
+    if (Periode selected) then (Ya)
+        :Auto-fetch periode details:;
+        :- tanggal_buka (dari diklat_periods);
+        :- tanggal_tutup (dari diklat_periods);
+        :Auto-fill kedua field secara readonly;
+        :Display success feedback;
+    else (Tidak)
+        :Display error "Periode harus dipilih";
+    endif
+}
+
+partition "SELECT ANGGOTA (REVISED IN V2)" {
+    note left
+    **REVISED IN ITERASI 2:**
+    - Dropdown member pre-filtered
+    - Tampilkan: Nama + NIM
+    - Exclude: already board member
+    - Exclude: inactive members
+    - Smart filtering & search
+    end note
+    
+    :Display label "Anggota *";
+    :Show dropdown dengan list anggota;
+    :Dropdown terfilter:;
+    :- Hanya status active;
+    :- Exclude yang sudah pengurus;
+    :- Search by nama / NIM;
+    
+    :Admin pilih anggota dari dropdown;
+    
+    if (Member selected) then (Ya)
+        :Display konfirmasi nama + NIM;
+        :Check duplikasi assign;
+        if (Sudah assign) then (Ya)
+            :Display error "Anggota sudah pengurus";
+            :Block submit;
+        else (Tidak)
+            :Continue;
+        endif
+    else (Tidak)
+        :Display placeholder;
+    endif
+}
+
+partition "FILL JABATAN & FOTO" {
+    :Display label "Jabatan *";
+    :Show radio/dropdown pilihan jabatan:;
+    :- Ketua Umum;
+    :- Wakil Ketua Umum;
+    :- Sekretaris;
+    :- Bendahara;
+    :- MPA;
+    :- Subsie Band;
+    :- Subsie Peralatan;
+    :- Subsie Humas;
+    :- Subsie PDD;
+    :- Subsie Kesekretariatan;
+    
+    :Admin pilih jabatan;
+    
+    :Display label "Foto (Opsional)";
+    :Allow file upload;
+    :Preview foto sebelum upload;
+}
+
+:Admin review semua field;
+
+:Klik tombol "Simpan";
+
+:Server validasi:;
+if (Semua mandatory field filled) then (Ya)
+    if (Foto ada) then (Ya)
+        :Upload & store foto;
+        :Generate thumbnail;
+    endif
+    :Validate periode exists;
+    :Validate member active & not already board member;
+    :Create/Update board_member record;
+    :Save periode_id to board_members table;
+    :Display success message;
+    :Close modal;
+    :Refresh tabel pengurus;
+else (Tidak)
+    :Display validation error;
+    :Highlight field yang kosong;
+    :Block submit;
+endif
+
+stop
+
+@enduml

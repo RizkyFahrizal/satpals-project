@@ -1,0 +1,77 @@
+@startuml Kelola_Anggota_v2
+title Activity Diagram - Kelola Anggota UKM (Iterasi 2)
+
+start
+:Admin akses menu Data Anggota;
+:Load halaman daftar anggota;
+
+partition "Filter & Search" {
+    :Search berdasarkan nama / NIM;
+    :Filter berdasarkan status (active/inactive);
+    :Filter berdasarkan tahun masuk;
+    :Filter berdasarkan prodi;
+    :Klik tombol Cari/Filter;
+}
+
+:Display tabel anggota dengan:;
+:- No;
+:- Nama Lengkap;
+:- NIM;
+:- Email;
+:- Prodi;
+:- Status badge (Active/Inactive);
+:- Action buttons;
+
+note right
+**STATUS BADGE (ITERASI 2)**
+- Active (hijau)
+- Inactive (abu-abu)
+- ❌ HAPUS: Status "Keluar"
+- Hanya 2 status: active/inactive
+end note
+
+partition "Toggle Status Individual" {
+    :Admin klik icon status pada anggota;
+    if (Status saat ini) then (Active)
+        :Set status = inactive;
+        :Display badge "Inactive";
+    else (Inactive)
+        :Set status = active;
+        :Display badge "Active";
+    endif
+    :Update database;
+    :Display success;
+}
+
+note left
+**PERUBAHAN ITERASI 2:**
+- Hilangkan status "keluar"
+- Simplify hanya active/inactive
+- Non-destructive (tidak hapus data)
+- Admin bisa re-activate anggota kapanpun
+end note
+
+partition "Aksi Lain" {
+    fork
+        :Klik "Lihat Detail";
+        :Redirect ke halaman detail anggota;
+    fork again
+        :Klik "Edit";
+        :Redirect ke form edit anggota;
+    fork again
+        :Klik "Hapus";
+        :Tampil konfirmasi hapus;
+        if (Konfirmasi) then (Ya)
+            :Delete record dari database;
+            :Display success;
+        endif
+    fork again
+        :Klik "Tambah Anggota";
+        :Redirect ke form tambah anggota manual;
+    endfork
+}
+
+:Display pagination controls;
+stop
+
+@enduml
