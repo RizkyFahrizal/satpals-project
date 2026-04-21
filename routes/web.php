@@ -237,8 +237,11 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin.access'])->gr
     Route::get('/band-rentals/{rental}', [BandRentalRequestController::class, 'show'])->name('band-rentals.show');
     Route::patch('/band-rentals/{rental}/approve', [BandRentalRequestController::class, 'approve'])->name('band-rentals.approve');
     Route::patch('/band-rentals/{rental}/reject', [BandRentalRequestController::class, 'reject'])->name('band-rentals.reject');
+    Route::patch('/band-rentals/{rental}/cancel', [BandRentalRequestController::class, 'cancel'])->name('band-rentals.cancel');
     Route::patch('/band-rentals/{rental}/complete', [BandRentalRequestController::class, 'complete'])->name('band-rentals.complete');
     Route::delete('/band-rentals/{rental}', [BandRentalRequestController::class, 'destroy'])->name('band-rentals.destroy');
+    Route::get('/band-rentals/{rental}/invoice/download', [BandRentalRequestController::class, 'downloadInvoice'])->name('band-rentals.invoice.download');
+    Route::get('/band-rentals/{rental}/invoice/view', [BandRentalRequestController::class, 'viewInvoice'])->name('band-rentals.invoice.view');
     
     // Equipment Rental Management
     Route::resource('/equipment', EquipmentController::class);

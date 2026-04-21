@@ -13,41 +13,6 @@ use Illuminate\Support\Facades\Storage;
 class IncomeController extends Controller
 {
     /**
-     * Display a listing of the resource.
-     */
-    public function index(Request $request)
-    {
-        $query = Income::with('creator')->latest();
-
-        // Search by title, description
-        if ($request->search) {
-            $query->where(function ($q) use ($request) {
-                $q->where('title', 'like', "%{$request->search}%")
-                  ->orWhere('description', 'like', "%{$request->search}%");
-            });
-        }
-
-        // Filter by status
-        if ($request->status && $request->status !== 'all') {
-            $query->where('status', $request->status);
-        }
-
-        $incomes = $query->paginate(15);
-
-        // Calculate totals
-        $totalIncome = Income::sum('nominal');
-        $thisMonthIncome = Income::whereMonth('created_at', now()->month)
-            ->whereYear('created_at', now()->year)
-            ->sum('nominal');
-
-        return view('admin.income.index', compact(
-            'incomes',
-            'totalIncome',
-            'thisMonthIncome'
-        ));
-    }
-
-    /**
      * Show the form for creating a new resource.
      */
     public function create()
@@ -71,6 +36,7 @@ class IncomeController extends Controller
         ]);
 
         $validated['created_by'] = Auth::id();
+        $validated['creator_name'] = Auth::user()->name;  // Nama admin yang membuat
         $income = Income::create($validated);
 
         // Handle file uploads
@@ -133,6 +99,8 @@ class IncomeController extends Controller
             'document_types.*' => 'nullable|string|max:100',
         ]);
 
+        // Jaga creator_name tidak berubah saat update
+        $validated['creator_name'] = $income->creator_name;
         $income->update($validated);
 
         // Handle new file uploads

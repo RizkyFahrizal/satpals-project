@@ -6,9 +6,14 @@
 <div class="min-h-screen bg-gradient-to-b from-yellow-50 to-white">
     <!-- Header -->
     <div class="bg-yellow-400 shadow-md">
-        <div class="container mx-auto px-4 py-6">
-            <h1 class="text-3xl font-bold text-gray-900">📝 Formulir Sewa Band</h1>
-            <p class="text-gray-700 mt-2">{{ $band->band_name }}</p>
+        <div class="container mx-auto px-4 py-6 flex justify-between items-start">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">📝 Formulir Sewa Band</h1>
+                <p class="text-gray-700 mt-2">{{ $band->band_name }}</p>
+            </div>
+            <a href="{{ route('public.bands.show', $band) }}" class="btn btn-sm btn-ghost text-gray-700 hover:text-gray-900">
+                <i class="fas fa-arrow-left"></i> Kembali
+            </a>
         </div>
     </div>
 
@@ -27,7 +32,7 @@
                 <div class="flex-1">
                     <h2 class="text-2xl font-bold text-gray-800">{{ $band->band_name }}</h2>
                     <p class="text-gray-600 mt-2">{{ Str::limit($band->description, 100) }}</p>
-                    <div class="flex gap-4 mt-3">
+                    <div class="flex gap-4 mt-3 flex-wrap">
                         <div>
                             <p class="text-gray-600 text-sm font-semibold">Per Jam</p>
                             <p class="font-bold text-green-600">Rp {{ number_format($band->price_per_hour, 0, ',', '.') }}</p>
@@ -35,6 +40,10 @@
                         <div>
                             <p class="text-gray-600 text-sm font-semibold">Per Event</p>
                             <p class="font-bold text-green-600">Rp {{ number_format($band->price_per_event, 0, ',', '.') }}</p>
+                        </div>
+                        <div>
+                            <p class="text-gray-600 text-sm font-semibold">Anggota Band</p>
+                            <p class="font-bold text-blue-600">{{ $band->members->count() }} Personil</p>
                         </div>
                     </div>
                 </div>
@@ -109,6 +118,26 @@
                     @enderror
                 </div>
 
+                <!-- Renter Email -->
+                <div class="form-control mb-4">
+                    <label class="label">
+                        <span class="label-text font-semibold">Email *</span>
+                    </label>
+                    <input 
+                        type="email" 
+                        name="renter_email" 
+                        value="{{ old('renter_email', auth()->user()->email ?? '') }}"
+                        placeholder="email@example.com" 
+                        class="input input-bordered @error('renter_email') input-error @enderror"
+                        required
+                    >
+                    @error('renter_email')
+                        <label class="label">
+                            <span class="label-text-alt text-error">{{ $message }}</span>
+                        </label>
+                    @enderror
+                </div>
+
                 <!-- Rental Purpose -->
                 <div class="form-control mb-4">
                     <label class="label">
@@ -123,6 +152,26 @@
                     >{{ old('rental_purpose') }}</textarea>
                     <p class="text-sm text-gray-500 mt-1">Jelaskan jenis acara dan detail singkat</p>
                     @error('rental_purpose')
+                        <label class="label">
+                            <span class="label-text-alt text-error">{{ $message }}</span>
+                        </label>
+                    @enderror
+                </div>
+
+                <!-- Venue Address -->
+                <div class="form-control mb-4">
+                    <label class="label">
+                        <span class="label-text font-semibold">Alamat Lengkap Tempat Persewaan *</span>
+                    </label>
+                    <textarea 
+                        name="venue_address" 
+                        placeholder="Masukkan alamat lengkap tempat pertunjukan (jalan, kelurahan, kecamatan, kota)" 
+                        rows="3"
+                        class="textarea textarea-bordered @error('venue_address') textarea-error @enderror"
+                        required
+                    >{{ old('venue_address') }}</textarea>
+                    <p class="text-sm text-gray-500 mt-1">Pastikan alamat lengkap dan mudah ditemukan</p>
+                    @error('venue_address')
                         <label class="label">
                             <span class="label-text-alt text-error">{{ $message }}</span>
                         </label>
@@ -188,6 +237,105 @@
                     @enderror
                 </div>
 
+                <!-- Performance Duration (Band Main Duration) -->
+                <div class="bg-blue-50 border-l-4 border-blue-400 rounded p-4 mb-4">
+                    <h4 class="font-bold text-blue-800 mb-3 flex items-center gap-2">
+                        <i class="fas fa-clock"></i> Durasi Acara & Break
+                    </h4>
+                    <p class="text-sm text-blue-700 mb-4">
+                        ⏱️ Masukkan jam break, durasi band main akan dihitung otomatis
+                    </p>
+                    
+                    <!-- Break Duration -->
+                    <div class="mb-4">
+                        <label class="text-sm font-semibold text-blue-900 mb-2 block">Total Jam Break</label>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="form-control">
+                                <label class="label">
+                                    <span class="label-text font-semibold text-sm">Jam</span>
+                                </label>
+                                <input 
+                                    type="number" 
+                                    name="break_duration_hours" 
+                                    id="breakHours"
+                                    value="{{ old('break_duration_hours', 0) }}"
+                                    min="0" 
+                                    max="23"
+                                    placeholder="0" 
+                                    class="input input-bordered input-sm @error('break_duration_hours') input-error @enderror"
+                                    required
+                                >
+                                @error('break_duration_hours')
+                                    <label class="label">
+                                        <span class="label-text-alt text-error text-xs">{{ $message }}</span>
+                                    </label>
+                                @enderror
+                            </div>
+
+                            <div class="form-control">
+                                <label class="label">
+                                    <span class="label-text font-semibold text-sm">Menit</span>
+                                </label>
+                                <input 
+                                    type="number" 
+                                    name="break_duration_minutes" 
+                                    id="breakMinutes"
+                                    value="{{ old('break_duration_minutes', 0) }}"
+                                    min="0" 
+                                    max="59"
+                                    placeholder="0" 
+                                    class="input input-bordered input-sm @error('break_duration_minutes') input-error @enderror"
+                                    required
+                                >
+                                @error('break_duration_minutes')
+                                    <label class="label">
+                                        <span class="label-text-alt text-error text-xs">{{ $message }}</span>
+                                    </label>
+                                @enderror
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Performance Duration (Auto-calculated, disabled) -->
+                    <div>
+                        <label class="text-sm font-semibold text-blue-900 mb-2 block">Durasi Band Main (Otomatis)</label>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="form-control">
+                                <label class="label">
+                                    <span class="label-text font-semibold text-sm">Jam</span>
+                                </label>
+                                <input 
+                                    type="number" 
+                                    id="performanceHours"
+                                    value="{{ old('performance_duration_hours', 0) }}"
+                                    readonly
+                                    class="input input-bordered input-sm bg-gray-100"
+                                >
+                            </div>
+
+                            <div class="form-control">
+                                <label class="label">
+                                    <span class="label-text font-semibold text-sm">Menit</span>
+                                </label>
+                                <input 
+                                    type="number" 
+                                    id="performanceMinutes"
+                                    value="{{ old('performance_duration_minutes', 0) }}"
+                                    readonly
+                                    class="input input-bordered input-sm bg-gray-100"
+                                >
+                            </div>
+                        </div>
+                        <p class="text-xs text-blue-600 mt-2">
+                            = Waktu Acara - Jam Break
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Hidden inputs for form submission -->
+                <input type="hidden" id="performanceDurationHoursHidden" name="performance_duration_hours" value="{{ old('performance_duration_hours', 0) }}">
+                <input type="hidden" id="performanceDurationMinutesHidden" name="performance_duration_minutes" value="{{ old('performance_duration_minutes', 0) }}">
+
                 <!-- Info Alert -->
                 <div class="alert alert-info mb-6 bg-blue-50 border-l-4 border-blue-400 text-blue-800">
                     <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
@@ -236,4 +384,58 @@
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const startTimeInput = document.querySelector('input[name="performance_start_time"]');
+    const endTimeInput = document.querySelector('input[name="performance_end_time"]');
+    const breakHoursInput = document.getElementById('breakHours');
+    const breakMinutesInput = document.getElementById('breakMinutes');
+    const performanceHoursInput = document.getElementById('performanceHours');
+    const performanceMinutesInput = document.getElementById('performanceMinutes');
+    const performanceHoursHidden = document.getElementById('performanceDurationHoursHidden');
+    const performanceMinutesHidden = document.getElementById('performanceDurationMinutesHidden');
+
+    function calculateDuration() {
+        if (!startTimeInput.value || !endTimeInput.value) return;
+
+        // Calculate event duration
+        const [startH, startM] = startTimeInput.value.split(':').map(Number);
+        const [endH, endM] = endTimeInput.value.split(':').map(Number);
+
+        let eventMinutes = (endH * 60 + endM) - (startH * 60 + startM);
+        
+        if (eventMinutes < 0) {
+            eventMinutes += 24 * 60; // Next day
+        }
+
+        // Calculate break duration
+        const breakMinutes = (parseInt(breakHoursInput.value || 0) * 60) + parseInt(breakMinutesInput.value || 0);
+
+        // Calculate performance duration (event duration - break)
+        const mainMinutes = Math.max(0, eventMinutes - breakMinutes);
+
+        // Convert to hours and minutes
+        const mainHours = Math.floor(mainMinutes / 60);
+        const remainingMinutes = mainMinutes % 60;
+
+        performanceHoursInput.value = mainHours;
+        performanceMinutesInput.value = remainingMinutes;
+        
+        // Update hidden inputs for form submission
+        performanceHoursHidden.value = mainHours;
+        performanceMinutesHidden.value = remainingMinutes;
+    }
+
+    // Event listeners
+    startTimeInput.addEventListener('change', calculateDuration);
+    endTimeInput.addEventListener('change', calculateDuration);
+    breakHoursInput.addEventListener('input', calculateDuration);
+    breakMinutesInput.addEventListener('input', calculateDuration);
+
+    // Calculate on page load if values exist
+    calculateDuration();
+});
+</script>
+
 @endsection
