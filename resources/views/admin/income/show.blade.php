@@ -11,7 +11,9 @@
         <div class="mb-8 pb-6 border-b border-gray-200">
             <div class="flex flex-col lg:flex-row justify-between items-start gap-4">
                 <div>
-                    <h1 class="text-2xl font-bold text-gray-800">{{ $income->title }}</h1>
+                    <h1 class="text-2xl font-bold text-gray-800">
+                            {{ $income->title }}
+                    </h1>
                     <p class="text-gray-600 text-sm mt-1">Dibuat oleh: {{ $income->creator->name }}</p>
                 </div>
                 <span class="badge badge-lg {{ $income->status === 'pending' ? 'badge-warning' : ($income->status === 'approved' ? 'badge-success' : 'badge-error') }}">

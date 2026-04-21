@@ -1,10 +1,15 @@
 @extends('layouts.admin')
 
-@section('title', 'Kelola Pengeluaran - Admin')
-@section('header', 'Kelola Pengeluaran')
+@section('title', 'Kelola Pengeluaran - Deprecated')
+@section('header', 'Halaman Tidak Digunakan')
 @section('breadcrumb', 'Pengeluaran')
 
 @section('content')
+<div class="alert alert-warning">
+    <h2>Halaman ini sudah tidak digunakan</h2>
+    <p>Silakan gunakan <a href="{{ route('admin.financial.index') }}" class="link link-primary">Kelola Keuangan</a> untuk mengelola semua transaksi (Pemasukan & Pengeluaran)</p>
+</div>
+@endsection
 <div class="space-y-6">
     <!-- Summary Cards -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">

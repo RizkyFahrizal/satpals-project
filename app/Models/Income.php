@@ -18,6 +18,7 @@ class Income extends Model
         'source',
         'income_date',
         'created_by',
+        'creator_name',
         'status',
         'approved_at',
     ];

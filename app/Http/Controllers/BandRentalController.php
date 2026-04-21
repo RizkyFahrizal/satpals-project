@@ -57,11 +57,21 @@ class BandRentalController extends Controller
         $validated = $request->validate([
             'renter_name' => 'required|string|max:255',
             'renter_phone' => 'required|string|max:20',
+            'renter_email' => 'required|email|max:255',
             'rental_purpose' => 'required|string',
+            'venue_address' => 'required|string|max:500',
             'performance_date' => 'required|date|after:today',
             'performance_start_time' => 'required|date_format:H:i',
             'performance_end_time' => 'required|date_format:H:i|after:performance_start_time',
+            'performance_duration_hours' => 'nullable|integer|min:0|max:23',
+            'performance_duration_minutes' => 'nullable|integer|min:0|max:59',
+            'break_duration_hours' => 'required|integer|min:0|max:23',
+            'break_duration_minutes' => 'required|integer|min:0|max:59',
         ]);
+
+        // Ensure performance_duration_hours & minutes have default values
+        $validated['performance_duration_hours'] = $validated['performance_duration_hours'] ?? 0;
+        $validated['performance_duration_minutes'] = $validated['performance_duration_minutes'] ?? 0;
 
         $validated['band_id'] = $band->id;
         $validated['user_id'] = auth()->id();

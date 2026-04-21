@@ -29,8 +29,10 @@ class FinancialDashboardController extends Controller
         $kegiatanExpense = Expense::approved()->kegiatan()->whereBetween('created_at', [$startDate, $endDate])->sum('nominal');
 
         // Pending items
+        $pendingExpenseCount = Expense::pending()->whereBetween('created_at', [$startDate, $endDate])->count();
         $pendingExpense = Expense::pending()->whereBetween('created_at', [$startDate, $endDate])->sum('nominal');
-        $pendingCount = Expense::pending()->whereBetween('created_at', [$startDate, $endDate])->count();
+        
+        $pendingIncomeCount = Income::pending()->whereBetween('created_at', [$startDate, $endDate])->count();
 
         // Recent transactions
         $recentExpenses = Expense::approved()
@@ -70,6 +72,7 @@ class FinancialDashboardController extends Controller
                 'title' => $expense->title,
                 'nominal' => $expense->nominal,
                 'creator' => $expense->creator,
+                'creator_name' => $expense->creator_name ?? $expense->creator?->name ?? 'Admin',
                 'date' => $expense->created_at,
                 'type' => 'expense',
                 'expense_type' => $expense->type,
@@ -86,8 +89,10 @@ class FinancialDashboardController extends Controller
                 'title' => $income->title,
                 'nominal' => $income->nominal,
                 'creator' => $income->creator,
+                'creator_name' => $income->creator_name ?? $income->creator?->name ?? 'Admin',
                 'date' => $income->created_at,
                 'type' => 'income',
+                'source' => $income->source ?? 'Lainnya',
                 'status' => $income->status ?? 'pending',
                 'route' => route('admin.income.show', $income),
                 'model' => $income
@@ -125,14 +130,15 @@ class FinancialDashboardController extends Controller
         // Reset indices after filtering
         $allTransactions = $allTransactions->values();
 
-        return view('admin.financial-dashboard', compact(
+        return view('admin.financial.financial-dashboard', compact(
             'totalIncome',
             'totalExpense',
             'totalBalance',
             'barangExpense',
             'kegiatanExpense',
             'pendingExpense',
-            'pendingCount',
+            'pendingExpenseCount',
+            'pendingIncomeCount',
             'startDate',
             'endDate',
             'allTransactions'
