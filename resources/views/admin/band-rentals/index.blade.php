@@ -9,9 +9,14 @@
 @section('content')
 <div class="container mx-auto px-4 py-8">
     <!-- Header -->
-    <div class="mb-8">
-        <h1 class="text-3xl font-bold text-gray-900">📋 Permintaan Sewa Band</h1>
-        <p class="text-gray-500 mt-2">Kelola permintaan sewa band dari pelanggan</p>
+    <div class="mb-8 flex justify-between items-start">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900">📋 Permintaan Sewa Band</h1>
+            <p class="text-gray-500 mt-2">Kelola permintaan sewa band dari pelanggan</p>
+        </div>
+        <a href="{{ route('admin.bands.index') }}" class="btn btn-ghost">
+            <i class="fas fa-arrow-left"></i> Kembali
+        </a>
     </div>
 
     <!-- Alerts -->
@@ -51,6 +56,11 @@
             <span>Ditolak</span>
             <span class="inline-flex items-center justify-center w-6 h-6 {{ request('status') === 'rejected' ? 'bg-white text-gray-900' : 'bg-gray-100 text-gray-700' }} rounded-lg text-xs font-bold">{{ \App\Models\BandRentalRequest::where('status', 'rejected')->count() }}</span>
         </a>
+        <a href="{{ route('admin.band-rentals.index', ['status' => 'cancelled']) }}" class="flex-1 min-w-fit px-5 py-3 rounded-xl {{ request('status') === 'cancelled' ? 'bg-gradient-to-r from-yellow-400 to-orange-400 text-gray-900 font-semibold shadow-md' : 'text-gray-700 hover:bg-gray-50' }} transition flex items-center justify-center gap-2 text-sm">
+            <i class="fas fa-ban text-base"></i>
+            <span>Dibatalkan</span>
+            <span class="inline-flex items-center justify-center w-6 h-6 {{ request('status') === 'cancelled' ? 'bg-white text-gray-900' : 'bg-gray-100 text-gray-700' }} rounded-lg text-xs font-bold">{{ \App\Models\BandRentalRequest::where('status', 'cancelled')->count() }}</span>
+        </a>
         <a href="{{ route('admin.band-rentals.index', ['status' => 'completed']) }}" class="flex-1 min-w-fit px-5 py-3 rounded-xl {{ request('status') === 'completed' ? 'bg-gradient-to-r from-yellow-400 to-orange-400 text-gray-900 font-semibold shadow-md' : 'text-gray-700 hover:bg-gray-50' }} transition flex items-center justify-center gap-2 text-sm">
             <i class="fas fa-flag-checkered text-base"></i>
             <span>Selesai</span>
@@ -67,6 +77,7 @@
                     <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Band</th>
                     <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Penyewa</th>
                     <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Tanggal Pertunjukan</th>
+                    <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Kode Pesanan</th>
                     <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Status</th>
                     <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Dibuat</th>
                     <th class="px-6 py-4 text-center text-sm font-semibold text-gray-700">Aksi</th>
@@ -108,6 +119,17 @@
                         </div>
                     </td>
                     <td class="px-6 py-4">
+                        @if($rental->kode_order)
+                            <span class="inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-bold bg-blue-100 text-blue-700 border border-blue-300">
+                                {{ $rental->kode_order }}
+                            </span>
+                        @else
+                            <span class="inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-semibold bg-gray-100 text-gray-600 border border-gray-300">
+                                -
+                            </span>
+                        @endif
+                    </td>
+                    <td class="px-6 py-4">
                         @if($rental->status === 'pending')
                             <span class="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-semibold bg-yellow-100 text-yellow-700 border border-yellow-300">
                                 <i class="fas fa-hourglass-half mr-1"></i>
@@ -122,6 +144,11 @@
                             <span class="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-semibold bg-red-100 text-red-700 border border-red-300">
                                 <i class="fas fa-times-circle mr-1"></i>
                                 Ditolak
+                            </span>
+                        @elseif($rental->status === 'cancelled')
+                            <span class="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-semibold bg-red-100 text-red-700 border border-red-300">
+                                <i class="fas fa-ban mr-1"></i>
+                                Dibatalkan
                             </span>
                         @elseif($rental->status === 'completed')
                             <span class="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-semibold bg-blue-100 text-blue-700 border border-blue-300">

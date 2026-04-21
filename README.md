@@ -50,15 +50,21 @@
 - Timeline aktivitas
 - Galeri foto kegiatan
 
-#### 💰 **Manajemen Keuangan** *(coming soon)*
+#### 💰 **Manajemen Keuangan** *(implemented)*
 - Pencatatan pemasukan/pengeluaran
 - Kategorisasi transaksi
-- Laporan keuangan
+- Dashboard keuangan dengan statistik
+- Filter berdasarkan jenis & periode
+- Tracking creator untuk setiap transaksi
 
-#### 🎷 **Persewaan Alat & Band** *(coming soon)*
-- Kelola alat musik
-- Booking/peminjaman alat
-- Kelola paket band
+#### 🎷 **Persewaan Band** *(implemented)*
+- Kelola paket band dengan harga per jam dan per event
+- Form permintaan sewa band (public)
+- Approval & rejection system untuk admin
+- Invoice PDF otomatis saat approval
+- Email notification ke penyewa
+- Pembatalan rental dengan income rejection
+- Tracking nomor pesanan & status sewa
 
 #### 🎬 **Booking Studio** *(coming soon)*
 - Reservasi studio recording
@@ -66,7 +72,26 @@
 
 ---
 
-## 🚀 Quick Start
+## � Alur Proses Utama
+
+### Band Rental Workflow
+```
+Public User: Membuat Request → Admin: Review & Approve/Reject 
+→ Invoice Generate → Email Invoice → Payment → Rental Active → Can Cancel
+```
+
+### Financial Management
+- Pemasukan dari band rental, events, dll masuk ke dashboard
+- Admin tracking creator setiap transaksi
+- Report keuangan per periode
+
+### Document Management
+- Upload template → kategori & preview → user download
+- Arsip surat masuk/keluar dengan tracking nomor
+
+---
+
+## �🚀 Quick Start
 
 ### Prerequisites
 - PHP 8.2 atau lebih tinggi
@@ -143,6 +168,27 @@ Pengurus:
 Email: pengurus@satpals.com
 Password: password
 ```
+
+---
+
+## ✨ Latest Improvements (April 2026)
+
+### Band Rental System
+- ✅ Venue address tracking untuk detail lokasi pertunjukan
+- ✅ Auto-calculate performance duration (total jam - break jam)
+- ✅ Email invoice otomatis saat approval dengan detail lengkap
+- ✅ Pembatalan rental dengan income status rejection (bukan delete)
+- ✅ Admin & public UI improvements (back buttons, member count display)
+
+### Financial Dashboard
+- ✅ Separated pending counts (income & expense)
+- ✅ Creator name attribution untuk audit trail
+- ✅ Status tracking untuk setiap transaksi
+
+### UI/UX Enhancements
+- ✅ Consistent color scheme untuk status tabs
+- ✅ Social media icons display fix (WhatsApp, Instagram, TikTok, YouTube)
+- ✅ Better navigation with back buttons
 
 ---
 

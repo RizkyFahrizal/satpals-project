@@ -13,49 +13,6 @@ use Illuminate\Support\Facades\Storage;
 class ExpenseController extends Controller
 {
     /**
-     * Display a listing of the resource.
-     */
-    public function index(Request $request)
-    {
-        $query = Expense::with(['creator', 'documents', 'approvals'])
-            ->latest();
-
-        // Filter by type
-        if ($request->type && $request->type !== 'all') {
-            $query->where('type', $request->type);
-        }
-
-        // Filter by status
-        if ($request->status && $request->status !== 'all') {
-            $query->where('status', $request->status);
-        }
-
-        // Search
-        if ($request->search) {
-            $query->where(function ($q) use ($request) {
-                $q->where('title', 'like', "%{$request->search}%")
-                  ->orWhere('description', 'like', "%{$request->search}%");
-            });
-        }
-
-        $expenses = $query->paginate(15);
-
-        // Calculate totals
-        $totalExpense = Expense::approved()->sum('nominal');
-        $barangExpense = Expense::approved()->barang()->sum('nominal');
-        $kegiatanExpense = Expense::approved()->kegiatan()->sum('nominal');
-        $pendingExpense = Expense::pending()->sum('nominal');
-
-        return view('admin.expenses.index', compact(
-            'expenses',
-            'totalExpense',
-            'barangExpense',
-            'kegiatanExpense',
-            'pendingExpense'
-        ));
-    }
-
-    /**
      * Show the form for creating a new resource.
      */
     public function create()
@@ -92,6 +49,7 @@ class ExpenseController extends Controller
         }
 
         $validated['created_by'] = Auth::id();
+        $validated['creator_name'] = Auth::user()->name;  // Nama admin yang membuat
         $validated['type'] = $validated['category'] === 'goods' ? 'barang' : 'kegiatan';
         $expense = Expense::create($validated);
 
@@ -177,6 +135,8 @@ class ExpenseController extends Controller
             'lpj_file' => 'nullable|file|max:10240|mimes:pdf,doc,docx,jpg,jpeg,png',
         ]);
 
+        // Jaga creator_name tidak berubah saat update
+        $validated['creator_name'] = $expense->creator_name;
         $expense->update($validated);
 
         // Handle new file uploads

@@ -62,6 +62,8 @@
                                 <span class="badge badge-success badge-outline">Disetujui</span>
                             @elseif($rental->status === 'rejected')
                                 <span class="badge badge-error badge-outline">Ditolak</span>
+                            @elseif($rental->status === 'cancelled')
+                                <span class="badge badge-error badge-outline">Dibatalkan</span>
                             @else
                                 <span class="badge badge-info badge-outline">Selesai</span>
                             @endif
@@ -83,6 +85,20 @@
                 </div>
                 @endif
 
+                <!-- Break & Performance Duration -->
+                @if($rental->break_duration_hours !== null || $rental->break_duration_minutes !== null)
+                <div class="grid grid-cols-2 gap-4 mb-6">
+                    <div class="bg-yellow-50 p-4 rounded border-l-4 border-yellow-500">
+                        <p class="text-gray-600 text-sm font-semibold">Total Jam Break</p>
+                        <p class="font-bold text-gray-800 text-lg">{{ $rental->break_duration_hours }} jam {{ $rental->break_duration_minutes }} menit</p>
+                    </div>
+                    <div class="bg-purple-50 p-4 rounded border-l-4 border-purple-500">
+                        <p class="text-gray-600 text-sm font-semibold">Durasi Band Main</p>
+                        <p class="font-bold text-gray-800 text-lg">{{ $rental->performance_duration_hours }} jam {{ $rental->performance_duration_minutes }} menit</p>
+                    </div>
+                </div>
+                @endif
+
                 <!-- Rental Purpose -->
                 <div class="mb-6">
                     <p class="text-gray-600 text-sm font-semibold mb-2">Tujuan Penyewaan</p>
@@ -90,6 +106,16 @@
                         <p class="text-gray-800">{{ $rental->rental_purpose }}</p>
                     </div>
                 </div>
+
+                <!-- Venue Address -->
+                @if($rental->venue_address)
+                <div class="mb-6">
+                    <p class="text-gray-600 text-sm font-semibold mb-2">Lokasi/Alamat Pertunjukan</p>
+                    <div class="bg-green-50 p-4 rounded border-l-4 border-green-500">
+                        <p class="text-gray-800">{{ $rental->venue_address }}</p>
+                    </div>
+                </div>
+                @endif
 
                 <!-- Dates -->
                 <div class="grid grid-cols-2 gap-4">
@@ -142,7 +168,7 @@
                     <div class="grid grid-cols-2 gap-3">
                         @if($rental->band->whatsapp_number)
                         <a href="https://wa.me/{{ $rental->band->whatsapp_number }}" target="_blank" class="flex items-center gap-2 p-3 bg-green-50 rounded hover:bg-green-100 transition">
-                            <i class="fas fa-whatsapp text-green-600 text-lg"></i>
+                            <i class="fab fa-whatsapp text-green-600 text-lg"></i>
                             <div>
                                 <p class="text-xs text-gray-600">WhatsApp</p>
                                 <p class="text-sm font-semibold text-gray-800">{{ $rental->band->whatsapp_number }}</p>
@@ -152,27 +178,27 @@
 
                         @if($rental->band->instagram_username)
                         <a href="https://instagram.com/{{ $rental->band->instagram_username }}" target="_blank" class="flex items-center gap-2 p-3 bg-pink-50 rounded hover:bg-pink-100 transition">
-                            <i class="fas fa-instagram text-pink-600 text-lg"></i>
+                            <i class="fab fa-instagram text-pink-600 text-lg"></i>
                             <div>
                                 <p class="text-xs text-gray-600">Instagram</p>
-                                <p class="text-sm font-semibold text-gray-800">@{{ $rental->band->instagram_username }}</p>
+                                <p class="text-sm font-semibold text-gray-800">{{ $rental->band->instagram_username }}</p>
                             </div>
                         </a>
                         @endif
 
                         @if($rental->band->tiktok_username)
                         <a href="https://tiktok.com/@{{ $rental->band->tiktok_username }}" target="_blank" class="flex items-center gap-2 p-3 bg-black/5 rounded hover:bg-black/10 transition">
-                            <i class="fas fa-tiktok text-black text-lg"></i>
+                            <i class="fab fa-tiktok text-black text-lg"></i>
                             <div>
                                 <p class="text-xs text-gray-600">TikTok</p>
-                                <p class="text-sm font-semibold text-gray-800">@{{ $rental->band->tiktok_username }}</p>
+                                <p class="text-sm font-semibold text-gray-800">{{ $rental->band->tiktok_username }}</p>
                             </div>
                         </a>
                         @endif
 
                         @if($rental->band->youtube_url)
                         <a href="{{ $rental->band->youtube_url }}" target="_blank" class="flex items-center gap-2 p-3 bg-red-50 rounded hover:bg-red-100 transition">
-                            <i class="fas fa-youtube text-red-600 text-lg"></i>
+                            <i class="fab fa-youtube text-red-600 text-lg"></i>
                             <div>
                                 <p class="text-xs text-gray-600">YouTube</p>
                                 <p class="text-sm font-semibold text-gray-800">Channel</p>
@@ -202,37 +228,115 @@
                 <h3 class="font-bold text-gray-800 mb-4">Status Permintaan</h3>
                 
                 @if($rental->status === 'pending')
-                <div class="space-y-3">
-                    <!-- Approve Form -->
-                    <form action="{{ route('admin.band-rentals.approve', $rental) }}" method="POST">
+                <div class="space-y-4">
+                    <!-- Approval Form -->
+                    <form id="approvalForm" action="{{ route('admin.band-rentals.approve', $rental) }}" method="POST">
                         @csrf
                         @method('PATCH')
-                        <div class="mb-3">
-                            <textarea name="admin_notes" placeholder="Catatan (opsional)" rows="2" class="textarea textarea-bordered textarea-sm w-full"></textarea>
+                        
+                        <!-- Harga Pokok -->
+                        <div class="form-control mb-3">
+                            <label class="label">
+                                <span class="label-text font-semibold">Harga Pokok *</span>
+                            </label>
+                            <input type="number" id="hargaPokok" name="harga_pokok" placeholder="Rp 0" class="input input-bordered input-sm" required min="0">
                         </div>
-                        <button type="submit" class="btn btn-success w-full">
-                            <i class="fas fa-check"></i> Setujui
-                        </button>
-                    </form>
 
-                    <!-- Reject Form -->
-                    <button onclick="rejectModal.showModal()" class="btn btn-error w-full">
-                        <i class="fas fa-times"></i> Tolak
-                    </button>
+                        <!-- Diskon Persen -->
+                        <div class="form-control mb-3">
+                            <label class="label">
+                                <span class="label-text font-semibold">Diskon (%)</span>
+                            </label>
+                            <input type="number" id="diskonPersen" name="diskon_persen" placeholder="0 %" class="input input-bordered input-sm" min="0" max="100">
+                        </div>
+
+                        <!-- Diskon Nominal -->
+                        <div class="form-control mb-3">
+                            <label class="label">
+                                <span class="label-text font-semibold">Diskon (Rp)</span>
+                            </label>
+                            <input type="number" id="diskonNominal" name="diskon_nominal" placeholder="Rp 0" class="input input-bordered input-sm" min="0">
+                        </div>
+
+                        <!-- Harga Final (Display Only) -->
+                        <div class="form-control mb-4">
+                            <label class="label">
+                                <span class="label-text font-semibold">Harga Final</span>
+                            </label>
+                            <div class="bg-green-50 border-2 border-green-200 rounded px-3 py-2">
+                                <p class="text-lg font-bold text-green-600">Rp <span id="hargaFinal">0</span></p>
+                            </div>
+                        </div>
+
+                        <!-- Admin Notes -->
+                        <div class="form-control mb-4">
+                            <label class="label">
+                                <span class="label-text font-semibold text-xs">Catatan (opsional)</span>
+                            </label>
+                            <textarea name="admin_notes" placeholder="Catatan untuk penyewa..." rows="2" class="textarea textarea-bordered textarea-sm"></textarea>
+                        </div>
+
+                        <!-- Buttons -->
+                        <div class="space-y-2">
+                            <button type="button" onclick="confirmApproval()" class="btn btn-success w-full">
+                                <i class="fas fa-check"></i> Setujui
+                            </button>
+                            <button type="button" onclick="rejectModal.showModal()" class="btn btn-error w-full">
+                                <i class="fas fa-times"></i> Tolak
+                            </button>
+                        </div>
+                    </form>
                 </div>
                 @elseif($rental->status === 'approved')
-                <div class="mb-4">
-                    <div class="badge badge-success badge-lg">Disetujui</div>
+                <div class="space-y-4">
+                    <div class="badge badge-success badge-lg mb-4">Disetujui</div>
+                    
+                    <!-- Display Approved Info -->
+                    <div class="bg-green-50 p-3 rounded">
+                        <p class="text-xs text-gray-600">Kode Pesanan</p>
+                        <p class="font-bold text-gray-800">{{ $rental->kode_order ?? '-' }}</p>
+                    </div>
+                    
+                    <div class="bg-blue-50 p-3 rounded">
+                        <p class="text-xs text-gray-600">Harga Pokok</p>
+                        <p class="font-bold text-gray-800">Rp {{ number_format($rental->harga_pokok ?? 0, 0, ',', '.') }}</p>
+                    </div>
+
+                    <div class="bg-yellow-50 p-3 rounded">
+                        <p class="text-xs text-gray-600">Diskon</p>
+                        <p class="font-bold text-gray-800">
+                            Rp {{ number_format($rental->diskon_nominal ?? 0, 0, ',', '.') }}
+                            ({{ $rental->diskon_persen ?? 0 }}%)
+                        </p>
+                    </div>
+
+                    <div class="bg-green-50 p-3 rounded border-2 border-green-300">
+                        <p class="text-xs text-gray-600">Harga Final</p>
+                        <p class="font-bold text-green-600 text-lg">Rp {{ number_format($rental->harga_final ?? 0, 0, ',', '.') }}</p>
+                    </div>
+
+                    <!-- Invoice & Actions -->
+                    <div class="space-y-2">
+                        <a href="{{ route('admin.band-rentals.invoice.download', $rental) }}" class="btn btn-primary w-full gap-2">
+                            <i class="fas fa-file-pdf"></i> Download Invoice
+                        </a>
+                        <button onclick="cancelModal.showModal()" class="btn btn-error btn-outline w-full gap-2">
+                            <i class="fas fa-times-circle"></i> Batalkan Permintaan
+                        </button>
+                    </div>
+
+                    <form action="{{ route('admin.band-rentals.complete', $rental) }}" method="POST">
+                        @csrf
+                        @method('PATCH')
+                        <button type="submit" class="btn btn-info w-full">
+                            <i class="fas fa-flag-checkered"></i> Tandai Selesai
+                        </button>
+                    </form>
                 </div>
-                <form action="{{ route('admin.band-rentals.complete', $rental) }}" method="POST">
-                    @csrf
-                    @method('PATCH')
-                    <button type="submit" class="btn btn-info w-full">
-                        <i class="fas fa-flag-checkered"></i> Tandai Selesai
-                    </button>
-                </form>
                 @elseif($rental->status === 'rejected')
                 <div class="badge badge-error badge-lg">Ditolak</div>
+                @elseif($rental->status === 'cancelled')
+                <div class="badge badge-error badge-lg">Dibatalkan</div>
                 @else
                 <div class="badge badge-info badge-lg">Selesai</div>
                 @endif
@@ -254,12 +358,71 @@
     </div>
 </div>
 
-<!-- Reject Modal -->
+<!-- Confirmation Modal for Approve -->
+<dialog id="approvalModal" class="modal">
+    <div class="modal-box">
+        <h3 class="font-bold text-lg mb-4">Konfirmasi Persetujuan</h3>
+        
+        <div class="space-y-3 mb-6">
+            <div class="bg-blue-50 p-3 rounded">
+                <p class="text-xs text-gray-600">Nama Band</p>
+                <p class="font-bold text-gray-800">{{ $rental->band->band_name }}</p>
+            </div>
+
+            <div class="bg-purple-50 p-3 rounded">
+                <p class="text-xs text-gray-600">Permintaan dari</p>
+                <p class="font-bold text-gray-800">{{ $rental->renter_name }}</p>
+            </div>
+
+            <div class="bg-green-50 p-3 rounded border-2 border-green-300">
+                <p class="text-xs text-gray-600">Harga Final</p>
+                <p class="font-bold text-green-600 text-lg">Rp <span id="modalHargaFinal">0</span></p>
+            </div>
+        </div>
+
+        <p class="text-center text-gray-700 mb-6">
+            <span class="font-semibold">Apakah anda yakin akan mengkonfirmasi</span> sewa band <span class="font-bold">{{ $rental->band->band_name }}</span> 
+            permintaan user <span class="font-bold">{{ $rental->renter_name }}</span> 
+            dengan harga <span class="font-bold text-green-600">Rp <span id="modalHargaFinalText">0</span></span>?
+        </p>
+
+        <div class="modal-action">
+            <button type="button" onclick="approvalModal.close()" class="btn">Batal</button>
+            <button type="button" onclick="submitApproval()" class="btn btn-success">
+                <i class="fas fa-check"></i> Ya, Setujui
+            </button>
+        </div>
+    </div>
+</dialog>
+
+<!-- Confirmation Modal for Reject -->
 <dialog id="rejectModal" class="modal">
     <div class="modal-box">
-        <h3 class="font-bold text-lg mb-4">Tolak Permintaan</h3>
+        <h3 class="font-bold text-lg mb-4">Konfirmasi Penolakan</h3>
         
-        <form action="{{ route('admin.band-rentals.reject', $rental) }}" method="POST">
+        <div class="space-y-3 mb-6">
+            <div class="bg-blue-50 p-3 rounded">
+                <p class="text-xs text-gray-600">Nama Band</p>
+                <p class="font-bold text-gray-800">{{ $rental->band->band_name }}</p>
+            </div>
+
+            <div class="bg-purple-50 p-3 rounded">
+                <p class="text-xs text-gray-600">Permintaan dari</p>
+                <p class="font-bold text-gray-800">{{ $rental->renter_name }}</p>
+            </div>
+
+            <div class="bg-red-50 p-3 rounded">
+                <p class="text-xs text-gray-600">Harga yang Ditawarkan</p>
+                <p class="font-bold text-gray-800">Rp <span id="modalHargaReject">0</span></p>
+            </div>
+        </div>
+
+        <p class="text-center text-gray-700 mb-4">
+            <span class="font-semibold">Apakah anda yakin akan menolak</span> sewa band <span class="font-bold">{{ $rental->band->band_name }}</span> 
+            permintaan user <span class="font-bold">{{ $rental->renter_name }}</span>?
+        </p>
+
+        <form id="rejectForm" action="{{ route('admin.band-rentals.reject', $rental) }}" method="POST">
             @csrf
             @method('PATCH')
             
@@ -267,14 +430,153 @@
                 <label class="label">
                     <span class="label-text font-semibold">Alasan Penolakan *</span>
                 </label>
-                <textarea name="admin_notes" placeholder="Jelaskan alasan penolakan..." rows="4" class="textarea textarea-bordered" required></textarea>
+                <textarea name="admin_notes" placeholder="Jelaskan alasan penolakan..." rows="3" class="textarea textarea-bordered" required></textarea>
             </div>
 
             <div class="modal-action">
                 <button type="button" onclick="rejectModal.close()" class="btn">Batal</button>
-                <button type="submit" class="btn btn-error">Tolak Permintaan</button>
+                <button type="submit" class="btn btn-error">
+                    <i class="fas fa-times"></i> Ya, Tolak
+                </button>
             </div>
         </form>
     </div>
 </dialog>
+
+<!-- JavaScript for Real-time Discount Calculator & Modal -->
+<script>
+const hargaPokokInput = document.getElementById('hargaPokok');
+const diskonPersenInput = document.getElementById('diskonPersen');
+const diskonNominalInput = document.getElementById('diskonNominal');
+const hargaFinalDisplay = document.getElementById('hargaFinal');
+
+// Data dari blade
+const pricePerHour = {{ $rental->band->price_per_hour }};
+const performanceDurationHours = {{ $rental->performance_duration_hours ?? 0 }};
+const performanceDurationMinutes = {{ $rental->performance_duration_minutes ?? 0 }};
+
+// Format number to Indonesian currency style (without Rp prefix)
+function formatNumber(num) {
+    return Math.floor(num).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+}
+
+// Calculate duration in hours (with minutes as decimal)
+function hitungDurasi() {
+    const totalMinutes = (performanceDurationHours * 60) + performanceDurationMinutes;
+    return Math.ceil(totalMinutes / 60); // Round up to next hour
+}
+
+// Auto-calculate harga pokok on page load
+function initializeHargaPokok() {
+    const durationHours = hitungDurasi();
+    if (durationHours > 0 && pricePerHour > 0) {
+        const calculatedPrice = durationHours * pricePerHour;
+        hargaPokokInput.value = calculatedPrice;
+        hitungHargaFinal();
+    }
+}
+
+// Calculate final price
+function hitungHargaFinal() {
+    const hargaPokok = parseInt(hargaPokokInput.value) || 0;
+    const diskonPersen = parseInt(diskonPersenInput.value) || 0;
+    const diskonNominal = parseInt(diskonNominalInput.value) || 0;
+
+    let finalDiskonNominal = diskonNominal;
+
+    // If diskon persen is filled, calculate nominal from persen
+    if (diskonPersen > 0) {
+        finalDiskonNominal = Math.floor(hargaPokok * diskonPersen / 100);
+        diskonNominalInput.value = finalDiskonNominal;
+    } 
+    // If diskon nominal is filled, calculate persen from nominal
+    else if (diskonNominal > 0) {
+        const persen = hargaPokok > 0 ? Math.floor(diskonNominal * 100 / hargaPokok) : 0;
+        diskonPersenInput.value = persen;
+    }
+
+    const hargaFinal = Math.max(0, hargaPokok - finalDiskonNominal);
+    hargaFinalDisplay.textContent = formatNumber(hargaFinal);
+
+    // Update modal values
+    document.getElementById('modalHargaFinal').textContent = formatNumber(hargaFinal);
+    document.getElementById('modalHargaFinalText').textContent = formatNumber(hargaFinal);
+    document.getElementById('modalHargaReject').textContent = formatNumber(hargaFinal);
+}
+
+// Event listeners for real-time calculation
+hargaPokokInput.addEventListener('input', hitungHargaFinal);
+diskonPersenInput.addEventListener('input', hitungHargaFinal);
+diskonNominalInput.addEventListener('input', hitungHargaFinal);
+
+// Confirmation before approval
+function confirmApproval() {
+    const hargaPokok = parseInt(hargaPokokInput.value) || 0;
+    
+    if (!hargaPokok) {
+        alert('Silakan isi harga pokok terlebih dahulu');
+        return;
+    }
+
+    approvalModal.showModal();
+}
+
+// Submit approval form
+function submitApproval() {
+    document.getElementById('approvalForm').submit();
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', initializeHargaPokok);
+</script>
+
+<!-- Confirmation Modal for Cancel -->
+<dialog id="cancelModal" class="modal">
+    <div class="modal-box">
+        <h3 class="font-bold text-lg mb-4 text-red-600">Batalkan Permintaan Sewa</h3>
+        
+        <div class="space-y-3 mb-6">
+            <div class="bg-blue-50 p-3 rounded">
+                <p class="text-xs text-gray-600">Nama Band</p>
+                <p class="font-bold text-gray-800">{{ $rental->band->band_name }}</p>
+            </div>
+
+            <div class="bg-purple-50 p-3 rounded">
+                <p class="text-xs text-gray-600">Permintaan dari</p>
+                <p class="font-bold text-gray-800">{{ $rental->renter_name }}</p>
+            </div>
+
+            <div class="bg-red-50 p-3 rounded border-2 border-red-300">
+                <p class="text-xs text-gray-600">Kode Pesanan</p>
+                <p class="font-bold text-gray-800">{{ $rental->kode_order }}</p>
+            </div>
+        </div>
+
+        <p class="text-center text-gray-700 mb-4">
+            <span class="font-semibold">Apakah anda yakin akan membatalkan</span> sewa band 
+            <span class="font-bold">{{ $rental->band->band_name }}</span> 
+            atas nama <span class="font-bold">{{ $rental->renter_name }}</span>?
+        </p>
+
+        <form id="cancelForm" action="{{ route('admin.band-rentals.cancel', $rental) }}" method="POST">
+            @csrf
+            @method('PATCH')
+            
+            <div class="form-control mb-4">
+                <label class="label">
+                    <span class="label-text font-semibold">Alasan Pembatalan *</span>
+                </label>
+                <textarea name="cancellation_reason" class="textarea textarea-bordered" placeholder="Jelaskan alasan pembatalan..." required minlength="10"></textarea>
+            </div>
+
+            <div class="modal-action">
+                <button type="button" onclick="cancelModal.close()" class="btn">Batal</button>
+                <button type="submit" class="btn btn-error">
+                    <i class="fas fa-times-circle"></i> Ya, Batalkan Sewa
+                </button>
+            </div>
+        </form>
+    </div>
+</dialog>
+
 @endsection
