@@ -239,7 +239,8 @@
                             <label class="label">
                                 <span class="label-text font-semibold">Harga Pokok *</span>
                             </label>
-                            <input type="number" id="hargaPokok" name="harga_pokok" placeholder="Rp 0" class="input input-bordered input-sm" required min="0">
+                            <input type="number" id="hargaPokok" placeholder="Rp 0" class="input input-bordered input-sm" disabled min="0">
+                            <input type="hidden" name="harga_pokok" id="hargaPokokHidden" value="0">
                         </div>
 
                         <!-- Diskon Persen -->
@@ -471,31 +472,33 @@ function initializeHargaPokok() {
     const durationHours = hitungDurasi();
     if (durationHours > 0 && pricePerHour > 0) {
         const calculatedPrice = durationHours * pricePerHour;
-        hargaPokokInput.value = calculatedPrice;
+        // Store numeric value in both inputs
+        hargaPokokInput.value = formatNumber(calculatedPrice);
+        document.getElementById('hargaPokokHidden').value = calculatedPrice;
         hitungHargaFinal();
     }
 }
 
 // Calculate final price
+let lastDiscountField = null;
 function hitungHargaFinal() {
-    const hargaPokok = parseInt(hargaPokokInput.value) || 0;
-    const diskonPersen = parseInt(diskonPersenInput.value) || 0;
-    const diskonNominal = parseInt(diskonNominalInput.value) || 0;
+    // Read from hidden input which has the correct numeric value
+    const hargaPokok = parseInt(document.getElementById('hargaPokokHidden').value) || 0;
+    let diskonPersen = parseFloat(diskonPersenInput.value) || 0;
+    let diskonNominal = parseInt(diskonNominalInput.value) || 0;
 
-    let finalDiskonNominal = diskonNominal;
-
-    // If diskon persen is filled, calculate nominal from persen
-    if (diskonPersen > 0) {
-        finalDiskonNominal = Math.floor(hargaPokok * diskonPersen / 100);
-        diskonNominalInput.value = finalDiskonNominal;
+    // If diskon persen is the last field edited, calculate nominal from persen
+    if (lastDiscountField === 'persen') {
+        diskonNominal = Math.floor(hargaPokok * diskonPersen / 100);
+        diskonNominalInput.value = diskonNominal;
     } 
-    // If diskon nominal is filled, calculate persen from nominal
-    else if (diskonNominal > 0) {
-        const persen = hargaPokok > 0 ? Math.floor(diskonNominal * 100 / hargaPokok) : 0;
-        diskonPersenInput.value = persen;
+    // If diskon nominal is the last field edited, calculate persen from nominal
+    else if (lastDiscountField === 'nominal') {
+        diskonPersen = hargaPokok > 0 ? (diskonNominal * 100 / hargaPokok) : 0;
+        diskonPersenInput.value = diskonPersen.toFixed(2);
     }
 
-    const hargaFinal = Math.max(0, hargaPokok - finalDiskonNominal);
+    const hargaFinal = Math.max(0, hargaPokok - diskonNominal);
     hargaFinalDisplay.textContent = formatNumber(hargaFinal);
 
     // Update modal values
@@ -505,13 +508,19 @@ function hitungHargaFinal() {
 }
 
 // Event listeners for real-time calculation
-hargaPokokInput.addEventListener('input', hitungHargaFinal);
+diskonPersenInput.addEventListener('focus', () => {
+    lastDiscountField = 'persen';
+});
 diskonPersenInput.addEventListener('input', hitungHargaFinal);
+
+diskonNominalInput.addEventListener('focus', () => {
+    lastDiscountField = 'nominal';
+});
 diskonNominalInput.addEventListener('input', hitungHargaFinal);
 
 // Confirmation before approval
 function confirmApproval() {
-    const hargaPokok = parseInt(hargaPokokInput.value) || 0;
+    const hargaPokok = parseInt(document.getElementById('hargaPokokHidden').value) || 0;
     
     if (!hargaPokok) {
         alert('Silakan isi harga pokok terlebih dahulu');

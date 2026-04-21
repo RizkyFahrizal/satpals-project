@@ -197,10 +197,13 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin.access'])->gr
     
     // Studio Booking Management (Admin Only - Approve/Reject)
     Route::get('/studio-bookings', [App\Http\Controllers\Admin\StudioBookingController::class, 'index'])->name('studio-bookings.index');
+    Route::post('/studio-bookings/settings', [App\Http\Controllers\Admin\StudioBookingController::class, 'updateSettings'])->name('studio-bookings.settings');
     Route::get('/studio-bookings/{booking}', [App\Http\Controllers\Admin\StudioBookingController::class, 'show'])->name('studio-bookings.show');
     Route::patch('/studio-bookings/{booking}', [App\Http\Controllers\Admin\StudioBookingController::class, 'update'])->name('studio-bookings.update');
     Route::post('/studio-bookings/{booking}/approve', [App\Http\Controllers\Admin\StudioBookingController::class, 'approve'])->name('studio-bookings.approve');
     Route::post('/studio-bookings/{booking}/reject', [App\Http\Controllers\Admin\StudioBookingController::class, 'reject'])->name('studio-bookings.reject');
+    Route::post('/studio-bookings/{booking}/cancel', [App\Http\Controllers\Admin\StudioBookingController::class, 'cancel'])->name('studio-bookings.cancel');
+    Route::post('/studio-bookings/{booking}/complete', [App\Http\Controllers\Admin\StudioBookingController::class, 'complete'])->name('studio-bookings.complete');
     Route::delete('/studio-bookings/{booking}', [App\Http\Controllers\Admin\StudioBookingController::class, 'destroy'])->name('studio-bookings.destroy');
     
     // Band Rental Management (Persewaan Band)
