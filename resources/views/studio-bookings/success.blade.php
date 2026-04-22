@@ -33,6 +33,10 @@
         <div class="bg-white rounded-lg shadow-md p-6 mb-6">
             <h2 class="text-xl font-semibold text-gray-900 mb-4 text-center">Detail Permohonan Anda</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-left">
+                <div class="border-l-4 border-yellow-500 pl-4">
+                    <p class="text-sm text-gray-600 font-semibold">Kode Booking</p>
+                    <p class="text-lg text-gray-900 font-semibold">{{ $booking->booking_code ?? '-' }}</p>
+                </div>
                 <div class="border-l-4 border-blue-500 pl-4">
                     <p class="text-sm text-gray-600 font-semibold">Nama Pemohon</p>
                     <p class="text-lg text-gray-900 font-semibold">{{ $booking->nama_pemohon ?? 'N/A' }}</p>
@@ -41,6 +45,14 @@
                     <p class="text-sm text-gray-600 font-semibold">NPM</p>
                     <p class="text-lg text-gray-900 font-semibold">{{ $booking->nomor_identitas ?? 'N/A' }}</p>
                 </div>
+                <div class="border-l-4 border-emerald-500 pl-4">
+                    <p class="text-sm text-gray-600 font-semibold">Email</p>
+                    <p class="text-lg text-gray-900 font-semibold">{{ $booking->renter_email ?? 'N/A' }}</p>
+                </div>
+                <div class="border-l-4 border-teal-500 pl-4">
+                    <p class="text-sm text-gray-600 font-semibold">No. Telepon</p>
+                    <p class="text-lg text-gray-900 font-semibold">{{ $booking->renter_phone ?? 'N/A' }}</p>
+                </div>
                 <div class="border-l-4 border-green-500 pl-4">
                     <p class="text-sm text-gray-600 font-semibold">Tanggal Booking</p>
                     <p class="text-lg text-gray-900 font-semibold">{{ $booking->tanggal_booking ? $booking->tanggal_booking->translatedFormat('d F Y') : 'N/A' }}</p>
@@ -48,6 +60,14 @@
                 <div class="border-l-4 border-purple-500 pl-4">
                     <p class="text-sm text-gray-600 font-semibold">Sesi Booking</p>
                     <p class="text-lg text-gray-900 font-semibold">{{ $booking->sesi_label ?? 'N/A' }}</p>
+                </div>
+                <div class="border-l-4 border-orange-500 pl-4">
+                    <p class="text-sm text-gray-600 font-semibold">Jumlah Non-UKM</p>
+                    <p class="text-lg text-gray-900 font-semibold">{{ ($booking->jumlah_non_ukm ?? 0) > 0 ? ($booking->jumlah_non_ukm . ' Orang') : 'UKM semua' }}</p>
+                </div>
+                <div class="border-l-4 border-yellow-500 pl-4">
+                    <p class="text-sm text-gray-600 font-semibold">Total Harga</p>
+                    <p class="text-lg text-gray-900 font-semibold">Rp {{ number_format($booking->harga_final ?? 0, 0, ',', '.') }}</p>
                 </div>
                 <div class="border-l-4 border-orange-500 pl-4">
                     <p class="text-sm text-gray-600 font-semibold">Status Permohonan</p>

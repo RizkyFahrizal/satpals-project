@@ -83,6 +83,73 @@
                                 @enderror
                             </div>
 
+                            <!-- Email Input -->
+                            <div>
+                                <label class="label">
+                                    <span class="label-text font-semibold text-gray-800">Email</span>
+                                    <span class="label-text-alt text-red-500">*</span>
+                                </label>
+                                <input type="email"
+                                       name="renter_email"
+                                       class="input input-bordered w-full @error('renter_email') input-error @enderror"
+                                       placeholder="nama@email.com"
+                                       value="{{ old('renter_email', auth()->user()->email ?? '') }}"
+                                       required>
+                                @error('renter_email')
+                                    <label class="label">
+                                        <span class="label-text-alt text-error">{{ $message }}</span>
+                                    </label>
+                                @enderror
+                            </div>
+
+                            <!-- Phone Input -->
+                            <div>
+                                <label class="label">
+                                    <span class="label-text font-semibold text-gray-800">No. Telepon</span>
+                                    <span class="label-text-alt text-red-500">*</span>
+                                </label>
+                                <input type="text"
+                                       name="renter_phone"
+                                       class="input input-bordered w-full @error('renter_phone') input-error @enderror"
+                                       placeholder="08xxxxxxxxxx"
+                                       value="{{ old('renter_phone', auth()->user()->phone ?? '') }}"
+                                       required>
+                                @error('renter_phone')
+                                    <label class="label">
+                                        <span class="label-text-alt text-error">{{ $message }}</span>
+                                    </label>
+                                @enderror
+                            </div>
+
+                            <!-- Booking Type -->
+                            <div>
+                                <label class="label">
+                                    <span class="label-text font-semibold text-gray-800">Tipe Peserta</span>
+                                    <span class="label-text-alt text-red-500">*</span>
+                                </label>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                    <label class="flex items-center gap-3 p-4 border rounded-xl cursor-pointer transition {{ old('booking_scope', 'ukm_all') === 'ukm_all' ? 'border-yellow-500 bg-yellow-50' : 'border-gray-200 bg-white' }}">
+                                        <input type="radio" name="booking_scope" value="ukm_all" class="radio radio-warning" {{ old('booking_scope', 'ukm_all') === 'ukm_all' ? 'checked' : '' }} onchange="toggleParticipantFields()">
+                                        <div>
+                                            <p class="font-semibold text-gray-800">UKM semua</p>
+                                            <p class="text-sm text-gray-500">Tidak ada peserta non-UKM, jadi tidak ada biaya</p>
+                                        </div>
+                                    </label>
+                                    <label class="flex items-center gap-3 p-4 border rounded-xl cursor-pointer transition {{ old('booking_scope') === 'non_ukm' ? 'border-yellow-500 bg-yellow-50' : 'border-gray-200 bg-white' }}">
+                                        <input type="radio" name="booking_scope" value="non_ukm" class="radio radio-warning" {{ old('booking_scope') === 'non_ukm' ? 'checked' : '' }} onchange="toggleParticipantFields()">
+                                        <div>
+                                            <p class="font-semibold text-gray-800">Ada peserta non-UKM</p>
+                                            <p class="text-sm text-gray-500">Masukkan jumlah peserta non-UKM yang ikut</p>
+                                        </div>
+                                    </label>
+                                </div>
+                                @error('booking_scope')
+                                    <label class="label">
+                                        <span class="label-text-alt text-error">{{ $message }}</span>
+                                    </label>
+                                @enderror
+                            </div>
+
                             <!-- Tanggal Booking -->
                             <div>
                                 <label class="label">
@@ -150,6 +217,50 @@
                                         <span class="label-text-alt text-error">{{ $message }}</span>
                                     </label>
                                 @enderror
+                            </div>
+
+                            <!-- Non UKM Count -->
+                            <div id="non-ukm-wrapper">
+                                <label class="label">
+                                    <span class="label-text font-semibold text-gray-800">Jumlah Non-UKM</span>
+                                    <span class="label-text-alt text-gray-500">Opsional jika UKM semua</span>
+                                </label>
+                                <input type="number"
+                                       name="jumlah_non_ukm"
+                                       id="jumlah_non_ukm"
+                                       min="0"
+                                       value="{{ old('jumlah_non_ukm', 0) }}"
+                                       class="input input-bordered w-full @error('jumlah_non_ukm') input-error @enderror"
+                                       onchange="updatePriceSummary()"
+                                       oninput="updatePriceSummary()"
+                                       >
+                                <label class="label">
+                                    <span class="label-text-alt text-gray-500">Harga per orang non-UKM saat ini: Rp {{ number_format($pricePerPerson, 0, ',', '.') }}</span>
+                                </label>
+                                @error('jumlah_non_ukm')
+                                    <label class="label">
+                                        <span class="label-text-alt text-error">{{ $message }}</span>
+                                    </label>
+                                @enderror
+                            </div>
+
+                            <div id="ukm-all-message" class="hidden alert alert-info shadow-sm">
+                                <span>Mode UKM semua aktif. Tidak ada biaya yang dihitung.</span>
+                            </div>
+
+                            <!-- Price Summary -->
+                            <div id="price-summary-card" class="bg-yellow-50 border border-yellow-200 rounded-2xl p-5">
+                                <div class="flex items-center justify-between mb-3 gap-4">
+                                    <div>
+                                        <p class="text-sm text-gray-600">Harga per Orang</p>
+                                        <p class="text-lg font-bold text-gray-900">Rp {{ number_format($pricePerPerson, 0, ',', '.') }}</p>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="text-sm text-gray-600">Total Harga</p>
+                                        <p id="total-price" class="text-2xl font-bold text-yellow-700">Rp 0</p>
+                                    </div>
+                                </div>
+                                <p id="price-summary-note" class="text-xs text-gray-500">Total dihitung dari jumlah non-UKM × harga per orang.</p>
                             </div>
 
                             <!-- Form Actions -->
@@ -232,6 +343,74 @@
     </div>
 
     <script>
+        const pricePerPerson = {{ (int) $pricePerPerson }};
+
+        function formatRupiah(value) {
+            return 'Rp ' + Number(value || 0).toLocaleString('id-ID');
+        }
+
+        function getSelectedBookingScope() {
+            const checked = document.querySelector('input[name="booking_scope"]:checked');
+            return checked ? checked.value : 'ukm_all';
+        }
+
+        function toggleParticipantFields() {
+            const scope = getSelectedBookingScope();
+            const wrapper = document.getElementById('non-ukm-wrapper');
+            const ukmAllMessage = document.getElementById('ukm-all-message');
+            const qtyInput = document.getElementById('jumlah_non_ukm');
+            const priceCard = document.getElementById('price-summary-card');
+            const priceNote = document.getElementById('price-summary-note');
+
+            if (!wrapper || !ukmAllMessage || !qtyInput || !priceCard || !priceNote) {
+                return;
+            }
+
+            const isNonUkm = scope === 'non_ukm';
+
+            wrapper.classList.toggle('hidden', !isNonUkm);
+            ukmAllMessage.classList.toggle('hidden', isNonUkm);
+            qtyInput.required = isNonUkm;
+            qtyInput.min = isNonUkm ? '1' : '0';
+
+            if (!isNonUkm) {
+                qtyInput.value = '0';
+                priceCard.classList.add('hidden');
+                priceNote.textContent = 'Pilih "Ada peserta non-UKM" jika ada biaya per orang.';
+                document.getElementById('total-price').textContent = formatRupiah(0);
+            } else {
+                priceCard.classList.remove('hidden');
+                priceCard.classList.remove('opacity-75');
+                priceNote.textContent = 'Total dihitung dari jumlah non-UKM × harga per orang.';
+                updatePriceSummary();
+            }
+        }
+
+        function updatePriceSummary() {
+            const qtyInput = document.getElementById('jumlah_non_ukm');
+            const totalPriceElement = document.getElementById('total-price');
+            if (getSelectedBookingScope() !== 'non_ukm') {
+                totalPriceElement.textContent = formatRupiah(0);
+                return;
+            }
+
+            if (!qtyInput || !totalPriceElement) {
+                return;
+            }
+
+            const quantity = parseInt(qtyInput.value || '0', 10);
+            const total = Math.max(0, quantity * pricePerPerson);
+
+            totalPriceElement.textContent = formatRupiah(total);
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            toggleParticipantFields();
+            updatePriceSummary();
+        });
+    </script>
+
+    <script>
         function updateAvailability() {
             const dateInput = document.getElementById('tanggal_booking');
             const selectedDate = dateInput.value;
@@ -288,6 +467,7 @@
 
         // Initialize on page load
         window.addEventListener('DOMContentLoaded', function() {
+            toggleParticipantFields();
             if (document.getElementById('tanggal_booking').value) {
                 updateAvailability();
             }

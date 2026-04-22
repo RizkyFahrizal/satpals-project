@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\EquipmentRentalRequest;
+use App\Models\StudioBooking;
 use PDF;
 
 class InvoiceController extends Controller
@@ -13,7 +14,15 @@ class InvoiceController extends Controller
      */
     public function download($id)
     {
-        $booking = EquipmentRentalRequest::with('items.equipment')->findOrFail($id);
+        $booking = $this->resolveBooking($id);
+
+        if ($booking instanceof StudioBooking) {
+            $pdf = PDF::loadView('invoices.studio-booking', [
+                'booking' => $booking,
+            ]);
+
+            return $pdf->download('Invoice-' . ($booking->booking_code ?? $booking->id) . '.pdf');
+        }
 
         // Generate PDF from blade template
         $pdf = PDF::loadView('emails.invoice', [
@@ -30,7 +39,15 @@ class InvoiceController extends Controller
      */
     public function view($id)
     {
-        $booking = EquipmentRentalRequest::with('items.equipment')->findOrFail($id);
+        $booking = $this->resolveBooking($id);
+
+        if ($booking instanceof StudioBooking) {
+            $pdf = PDF::loadView('invoices.studio-booking', [
+                'booking' => $booking,
+            ]);
+
+            return $pdf->stream('Invoice-' . ($booking->booking_code ?? $booking->id) . '.pdf');
+        }
 
         // Generate PDF from blade template
         $pdf = PDF::loadView('emails.invoice', [
@@ -46,7 +63,15 @@ class InvoiceController extends Controller
      */
     public function getContent($id)
     {
-        $booking = EquipmentRentalRequest::with('items.equipment')->findOrFail($id);
+        $booking = $this->resolveBooking($id);
+
+        if ($booking instanceof StudioBooking) {
+            $pdf = PDF::loadView('invoices.studio-booking', [
+                'booking' => $booking,
+            ]);
+
+            return $pdf->output();
+        }
 
         // Generate PDF from blade template
         $pdf = PDF::loadView('emails.invoice', [
@@ -54,5 +79,16 @@ class InvoiceController extends Controller
         ]);
 
         return $pdf->output();
+    }
+
+    private function resolveBooking($id)
+    {
+        $studioBooking = StudioBooking::find($id);
+
+        if ($studioBooking) {
+            return $studioBooking;
+        }
+
+        return EquipmentRentalRequest::with('items.equipment')->findOrFail($id);
     }
 }

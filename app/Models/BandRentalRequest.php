@@ -11,11 +11,11 @@ class BandRentalRequest extends Model
 
     protected $fillable = [
         'band_id',
-        'user_id',
         'renter_name',
         'renter_phone',
         'renter_email',
         'rental_purpose',
+        'rental_type',
         'venue_address',
         'performance_date',
         'performance_start_time',
@@ -37,6 +37,7 @@ class BandRentalRequest extends Model
     ];
 
     protected $casts = [
+        'rental_type' => 'string',
         'performance_date' => 'datetime',
     ];
 
@@ -49,15 +50,16 @@ class BandRentalRequest extends Model
 
         static::creating(function ($model) {
             // Generate kode_order format: SB{urutan}{ddmmyy}
-            // Get today's date
             $today = now();
             $dateFormat = $today->format('dmy');
 
-            // Count how many band requests exist today
-            $todayCount = self::whereDate('created_at', $today->toDateString())->count();
-            
-            // Add 1 for the next order
-            $urutan = str_pad($todayCount + 1, 2, '0', STR_PAD_LEFT);
+            $latestCode = self::whereDate('created_at', $today->toDateString())
+                ->where('kode_order', 'like', 'SB%' . $dateFormat)
+                ->orderByDesc('kode_order')
+                ->value('kode_order');
+
+            $latestSequence = $latestCode ? (int) substr($latestCode, 2, 2) : 0;
+            $urutan = str_pad($latestSequence + 1, 2, '0', STR_PAD_LEFT);
             
             // Generate kode_order
             $model->kode_order = 'SB' . $urutan . $dateFormat;
@@ -70,13 +72,5 @@ class BandRentalRequest extends Model
     public function band()
     {
         return $this->belongsTo(Band::class);
-    }
-
-    /**
-     * Get the user who made this request
-     */
-    public function user()
-    {
-        return $this->belongsTo(User::class);
     }
 }

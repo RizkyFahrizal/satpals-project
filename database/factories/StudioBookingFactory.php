@@ -22,15 +22,30 @@ class StudioBookingFactory extends Factory
      */
     public function definition()
     {
+        $jumlahNonUkm = $this->faker->numberBetween(0, 10);
+        $hargaSatuan = 15000;
+        $hargaPokok = $jumlahNonUkm * $hargaSatuan;
+
         return [
-            'user_id' => User::factory(),
+            'booking_code' => null,
             'tanggal_booking' => $this->faker->dateTimeBetween('+1 day', '+30 days')->format('Y-m-d'),
             'sesi' => $this->faker->numberBetween(1, 4),
             'keperluan' => $this->faker->sentence(5),
+            'renter_email' => $this->faker->safeEmail(),
+            'renter_phone' => $this->faker->phoneNumber(),
+            'jumlah_non_ukm' => $jumlahNonUkm,
+            'harga_satuan' => $hargaSatuan,
+            'harga_pokok' => $hargaPokok,
+            'diskon_persen' => 0,
+            'diskon_nominal' => 0,
+            'harga_final' => $hargaPokok,
             'status' => StudioBooking::STATUS_PENDING,
             'catatan_admin' => null,
             'approved_by' => null,
             'approved_at' => null,
+            'income_id' => null,
+            'nomor_identitas' => $this->faker->numerify('22##########'),
+            'nama_pemohon' => $this->faker->name(),
         ];
     }
 

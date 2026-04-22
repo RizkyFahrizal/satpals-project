@@ -138,6 +138,34 @@
                     @enderror
                 </div>
 
+                <!-- Rental Type -->
+                <div class="form-control mb-4">
+                    <label class="label">
+                        <span class="label-text font-semibold">Tipe Sewa *</span>
+                    </label>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <label class="flex items-start gap-3 p-4 border rounded-xl cursor-pointer transition {{ old('rental_type', 'hourly') === 'hourly' ? 'border-yellow-500 bg-yellow-50' : 'border-gray-200 bg-white' }}">
+                            <input type="radio" name="rental_type" value="hourly" class="radio radio-warning mt-1" {{ old('rental_type', 'hourly') === 'hourly' ? 'checked' : '' }}>
+                            <div>
+                                <p class="font-bold text-gray-800">Per Jam</p>
+                                <p class="text-sm text-gray-500">Menampilkan jam mulai, jam selesai, dan jam break</p>
+                            </div>
+                        </label>
+                        <label class="flex items-start gap-3 p-4 border rounded-xl cursor-pointer transition {{ old('rental_type') === 'event' ? 'border-yellow-500 bg-yellow-50' : 'border-gray-200 bg-white' }}">
+                            <input type="radio" name="rental_type" value="event" class="radio radio-warning mt-1" {{ old('rental_type') === 'event' ? 'checked' : '' }}>
+                            <div>
+                                <p class="font-bold text-gray-800">Event</p>
+                                <p class="text-sm text-gray-500">Satu harga paket, tanpa jam dan break</p>
+                            </div>
+                        </label>
+                    </div>
+                    @error('rental_type')
+                        <label class="label">
+                            <span class="label-text-alt text-error">{{ $message }}</span>
+                        </label>
+                    @enderror
+                </div>
+
                 <!-- Rental Purpose -->
                 <div class="form-control mb-4">
                     <label class="label">
@@ -186,6 +214,7 @@
                     <input 
                         type="date" 
                         name="performance_date" 
+                        id="performanceDate"
                         value="{{ old('performance_date') }}"
                         class="input input-bordered @error('performance_date') input-error @enderror"
                         required
@@ -198,7 +227,7 @@
                 </div>
 
                 <!-- Performance Start Time -->
-                <div class="form-control mb-4">
+                <div class="form-control mb-4" id="hourlyFields">
                     <label class="label">
                         <span class="label-text font-semibold">Waktu Mulai *</span>
                     </label>
@@ -218,7 +247,7 @@
                 </div>
 
                 <!-- Performance End Time -->
-                <div class="form-control mb-6">
+                <div class="form-control mb-6" id="hourlyFieldsEnd">
                     <label class="label">
                         <span class="label-text font-semibold">Waktu Berakhir *</span>
                     </label>
@@ -238,7 +267,7 @@
                 </div>
 
                 <!-- Performance Duration (Band Main Duration) -->
-                <div class="bg-blue-50 border-l-4 border-blue-400 rounded p-4 mb-4">
+                <div class="bg-blue-50 border-l-4 border-blue-400 rounded p-4 mb-4" id="durationSection">
                     <h4 class="font-bold text-blue-800 mb-3 flex items-center gap-2">
                         <i class="fas fa-clock"></i> Durasi Acara & Break
                     </h4>
@@ -336,6 +365,21 @@
                 <input type="hidden" id="performanceDurationHoursHidden" name="performance_duration_hours" value="{{ old('performance_duration_hours', 0) }}">
                 <input type="hidden" id="performanceDurationMinutesHidden" name="performance_duration_minutes" value="{{ old('performance_duration_minutes', 0) }}">
 
+                <!-- Price Summary -->
+                <div id="priceSummaryCard" class="bg-yellow-50 border border-yellow-200 rounded-2xl p-5 mb-6">
+                    <div class="flex items-center justify-between mb-3 gap-4">
+                        <div>
+                            <p class="text-sm text-gray-600" id="priceLabel">Harga Per Jam</p>
+                            <p class="text-lg font-bold text-gray-900" id="priceUnit">Rp {{ number_format($band->price_per_hour, 0, ',', '.') }}</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-sm text-gray-600">Total Harga</p>
+                            <p id="total-price" class="text-2xl font-bold text-yellow-700">Rp 0</p>
+                        </div>
+                    </div>
+                    <p id="priceSummaryNote" class="text-xs text-gray-500">Pilih tipe sewa untuk melihat perhitungan harga.</p>
+                </div>
+
                 <!-- Info Alert -->
                 <div class="alert alert-info mb-6 bg-blue-50 border-l-4 border-blue-400 text-blue-800">
                     <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
@@ -395,9 +439,70 @@ document.addEventListener('DOMContentLoaded', function() {
     const performanceMinutesInput = document.getElementById('performanceMinutes');
     const performanceHoursHidden = document.getElementById('performanceDurationHoursHidden');
     const performanceMinutesHidden = document.getElementById('performanceDurationMinutesHidden');
+    const rentalTypeInputs = document.querySelectorAll('input[name="rental_type"]');
+    const hourlyFields = document.getElementById('hourlyFields');
+    const hourlyFieldsEnd = document.getElementById('hourlyFieldsEnd');
+    const durationSection = document.getElementById('durationSection');
+    const priceLabel = document.getElementById('priceLabel');
+    const priceUnit = document.getElementById('priceUnit');
+    const totalPrice = document.getElementById('total-price');
+    const priceSummaryNote = document.getElementById('priceSummaryNote');
+
+    const pricePerHour = {{ (int) $band->price_per_hour }};
+    const pricePerEvent = {{ (int) $band->price_per_event }};
+
+    function formatRupiah(value) {
+        return 'Rp ' + Number(value || 0).toLocaleString('id-ID');
+    }
+
+    function getRentalType() {
+        const checked = document.querySelector('input[name="rental_type"]:checked');
+        return checked ? checked.value : 'hourly';
+    }
+
+    function toggleRentalType() {
+        const isEvent = getRentalType() === 'event';
+
+        hourlyFields.classList.toggle('hidden', isEvent);
+        hourlyFieldsEnd.classList.toggle('hidden', isEvent);
+        durationSection.classList.toggle('hidden', isEvent);
+
+        startTimeInput.required = !isEvent;
+        endTimeInput.required = !isEvent;
+        breakHoursInput.required = !isEvent;
+        breakMinutesInput.required = !isEvent;
+
+        if (isEvent) {
+            startTimeInput.value = '';
+            endTimeInput.value = '';
+            breakHoursInput.value = 0;
+            breakMinutesInput.value = 0;
+            performanceHoursInput.value = 0;
+            performanceMinutesInput.value = 0;
+            performanceHoursHidden.value = 0;
+            performanceMinutesHidden.value = 0;
+
+            priceLabel.textContent = 'Harga Per Event';
+            priceUnit.textContent = formatRupiah(pricePerEvent);
+            priceSummaryNote.textContent = 'Mode event memakai satu harga paket, tanpa jam dan break.';
+            totalPrice.textContent = formatRupiah(pricePerEvent);
+        } else {
+            priceLabel.textContent = 'Harga Per Jam';
+            priceUnit.textContent = formatRupiah(pricePerHour);
+            priceSummaryNote.textContent = 'Total dihitung dari durasi band main × harga per jam.';
+            calculateDuration();
+        }
+    }
 
     function calculateDuration() {
-        if (!startTimeInput.value || !endTimeInput.value) return;
+        if (getRentalType() === 'event') {
+            return;
+        }
+
+        if (!startTimeInput.value || !endTimeInput.value) {
+            totalPrice.textContent = formatRupiah(0);
+            return;
+        }
 
         // Calculate event duration
         const [startH, startM] = startTimeInput.value.split(':').map(Number);
@@ -425,15 +530,22 @@ document.addEventListener('DOMContentLoaded', function() {
         // Update hidden inputs for form submission
         performanceHoursHidden.value = mainHours;
         performanceMinutesHidden.value = remainingMinutes;
+
+        const totalHours = Math.max(1, Math.ceil(mainMinutes / 60));
+        totalPrice.textContent = formatRupiah(totalHours * pricePerHour);
     }
 
     // Event listeners
     startTimeInput.addEventListener('change', calculateDuration);
+    startTimeInput.addEventListener('input', calculateDuration);
     endTimeInput.addEventListener('change', calculateDuration);
+    endTimeInput.addEventListener('input', calculateDuration);
     breakHoursInput.addEventListener('input', calculateDuration);
     breakMinutesInput.addEventListener('input', calculateDuration);
+    rentalTypeInputs.forEach((input) => input.addEventListener('change', toggleRentalType));
 
     // Calculate on page load if values exist
+    toggleRentalType();
     calculateDuration();
 });
 </script>

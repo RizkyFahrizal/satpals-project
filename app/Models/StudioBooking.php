@@ -11,14 +11,23 @@ class StudioBooking extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_id',
+        'booking_code',
         'tanggal_booking',
         'sesi',
         'keperluan',
+        'renter_email',
+        'renter_phone',
+        'jumlah_non_ukm',
+        'harga_satuan',
+        'harga_pokok',
+        'diskon_persen',
+        'diskon_nominal',
+        'harga_final',
         'status',
         'catatan_admin',
         'approved_by',
         'approved_at',
+        'income_id',
         'nomor_identitas',
         'nama_pemohon',
     ];
@@ -42,19 +51,42 @@ class StudioBooking extends Model
     ];
 
     /**
-     * Relationship: Booking belongs to User
-     */
-    public function user()
-    {
-        return $this->belongsTo(User::class);
-    }
-
-    /**
      * Relationship: Booking approved by user (pengurus)
      */
     public function approvedBy()
     {
         return $this->belongsTo(User::class, 'approved_by');
+    }
+
+    /**
+     * Relationship: linked income record
+     */
+    public function income()
+    {
+        return $this->belongsTo(Income::class);
+    }
+
+    /**
+     * Boot model and generate booking code
+     */
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($model) {
+            if (!$model->booking_code) {
+                $today = now();
+                $todaySuffix = $today->format('dmY');
+                $latestCode = self::whereDate('created_at', $today->toDateString())
+                    ->where('booking_code', 'like', 'SS%' . $todaySuffix)
+                    ->orderByDesc('booking_code')
+                    ->value('booking_code');
+
+                $latestSequence = $latestCode ? (int) substr($latestCode, 2, 2) : 0;
+                $sequence = str_pad($latestSequence + 1, 2, '0', STR_PAD_LEFT);
+                $model->booking_code = 'SS' . $sequence . $today->format('dmY');
+            }
+        });
     }
 
     /**
@@ -83,7 +115,7 @@ class StudioBooking extends Model
             self::STATUS_APPROVED => 'badge-success',
             self::STATUS_REJECTED => 'badge-error',
             self::STATUS_COMPLETED => 'badge-info',
-            self::STATUS_CANCELLED => 'badge-ghost',
+            self::STATUS_CANCELLED => 'badge-error',
             default => 'badge-neutral',
         };
     }
@@ -94,11 +126,11 @@ class StudioBooking extends Model
     public function getStatusLabelAttribute()
     {
         return match($this->status) {
-            self::STATUS_PENDING => 'Pending',
-            self::STATUS_APPROVED => 'Approved',
-            self::STATUS_REJECTED => 'Rejected',
-            self::STATUS_COMPLETED => 'Completed',
-            self::STATUS_CANCELLED => 'Cancelled',
+            self::STATUS_PENDING => 'Menunggu',
+            self::STATUS_APPROVED => 'Disetujui',
+            self::STATUS_REJECTED => 'Ditolak',
+            self::STATUS_COMPLETED => 'Selesai',
+            self::STATUS_CANCELLED => 'Dibatalkan',
             default => 'Unknown',
         };
     }
@@ -108,7 +140,12 @@ class StudioBooking extends Model
      */
     public function scopeByDate($query, $date)
     {
-        return $query->where('tanggal_booking', $date);
+        // Convert to Carbon instance if string
+        if (is_string($date)) {
+            $date = \Carbon\Carbon::createFromFormat('Y-m-d', $date);
+        }
+        
+        return $query->whereDate('tanggal_booking', $date);
     }
 
     /**
@@ -136,13 +173,21 @@ class StudioBooking extends Model
     }
 
     /**
+     * Check if booking is currently blocking the slot
+     */
+    public function isBlockingSlot()
+    {
+        return in_array($this->status, [self::STATUS_PENDING, self::STATUS_APPROVED], true);
+    }
+
+    /**
      * Check if sesi is available on a specific date
      */
     public static function isSesiAvailable($tanggal, $sesi)
     {
         return !self::byDate($tanggal)
             ->where('sesi', $sesi)
-            ->approved()
+            ->whereIn('status', [self::STATUS_PENDING, self::STATUS_APPROVED])
             ->exists();
     }
 
@@ -152,7 +197,7 @@ class StudioBooking extends Model
     public static function getAvailableSesi($tanggal)
     {
         $booked = self::byDate($tanggal)
-            ->approved()
+            ->whereIn('status', [self::STATUS_PENDING, self::STATUS_APPROVED])
             ->pluck('sesi')
             ->toArray();
 

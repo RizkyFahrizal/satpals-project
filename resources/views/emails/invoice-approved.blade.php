@@ -1,8 +1,17 @@
 <div style="font-family: Arial, sans-serif; background-color: #f9fafb; padding: 20px;">
+    @php
+        $logoPath = public_path('assets/images/logoukm.png');
+        $logoBase64 = file_exists($logoPath) ? 'data:image/png;base64,' . base64_encode(file_get_contents($logoPath)) : null;
+        $adminNumber = preg_replace('/[^0-9]/', '', $adminWhatsApp ?? env('CONTACT_CP_BAND', ''));
+        $confirmText = rawurlencode('Halo admin, saya telah melakukan pembayaran untuk pesanan band ' . $rental->kode_order . '. Berikut bukti transfer saya.');
+    @endphp
     <div style="max-width: 600px; margin: 0 auto; background-color: white; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
         
         <!-- Header -->
         <div style="background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); padding: 30px; text-align: center; color: white;">
+            @if($logoBase64)
+                <img src="{{ $logoBase64 }}" alt="Logo UKM" style="width:54px;height:54px;object-fit:contain;margin:0 auto 12px;display:block;">
+            @endif
             <h1 style="margin: 0; font-size: 28px; font-weight: bold;">✅ Permintaan Disetujui!</h1>
             <p style="margin: 10px 0 0 0; font-size: 14px; opacity: 0.9;">Pesawaran Timur Student Orchestra</p>
         </div>
@@ -77,9 +86,9 @@
                 <p style="margin: 0 0 10px 0; font-size: 13px; color: #1e40af; line-height: 1.6;">
                     Setelah Anda melakukan transfer, silakan hubungi admin kami via WhatsApp untuk konfirmasi:
                 </p>
-                <a href="https://wa.me/{{ str_replace('+', '', $adminWhatsApp) }}?text=Halo%20admin%2C%20saya%20telah%20melakukan%20transfer%20untuk%20pesanan%20{{ $rental->kode_order }}" 
+                <a href="https://wa.me/{{ $adminNumber }}?text={{ $confirmText }}" 
                    style="display: inline-block; background-color: #10b981; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: bold; margin-top: 10px; font-size: 13px;">
-                    💬 Chat WhatsApp Admin
+                    💬 Konfirmasi Pembayaran via WhatsApp
                 </a>
             </div>
 

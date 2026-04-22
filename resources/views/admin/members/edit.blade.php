@@ -36,7 +36,7 @@
                 <div class="md:col-span-2">
                     <label class="block text-sm font-semibold text-gray-700 mb-2">Foto Saat Ini</label>
                     <div class="flex items-center gap-4">
-                        <div class="w-20 h-20 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white text-2xl font-bold overflow-hidden border-4 border-gray-100">
+                        <div class="w-20 h-20 aspect-square rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex-none shrink-0 flex items-center justify-center text-white text-2xl font-bold overflow-hidden border-4 border-gray-100">
                             @if($member->foto)
                             <img src="{{ asset('storage/' . $member->foto) }}" alt="{{ $member->nama_lengkap }}" class="w-full h-full object-cover">
                             @else

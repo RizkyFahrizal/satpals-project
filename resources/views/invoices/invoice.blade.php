@@ -38,6 +38,18 @@
             color: #1e40af;
             margin-bottom: 5px;
         }
+
+        .header-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header-logo {
+            width: 72px;
+            height: 72px;
+            object-fit: contain;
+        }
         
         .header-left p {
             color: #666;
@@ -217,16 +229,40 @@
     </style>
 </head>
 <body>
+    @php
+        $logoPath = public_path('assets/images/logoukm.svg');
+        $logoSvg = file_exists($logoPath) ? file_get_contents($logoPath) : null;
+        $rentalType = $rentalType ?? ($rental->rental_type ?? 'hourly');
+        $pricePerHour = $pricePerHour ?? ($band->price_per_hour ?? 0);
+        $pricePerEvent = $pricePerEvent ?? ($band->price_per_event ?? 0);
+        $isEventRental = $rentalType === 'event';
+        $hargaPokok = $rental->harga_pokok ?? ($isEventRental ? $pricePerEvent : ($pricePerHour * ($durationHours ?? 0)));
+        $jumlahSatuan = $isEventRental ? '1 event' : (($durationHours ?? 0) . ' jam');
+        $hargaSatuan = $isEventRental ? $pricePerEvent : $pricePerHour;
+    @endphp
     <div class="container">
         <!-- Header -->
         <div class="header">
             <div class="header-left">
-                <h1>INVOICE</h1>
-                <p>Pesawaran Timur Student Orchestra</p>
+                <div class="header-brand">
+                    <div>
+                        <h1>INVOICE</h1>
+                        <p>Pesawaran Timur Student Orchestra</p>
+                    </div>
+                </div>
             </div>
             <div class="header-right">
                 <p><span class="invoice-no">{{ $invoiceNumber }}</span></p>
                 <p style="margin-top: 5px;">{{ $invoiceDate }}</p>
+                @php
+                    $logoPath = public_path('assets/images/logoukm.svg');
+                    $logoSvg = file_exists($logoPath) ? file_get_contents($logoPath) : null;
+                @endphp
+                @if($logoSvg)
+                    <div style="margin-top: 10px;">
+                        <img src="data:image/svg+xml;base64,{{ base64_encode($logoSvg) }}" alt="Logo UKM" class="header-logo">
+                    </div>
+                @endif
             </div>
         </div>
 
@@ -240,14 +276,14 @@
                         <div class="info-value">{{ $band->band_name }}</div>
                     </div>
                     <div class="info-item">
-                        <div class="info-label">Harga Per Jam</div>
-                        <div class="info-value">Rp {{ number_format($band->price_per_hour, 0, ',', '.') }}</div>
+                        <div class="info-label">Harga Sewa</div>
+                        <div class="info-value">Rp {{ number_format($isEventRental ? $pricePerEvent : $pricePerHour, 0, ',', '.') }}</div>
                     </div>
                 </div>
                 <div>
                     <div class="info-item">
-                        <div class="info-label">Durasi Main</div>
-                        <div class="info-value">{{ $durationHours }} Jam</div>
+                        <div class="info-label">Tipe Sewa</div>
+                        <div class="info-value">{{ $isEventRental ? 'Event' : 'Per Jam' }}</div>
                     </div>
                 </div>
             </div>
@@ -284,20 +320,27 @@
         <!-- Performance Details -->
         <div class="section">
             <div class="section-title">Detail Pertunjukan</div>
-            <div class="grid-2">
-                <div>
-                    <div class="info-item">
-                        <div class="info-label">Waktu Mulai</div>
-                        <div class="info-value">{{ $rental->performance_start_time ?? '-' }}</div>
+            @if($isEventRental)
+                <div class="info-item">
+                    <div class="info-label">Detail Acara</div>
+                    <div class="info-value">Sewa Event tanpa pembagian jam dan break</div>
+                </div>
+            @else
+                <div class="grid-2">
+                    <div>
+                        <div class="info-item">
+                            <div class="info-label">Waktu Mulai</div>
+                            <div class="info-value">{{ $rental->performance_start_time ?? '-' }}</div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="info-item">
+                            <div class="info-label">Waktu Berakhir</div>
+                            <div class="info-value">{{ $rental->performance_end_time ?? '-' }}</div>
+                        </div>
                     </div>
                 </div>
-                <div>
-                    <div class="info-item">
-                        <div class="info-label">Waktu Berakhir</div>
-                        <div class="info-value">{{ $rental->performance_end_time ?? '-' }}</div>
-                    </div>
-                </div>
-            </div>
+            @endif
             @if($rental->venue_address)
             <div>
                 <div class="info-item">
@@ -324,9 +367,9 @@
                 <tbody>
                     <tr>
                         <td class="text-left">Harga Penyewaan Band {{ $band->band_name }}</td>
-                        <td class="text-right">{{ $durationHours }} jam</td>
-                        <td class="text-right">Rp {{ number_format($band->price_per_hour, 0, ',', '.') }}</td>
-                        <td class="text-right">Rp {{ number_format($rental->harga_pokok, 0, ',', '.') }}</td>
+                        <td class="text-right">{{ $jumlahSatuan }}</td>
+                        <td class="text-right">Rp {{ number_format($hargaSatuan, 0, ',', '.') }}</td>
+                        <td class="text-right">Rp {{ number_format($hargaPokok, 0, ',', '.') }}</td>
                     </tr>
                 </tbody>
             </table>
@@ -335,7 +378,7 @@
                 @if($rental->diskon_nominal > 0)
                 <div class="calc-row">
                     <span class="calc-label">Harga Pokok</span>
-                    <span class="calc-value">Rp {{ number_format($rental->harga_pokok, 0, ',', '.') }}</span>
+                    <span class="calc-value">Rp {{ number_format($hargaPokok, 0, ',', '.') }}</span>
                 </div>
                 <div class="calc-row">
                     <span class="calc-label">Diskon ({{ $rental->diskon_persen }}%)</span>
@@ -344,7 +387,7 @@
                 @endif
                 <div class="calc-row total">
                     <span class="calc-label">TOTAL HARGA</span>
-                    <span class="calc-value">Rp {{ number_format($rental->harga_final, 0, ',', '.') }}</span>
+                    <span class="calc-value">Rp {{ number_format($rental->harga_final ?? max(0, $hargaPokok - ($rental->diskon_nominal ?? 0)), 0, ',', '.') }}</span>
                 </div>
             </div>
         </div>

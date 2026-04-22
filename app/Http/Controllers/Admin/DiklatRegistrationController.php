@@ -38,7 +38,7 @@ class DiklatRegistrationController extends Controller
             });
         }
 
-        $registrations = $query->latest()->paginate(10)->withQueryString();
+        $registrations = $query->orderBy('tahun_masuk', 'desc')->orderBy('nama_lengkap', 'asc')->paginate(10)->withQueryString();
 
         // Statistics
         $stats = [

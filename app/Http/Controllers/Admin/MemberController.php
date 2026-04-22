@@ -37,7 +37,7 @@ class MemberController extends Controller
             });
         }
 
-        $members = $query->latest()->paginate(10)->withQueryString();
+        $members = $query->orderBy('angkatan', 'desc')->orderBy('nama_lengkap', 'asc')->paginate(10)->withQueryString();
 
         // Get available angkatan for filter
         $angkatanList = Member::distinct()->pluck('angkatan')->filter()->sort()->values();

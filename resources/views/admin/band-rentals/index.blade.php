@@ -98,7 +98,7 @@
                             @endif
                             <div>
                                 <p class="font-semibold text-gray-900">{{ $rental->band->band_name }}</p>
-                                <p class="text-xs text-gray-500">{{ $rental->band->members_count ?? 0 }} personil</p>
+                                <p class="text-xs text-gray-500">{{ $rental->band->members->count() }} personil</p>
                             </div>
                         </div>
                     </td>

@@ -168,7 +168,7 @@
                         </td>
                         <td class="px-6 py-4">
                             <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold overflow-hidden">
+                                <div class="w-10 h-10 aspect-square rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex-none shrink-0 flex items-center justify-center text-white font-bold overflow-hidden">
                                     @if($member->foto)
                                     <img src="{{ asset('storage/' . $member->foto) }}" alt="{{ $member->nama_lengkap }}" class="w-full h-full object-cover">
                                     @else
