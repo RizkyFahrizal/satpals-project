@@ -28,7 +28,7 @@
                         <option value="">Semua Status</option>
                         @foreach($statuses as $status)
                         <option value="{{ $status }}" {{ $selectedStatus === $status ? 'selected' : '' }}>
-                            {{ ucfirst($status) }}
+                            {{ $status === 'completed' ? 'Selesai' : ($status === 'cancelled' ? 'Dibatalkan' : ucfirst($status)) }}
                         </option>
                         @endforeach
                     </select>
@@ -79,10 +79,10 @@
                         <span class="badge badge-lg {{ 
                             $booking->status === 'pending' ? 'badge-warning' :
                             ($booking->status === 'approved' ? 'badge-info' :
-                            ($booking->status === 'in_progress' ? 'badge-primary' :
-                            ($booking->status === 'done' ? 'badge-success' : 'badge-error')))
+                            ($booking->status === 'completed' || $booking->status === 'done' ? 'badge-success' :
+                            ($booking->status === 'cancelled' ? 'badge-neutral' : 'badge-error')))
                         }}">
-                            {{ ucfirst($booking->status) }}
+                            {{ $booking->status === 'completed' ? 'Selesai' : ($booking->status === 'done' ? 'Selesai' : ($booking->status === 'cancelled' ? 'Dibatalkan' : ucfirst($booking->status))) }}
                         </span>
                         <a href="{{ route('bookings.show', $booking) }}" class="btn btn-sm btn-ghost">
                             <i class="fas fa-arrow-right"></i>

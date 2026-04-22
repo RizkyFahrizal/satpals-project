@@ -25,7 +25,7 @@ class BookingController extends Controller
         }
 
         $bookings = $query->orderBy('created_at', 'desc')->paginate(10);
-        $statuses = ['pending', 'approved', 'rejected', 'in_progress', 'done'];
+        $statuses = ['pending', 'approved', 'rejected', 'cancelled', 'completed'];
 
         return view('bookings.index', [
             'bookings' => $bookings,

@@ -31,7 +31,7 @@ class BookingApprovedMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Pesanan Disetujui - Invoice ' . $this->booking->order_number,
+            subject: 'Permintaan Persewaan Alat Disetujui - Invoice ' . $this->booking->order_number,
         );
     }
 
@@ -44,6 +44,7 @@ class BookingApprovedMail extends Mailable
             view: 'emails.booking_approved',
             with: [
                 'booking' => $this->booking,
+                'adminWhatsApp' => config('contact.cp_peralatan', env('CONTACT_CP_PERALATAN', '')),
             ],
         );
     }

@@ -18,6 +18,8 @@ class FinancialDashboardController extends Controller
         // Get date range from request or default to current month
         $startDate = $request->start_date ? Carbon::parse($request->start_date) : Carbon::now()->startOfMonth();
         $endDate = $request->end_date ? Carbon::parse($request->end_date) : Carbon::now()->endOfMonth();
+        $searchTerm = trim((string) $request->get('search', ''));
+        $searchBy = $request->get('search_by', 'all');
 
         // Calculate totals for the period
         $totalIncome = Income::approved()->whereBetween('created_at', [$startDate, $endDate])->sum('nominal');
@@ -70,6 +72,7 @@ class FinancialDashboardController extends Controller
             $allTransactions->push([
                 'id' => $expense->id,
                 'title' => $expense->title,
+                'description' => $expense->description,
                 'nominal' => $expense->nominal,
                 'creator' => $expense->creator,
                 'creator_name' => $expense->creator_name ?? $expense->creator?->name ?? 'Admin',
@@ -87,6 +90,7 @@ class FinancialDashboardController extends Controller
             $allTransactions->push([
                 'id' => $income->id,
                 'title' => $income->title,
+                'description' => $income->description,
                 'nominal' => $income->nominal,
                 'creator' => $income->creator,
                 'creator_name' => $income->creator_name ?? $income->creator?->name ?? 'Admin',
@@ -128,6 +132,34 @@ class FinancialDashboardController extends Controller
         }
 
         // Reset indices after filtering
+        if ($searchTerm !== '') {
+            $normalizedSearch = mb_strtolower($searchTerm);
+
+            $allTransactions = $allTransactions->filter(function ($transaction) use ($normalizedSearch, $searchBy) {
+                $fields = [];
+
+                if ($searchBy === 'all' || $searchBy === 'title') {
+                    $fields[] = $transaction['title'] ?? '';
+                }
+
+                if ($searchBy === 'all' || $searchBy === 'description') {
+                    $fields[] = $transaction['description'] ?? '';
+                }
+
+                if ($searchBy === 'all' || $searchBy === 'creator') {
+                    $fields[] = $transaction['creator_name'] ?? '';
+                }
+
+                foreach ($fields as $field) {
+                    if ($field !== '' && str_contains(mb_strtolower((string) $field), $normalizedSearch)) {
+                        return true;
+                    }
+                }
+
+                return false;
+            });
+        }
+
         $allTransactions = $allTransactions->values();
 
         return view('admin.financial.financial-dashboard', compact(
@@ -141,7 +173,9 @@ class FinancialDashboardController extends Controller
             'pendingIncomeCount',
             'startDate',
             'endDate',
-            'allTransactions'
+            'allTransactions',
+            'searchTerm',
+            'searchBy'
         ));
     }
 }

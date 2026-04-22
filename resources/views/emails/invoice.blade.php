@@ -381,6 +381,12 @@
 
             <!-- Items Table -->
             <div class="section-title">Detail Peralatan</div>
+            @php
+                $subtotal = (int) ($booking->harga_pokok ?? $booking->total_price ?? 0);
+                $diskonPersen = (int) ($booking->diskon_persen ?? 0);
+                $diskonNominal = (int) ($booking->diskon_nominal ?? 0);
+                $totalPembayaran = (int) ($booking->harga_final ?? max(0, $subtotal - $diskonNominal));
+            @endphp
             <table class="items-table">
                 <thead>
                     <tr>
@@ -414,15 +420,15 @@
                 <div class="summary-box">
                     <div class="summary-row">
                         <span>Subtotal:</span>
-                        <span>Rp {{ number_format($booking->total_price, 0, ',', '.') }}</span>
+                        <span>Rp {{ number_format($subtotal, 0, ',', '.') }}</span>
                     </div>
                     <div class="summary-row">
-                        <span>Pajak (10%):</span>
-                        <span>Rp {{ number_format($booking->total_price * 0.1, 0, ',', '.') }}</span>
+                        <span>Diskon:</span>
+                        <span>- Rp {{ number_format($diskonNominal, 0, ',', '.') }} ({{ $diskonPersen }}%)</span>
                     </div>
                     <div class="summary-row total">
                         <span>TOTAL PEMBAYARAN:</span>
-                        <span>Rp {{ number_format($booking->total_price * 1.1, 0, ',', '.') }}</span>
+                        <span>Rp {{ number_format($totalPembayaran, 0, ',', '.') }}</span>
                     </div>
                 </div>
             </div>

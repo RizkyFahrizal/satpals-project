@@ -64,6 +64,7 @@ Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.in
 Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
 
 Route::get('/bookings', [BookingController::class, 'index'])->name('bookings.index');
+Route::get('/bookings/success', [CheckoutController::class, 'success'])->name('bookings.success');
 Route::get('/bookings/{booking}', [BookingController::class, 'show'])->name('bookings.show');
 
 // Invoice PDF (Public)

@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\EquipmentRentalRequest;
 use App\Models\EquipmentRentalRequestItem;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 
 class CheckoutController extends Controller
 {
@@ -48,7 +47,7 @@ class CheckoutController extends Controller
             'renter_ktp_ktm' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
             'rental_location' => 'required|string',
             'start_date' => 'required|date|after_or_equal:today',
-            'end_date' => 'required|date|after:start_date',
+            'end_date' => 'required|date|after_or_equal:start_date',
             'notes' => 'nullable|string',
         ]);
 
@@ -66,10 +65,10 @@ class CheckoutController extends Controller
                 $ktp_path = $request->file('renter_ktp_ktm')->store('ktp_ktm', 'public');
             }
 
-            // Calculate duration
+            // Calculate duration (inclusive)
             $start = \Carbon\Carbon::parse($request->start_date);
             $end = \Carbon\Carbon::parse($request->end_date);
-            $duration_days = $end->diffInDays($start) ?: 1;
+            $duration_days = $start->diffInDays($end) + 1;
 
             // Calculate total price
             $total_price = 0;
@@ -77,12 +76,8 @@ class CheckoutController extends Controller
                 $total_price += ($item['price_per_day'] * $duration_days * $item['quantity']);
             }
 
-            // Create order number
-            $order_number = 'ORD-' . date('Ymd') . '-' . Str::random(6);
-
             // Create request
             $request_record = EquipmentRentalRequest::create([
-                'order_number' => $order_number,
                 'renter_name' => $validated['renter_name'],
                 'renter_npm_nik' => $validated['renter_npm_nik'],
                 'renter_phone' => $validated['renter_phone'],
@@ -111,7 +106,10 @@ class CheckoutController extends Controller
             }
 
             // Clear cart
+
+                $order_number = $request_record->order_number;
             session()->forget('cart');
+            session()->flash('booking_id', $request_record->id);
 
             // Send confirmation email to user
             \Mail::send('emails.booking_confirmation', [
@@ -125,11 +123,33 @@ class CheckoutController extends Controller
                     ->subject('Konfirmasi Pesanan - Satya Palapa Rent');
             });
 
-            return redirect()->route('bookings.show', $request_record->id)
+            return redirect()->route('bookings.success')
                 ->with('success', 'Pesanan berhasil dibuat! Nomor pesanan Anda: ' . $order_number);
         } catch (\Exception $e) {
             return redirect()->back()
                 ->with('error', 'Gagal membuat pesanan: ' . $e->getMessage());
         }
+    }
+
+    /**
+     * Show success page after checkout
+     */
+    public function success()
+    {
+        $bookingId = session('booking_id');
+
+        if (!$bookingId) {
+            return redirect()->route('checkout.index')
+                ->with('error', 'Pesanan tidak ditemukan.');
+        }
+
+        $booking = EquipmentRentalRequest::with(['items.equipment'])->find($bookingId);
+
+        if (!$booking) {
+            return redirect()->route('checkout.index')
+                ->with('error', 'Pesanan tidak ditemukan.');
+        }
+
+        return view('bookings.success', compact('booking'));
     }
 }

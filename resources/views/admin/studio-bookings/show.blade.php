@@ -281,7 +281,6 @@
                         </div>
 
                         <div class="space-y-2">
-                            <a href="{{ route('invoice.view', $booking->id) }}" target="_blank" class="btn btn-outline btn-primary btn-sm w-full">Lihat Invoice</a>
                             <a href="{{ route('invoice.download', $booking->id) }}" class="btn btn-primary btn-sm w-full">Download Invoice</a>
                             <form action="{{ route('admin.studio-bookings.complete', $booking->id) }}" method="POST">
                                 @csrf
