@@ -44,6 +44,7 @@ class BookingApprovedMail extends Mailable
             view: 'emails.booking_approved',
             with: [
                 'booking' => $this->booking,
+                'adminWhatsApp' => config('contact.cp_peralatan', env('CONTACT_CP_PERALATAN', '')),
             ],
         );
     }

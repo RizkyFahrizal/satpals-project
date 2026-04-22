@@ -21,6 +21,10 @@ class EquipmentRentalRequest extends Model
         'end_date',
         'duration_days',
         'total_price',
+        'harga_pokok',
+        'diskon_persen',
+        'diskon_nominal',
+        'harga_final',
         'renter_notes',
         'status',
         'admin_notes',
@@ -34,6 +38,10 @@ class EquipmentRentalRequest extends Model
         'end_date' => 'date',
         'approved_at' => 'datetime',
         'total_price' => 'decimal:2',
+        'harga_pokok' => 'integer',
+        'diskon_persen' => 'integer',
+        'diskon_nominal' => 'integer',
+        'harga_final' => 'integer',
     ];
 
     /**

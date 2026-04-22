@@ -99,10 +99,10 @@
         <table class="w-full">
             <thead class="bg-gray-50 border-b border-gray-200">
                 <tr>
+                    <th class="px-6 py-4 text-center text-sm font-semibold text-gray-700">Action</th>
                     <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Penyewa</th>
                     <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Tanggal Sewa</th>
                     <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Kode Sewa</th>
-                    <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Kategori Rental</th>
                     <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Status</th>
                     <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Dibuat</th>
                     <th class="px-6 py-4 text-center text-sm font-semibold text-gray-700">Aksi</th>
@@ -110,7 +110,20 @@
             </thead>
             <tbody>
                 @forelse($requests as $request)
-                <tr class="border-b border-gray-100 hover:bg-yellow-50/30 transition">
+                <tr class="border-b border-gray-100 hover:bg-yellow-50/30 transition align-top">
+                    <td class="px-6 py-4">
+                        <div class="flex justify-center">
+                            <button
+                                type="button"
+                                class="toggle-preview flex items-center justify-center w-10 h-10 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition border border-blue-200"
+                                data-target="preview-row-{{ $request->id }}"
+                                aria-expanded="false"
+                                aria-label="Lihat preview item"
+                            >
+                                <i class="fas fa-chevron-down text-base"></i>
+                            </button>
+                        </div>
+                    </td>
                     <td class="px-6 py-4">
                         <div>
                             <p class="font-semibold text-gray-900">{{ $request->renter_name }}</p>
@@ -126,21 +139,6 @@
                     <td class="px-6 py-4">
                         <span class="inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-bold bg-blue-100 text-blue-700 border border-blue-300">
                             {{ $request->order_number }}
-                        </span>
-                    </td>
-                    <td class="px-6 py-4">
-                        @php
-                            $rentalCategories = $request->items
-                                ->map(fn ($item) => $item->equipment->category ?? null)
-                                ->filter()
-                                ->unique()
-                                ->values();
-                            $rentalCategoryLabel = $rentalCategories->count() === 1
-                                ? ucfirst($rentalCategories->first())
-                                : 'Campuran';
-                        @endphp
-                        <span class="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium {{ $rentalCategoryLabel === 'Paket' ? 'bg-amber-50 text-amber-700 border border-amber-200' : ($rentalCategoryLabel === 'Satuan' ? 'bg-orange-50 text-orange-700 border border-orange-200' : 'bg-gray-50 text-gray-700 border border-gray-200') }}">
-                            {{ $rentalCategoryLabel }}
                         </span>
                     </td>
                     <td class="px-6 py-4">
@@ -188,6 +186,72 @@
                         </div>
                     </td>
                 </tr>
+                <tr id="preview-row-{{ $request->id }}" class="preview-row border-b border-gray-100 bg-slate-50">
+                    <td colspan="7" class="p-0">
+                        <div class="preview-panel max-h-0 opacity-0 overflow-hidden transition-all duration-300 ease-in-out">
+                            <div class="px-6 py-5">
+                                <div class="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden">
+                                    <div class="border-b border-gray-200 bg-gray-50 px-4 py-3 flex items-center justify-between gap-3">
+                                        <div>
+                                            <p class="font-semibold text-gray-900">Preview Item Sewa</p>
+                                            <p class="text-xs text-gray-500">Detail barang yang disewa hanya untuk preview</p>
+                                        </div>
+                                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200">
+                                            {{ $request->items->count() }} item
+                                        </span>
+                                    </div>
+                                    <div class="overflow-x-auto">
+                                        <table class="w-full min-w-[700px] text-sm">
+                                            <thead class="bg-white">
+                                                <tr class="border-b border-gray-200 text-left text-gray-500">
+                                                    <th class="px-4 py-3 font-medium w-16">No.</th>
+                                                    <th class="px-4 py-3 font-medium">Barang</th>
+                                                    <th class="px-4 py-3 font-medium text-center">Kategori</th>
+                                                    <th class="px-4 py-3 font-medium text-center">Qty</th>
+                                                    <th class="px-4 py-3 font-medium text-right">Harga / Item</th>
+                                                    <th class="px-4 py-3 font-medium text-right">Total</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach($request->items as $itemIndex => $item)
+                                                    <tr class="border-b border-gray-100 last:border-b-0 hover:bg-yellow-50/30 transition">
+                                                        <td class="px-4 py-3 text-gray-500">{{ $itemIndex + 1 }}</td>
+                                                        <td class="px-4 py-3 font-medium text-gray-900">
+                                                            {{ $item->equipment->name ?? 'Peralatan' }}
+                                                        </td>
+                                                        <td class="px-4 py-3 text-center">
+                                                            @php $itemCategory = ucfirst($item->equipment->category ?? '-'); @endphp
+                                                            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold {{ $itemCategory === 'Paket' ? 'bg-amber-50 text-amber-700 border border-amber-200' : ($itemCategory === 'Satuan' ? 'bg-orange-50 text-orange-700 border border-orange-200' : 'bg-gray-50 text-gray-700 border border-gray-200') }}">
+                                                                {{ $itemCategory }}
+                                                            </span>
+                                                        </td>
+                                                        <td class="px-4 py-3 text-center text-gray-700">
+                                                            {{ $item->quantity }}
+                                                        </td>
+                                                        <td class="px-4 py-3 text-right text-gray-700 whitespace-nowrap">
+                                                            Rp {{ number_format((float) $item->price_per_day, 0, ',', '.') }}
+                                                        </td>
+                                                        <td class="px-4 py-3 text-right font-semibold text-gray-900 whitespace-nowrap">
+                                                            Rp {{ number_format((float) $item->subtotal, 0, ',', '.') }}
+                                                        </td>
+                                                    </tr>
+                                                @endforeach
+                                            </tbody>
+                                            <tfoot>
+                                                <tr class="bg-yellow-50 border-t border-yellow-200">
+                                                    <td colspan="5" class="px-4 py-3 text-right font-semibold text-yellow-800">Total Keseluruhan</td>
+                                                    <td class="px-4 py-3 text-right font-bold text-yellow-900 whitespace-nowrap">
+                                                        Rp {{ number_format((float) $request->total_price, 0, ',', '.') }}
+                                                    </td>
+                                                </tr>
+                                            </tfoot>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
                 @empty
                 @endforelse
             </tbody>
@@ -208,4 +272,60 @@
     </div>
     @endif
 </div>
+
+@endsection
+
+@section('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.toggle-preview').forEach(function (button) {
+            button.addEventListener('click', function () {
+                const targetId = button.getAttribute('data-target');
+                const targetRow = document.getElementById(targetId);
+                const targetPanel = targetRow ? targetRow.querySelector('.preview-panel') : null;
+                const icon = button.querySelector('i');
+
+                if (!targetRow || !targetPanel) {
+                    return;
+                }
+
+                const isOpen = targetPanel.dataset.open === 'true';
+                const nextOpen = !isOpen;
+
+                targetPanel.dataset.open = nextOpen ? 'true' : 'false';
+                button.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+
+                icon.classList.remove('fa-chevron-up', 'fa-chevron-down');
+
+                if (nextOpen) {
+                    targetPanel.style.maxHeight = targetPanel.scrollHeight + 'px';
+                    targetPanel.classList.remove('opacity-0');
+                    targetPanel.classList.add('opacity-100');
+                    icon.classList.add('fa-chevron-up');
+                    button.setAttribute('aria-expanded', 'true');
+                } else {
+                    targetPanel.style.maxHeight = targetPanel.scrollHeight + 'px';
+                    targetPanel.offsetHeight;
+                    targetPanel.style.maxHeight = '0px';
+                    targetPanel.classList.remove('opacity-100');
+                    targetPanel.classList.add('opacity-0');
+                    icon.classList.add('fa-chevron-down');
+                    button.setAttribute('aria-expanded', 'false');
+                }
+            });
+        });
+
+        document.querySelectorAll('.preview-panel').forEach(function (panel) {
+            panel.dataset.open = 'false';
+            panel.style.maxHeight = '0px';
+            panel.classList.add('opacity-0');
+
+            panel.addEventListener('transitionend', function (event) {
+                if (event.propertyName === 'max-height' && panel.dataset.open === 'true') {
+                    panel.style.maxHeight = 'none';
+                }
+            });
+        });
+    });
+</script>
 @endsection

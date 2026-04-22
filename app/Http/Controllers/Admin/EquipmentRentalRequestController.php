@@ -23,7 +23,7 @@ class EquipmentRentalRequestController extends Controller
     public function index(Request $request)
     {
         try {
-            $query = EquipmentRentalRequest::query();
+            $query = EquipmentRentalRequest::with(['items.equipment']);
 
             // Filter by status
             if ($request->has('status') && $request->status !== null && $request->status !== '') {
@@ -109,22 +109,41 @@ class EquipmentRentalRequestController extends Controller
      * @param int $id
      * @return \Illuminate\Http\Response
      */
-    public function approve($id)
+    public function approve(Request $request, $id)
     {
         try {
-            $rentalRequest = EquipmentRentalRequest::findOrFail($id);
+            $rentalRequest = EquipmentRentalRequest::with('items.equipment')->findOrFail($id);
 
             if ($rentalRequest->status !== 'pending') {
                 return redirect()->route('admin.equipment-rental-requests.index')
                     ->with('error', 'Hanya permintaan yang pending yang dapat disetujui.');
             }
 
+            $validated = $request->validate([
+                'harga_pokok' => 'required|numeric|min:0',
+                'diskon_persen' => 'nullable|numeric|min:0|max:100',
+                'diskon_nominal' => 'nullable|numeric|min:0',
+                'admin_notes' => 'nullable|string',
+            ]);
+
+            $hargaPokok = (int) $validated['harga_pokok'];
+            $diskonPersen = (int) ($validated['diskon_persen'] ?? 0);
+            $diskonNominal = (int) ($validated['diskon_nominal'] ?? 0);
+
+            if ($diskonPersen > 0) {
+                $diskonNominal = (int) floor($hargaPokok * $diskonPersen / 100);
+            } elseif ($diskonNominal > 0) {
+                $diskonPersen = $hargaPokok > 0 ? (int) floor($diskonNominal * 100 / $hargaPokok) : 0;
+            }
+
+            $hargaFinal = max(0, $hargaPokok - $diskonNominal);
+
             DB::beginTransaction();
 
             $income = Income::create([
                 'title' => 'Persewaan Alat - ' . $rentalRequest->order_number,
                 'description' => 'Persewaan Alat - ' . $rentalRequest->order_number,
-                'nominal' => $rentalRequest->total_price,
+                'nominal' => $hargaFinal,
                 'source' => 'Persewaan Alat',
                 'status' => 'pending',
                 'income_date' => now(),
@@ -134,11 +153,14 @@ class EquipmentRentalRequestController extends Controller
 
             $rentalRequest->update([
                 'status' => 'approved',
+                'harga_pokok' => $hargaPokok,
+                'diskon_persen' => $diskonPersen,
+                'diskon_nominal' => $diskonNominal,
+                'harga_final' => $hargaFinal,
                 'approved_at' => now(),
                 'approved_by' => Auth::id(),
                 'income_id' => $income->id,
-                'admin_notes' => ($rentalRequest->admin_notes ? $rentalRequest->admin_notes . "\n" : '') .
-                    "[Disetujui oleh " . Auth::user()->name . " pada " . now()->format('d-m-Y H:i:s') . "]",
+                'admin_notes' => $validated['admin_notes'] ?? $rentalRequest->admin_notes,
             ]);
 
             // Send approval email
@@ -147,11 +169,16 @@ class EquipmentRentalRequestController extends Controller
             DB::commit();
 
             return redirect()->route('admin.equipment-rental-requests.show', $id)
-                ->with('success', 'Permintaan rental berhasil disetujui. Income telah dibuat dan invoice dikirim ke email pelanggan.');
+                ->with('success', 'Permintaan rental berhasil disetujui. Harga final: Rp ' . number_format($hargaFinal, 0, ',', '.') . ' dan invoice telah dikirim ke email pelanggan.');
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             DB::rollBack();
             return redirect()->route('admin.equipment-rental-requests.index')
                 ->with('error', 'Permintaan rental tidak ditemukan.');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            DB::rollBack();
+            return redirect()->back()
+                ->withErrors($e->errors())
+                ->withInput();
         } catch (\Exception $e) {
             DB::rollBack();
             return redirect()->route('admin.equipment-rental-requests.index')
@@ -227,22 +254,43 @@ class EquipmentRentalRequestController extends Controller
                     ->with('error', 'Hanya permintaan yang disetujui yang dapat dibatalkan.');
             }
 
+            $validated = request()->validate([
+                'cancellation_reason' => 'required|string|min:10',
+            ]);
+
             DB::beginTransaction();
+
+            if ($rentalRequest->income_id) {
+                $income = Income::find($rentalRequest->income_id);
+                if ($income) {
+                    $income->update([
+                        'status' => 'rejected',
+                        'description' => ($income->description ? $income->description . "\n\n" : '') .
+                            'Pembatalan Persewaan Alat: ' . $validated['cancellation_reason'],
+                    ]);
+                }
+            }
 
             $rentalRequest->update([
                 'status' => 'cancelled',
                 'admin_notes' => ($rentalRequest->admin_notes ? $rentalRequest->admin_notes . "\n" : '') .
-                    "[Dibatalkan oleh " . Auth::user()->name . " pada " . now()->format('d-m-Y H:i:s') . "]",
+                    "[Dibatalkan oleh " . Auth::user()->name . " pada " . now()->format('d-m-Y H:i:s') . "]\n" .
+                    "Alasan: " . $validated['cancellation_reason'],
             ]);
 
             DB::commit();
 
             return redirect()->route('admin.equipment-rental-requests.show', $id)
-                ->with('success', 'Permintaan rental berhasil dibatalkan.');
+                ->with('success', 'Permintaan rental berhasil dibatalkan dan status pemasukan telah diubah menjadi rejected.');
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             DB::rollBack();
             return redirect()->route('admin.equipment-rental-requests.index')
                 ->with('error', 'Permintaan rental tidak ditemukan.');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            DB::rollBack();
+            return redirect()->back()
+                ->withErrors($e->errors())
+                ->withInput();
         } catch (\Exception $e) {
             DB::rollBack();
             return redirect()->route('admin.equipment-rental-requests.index')

@@ -10,7 +10,8 @@
 		$logoPath = public_path('assets/images/logoukm.png');
 		$logoBase64 = file_exists($logoPath) ? 'data:image/png;base64,' . base64_encode(file_get_contents($logoPath)) : null;
 		$bankAccount = env('UKM_BANK_ACCOUNT', '2141375549');
-		$adminNumber = preg_replace('/[^0-9]/', '', $adminWhatsApp ?? env('CONTACT_CP_BAND', ''));
+		$paymentContact = $adminWhatsApp ?? config('contact.cp_peralatan', env('CONTACT_CP_PERALATAN', ''));
+		$adminNumber = preg_replace('/[^0-9]/', '', $paymentContact);
 		$confirmText = rawurlencode('Halo admin, saya telah melakukan pembayaran booking studio ' . ($booking->booking_code ?? $booking->id) . '. Berikut bukti transfer saya.');
 	@endphp
 	<div style="max-width:640px;margin:0 auto;padding:24px;">
@@ -24,6 +25,7 @@
 
 		<div style="background:#fff;padding:28px;border-radius:0 0 16px 16px;box-shadow:0 10px 25px rgba(0,0,0,.06);">
 			<p style="margin:0 0 16px;font-size:15px;line-height:1.6;">Halo <strong>{{ $booking->nama_pemohon }}</strong>, booking studio Anda sudah disetujui admin Satya Palapa.</p>
+			<p style="margin:0 0 16px;font-size:14px;line-height:1.6;color:#374151;">Di email ini juga terlampir invoice PDF sebagai bukti transaksi dan rincian harga booking Anda.</p>
 
 			<div style="background:#fefce8;border-left:4px solid #f59e0b;padding:16px;border-radius:12px;margin:20px 0;">
 				<h2 style="margin:0 0 12px;font-size:18px;color:#92400e;">Detail Booking</h2>
@@ -54,8 +56,9 @@
 			@endif
 
 			<div style="background:#ecfdf5;border-left:4px solid #10b981;padding:16px;border-radius:12px;margin:20px 0;">
-				<p style="margin:0 0 10px;font-size:14px;color:#065f46;line-height:1.6;">Setelah transfer, silakan konfirmasi pembayaran via WhatsApp admin:</p>
-				<a href="https://wa.me/{{ $adminNumber }}?text={{ $confirmText }}" style="display:inline-block;background:#10b981;color:#fff;text-decoration:none;padding:12px 18px;border-radius:10px;font-weight:bold;">💬 Konfirmasi Pembayaran via WhatsApp</a>
+				<p style="margin:0 0 10px;font-size:14px;color:#065f46;line-height:1.6;">Setelah transfer, silakan kirim bukti pembayaran ke CP Peralatan melalui WhatsApp di bawah ini:</p>
+				<a href="https://wa.me/{{ $adminNumber }}?text={{ $confirmText }}" style="display:inline-block;background:#10b981;color:#fff;text-decoration:none;padding:12px 18px;border-radius:10px;font-weight:bold;">💬 Kirim Bukti Pembayaran</a>
+				<p style="margin:10px 0 0;font-size:12px;color:#047857;">Kontak CP Peralatan: {{ $paymentContact }}</p>
 			</div>
 
 			<p style="margin:0;font-size:14px;color:#374151;">Terima kasih,<br><strong>Satya Palapa</strong></p>

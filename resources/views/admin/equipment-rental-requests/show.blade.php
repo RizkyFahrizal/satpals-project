@@ -5,6 +5,13 @@
 @section('breadcrumb', 'Manajemen Persewaan')
 
 @section('content')
+@php
+    $hargaPokok = (int) ($rentalRequest->harga_pokok ?? $rentalRequest->total_price ?? 0);
+    $diskonPersen = (int) ($rentalRequest->diskon_persen ?? 0);
+    $diskonNominal = (int) ($rentalRequest->diskon_nominal ?? 0);
+    $hargaFinal = (int) ($rentalRequest->harga_final ?? max(0, $hargaPokok - $diskonNominal));
+    $isApproved = in_array($rentalRequest->status, ['approved', 'completed', 'done'], true);
+@endphp
 <div class="container mx-auto px-4 py-8">
     <div class="mb-8 flex items-start justify-between gap-4">
         <div>
@@ -108,59 +115,321 @@
         </div>
 
         <div class="space-y-6">
-            <div class="bg-white rounded-2xl shadow-md border border-gray-100 p-6">
-                <h3 class="font-semibold text-gray-900 mb-4">Ringkasan</h3>
-                <div class="space-y-3 text-sm">
-                    <div class="flex justify-between gap-4"><span class="text-gray-500">Total Harga</span><span class="font-semibold text-gray-900">Rp {{ number_format($rentalRequest->total_price, 0, ',', '.') }}</span></div>
-                    <div class="flex justify-between gap-4"><span class="text-gray-500">Tanggal Dibuat</span><span class="font-semibold text-gray-900">{{ $rentalRequest->created_at->format('d M Y H:i') }}</span></div>
-                    <div class="flex justify-between gap-4"><span class="text-gray-500">Disetujui</span><span class="font-semibold text-gray-900">{{ $rentalRequest->approved_at?->format('d M Y H:i') ?? '-' }}</span></div>
-                </div>
-
-                @if($rentalRequest->income)
-                <div class="mt-4 p-4 rounded-xl bg-emerald-50 border border-emerald-200">
-                    <p class="text-sm text-emerald-700 font-semibold mb-1">Income Terkait</p>
-                    <p class="text-gray-900 font-bold">{{ $rentalRequest->income->title }}</p>
-                    <p class="text-sm text-gray-600">Rp {{ number_format($rentalRequest->income->nominal, 0, ',', '.') }} · {{ ucfirst($rentalRequest->income->status) }}</p>
-                </div>
-                @endif
-
-                @if(in_array($rentalRequest->status, ['approved', 'completed', 'done'], true))
-                <div class="mt-6 flex flex-col gap-3">
-                    <a href="{{ route('invoice.view', $rentalRequest->id) }}" class="btn btn-outline btn-warning w-full">Lihat Invoice</a>
-                    <a href="{{ route('invoice.download', $rentalRequest->id) }}" class="btn bg-yellow-400 text-gray-900 border-0 hover:bg-yellow-500 w-full">Download Invoice</a>
-                </div>
-                @endif
-            </div>
+            
 
             <div class="bg-white rounded-2xl shadow-md border border-gray-100 p-6">
                 <h3 class="font-semibold text-gray-900 mb-4">Aksi</h3>
-                <div class="space-y-3">
-                    @if($rentalRequest->status === 'pending')
-                        <form action="{{ route('admin.equipment-rental-requests.approve', $rentalRequest) }}" method="POST">
-                            @csrf
-                            @method('PATCH')
-                            <button class="btn bg-green-500 hover:bg-green-600 text-white border-0 w-full">Approve</button>
-                        </form>
-                        <form action="{{ route('admin.equipment-rental-requests.reject', $rentalRequest) }}" method="POST">
-                            @csrf
-                            @method('PATCH')
-                            <button class="btn bg-red-500 hover:bg-red-600 text-white border-0 w-full">Tolak</button>
-                        </form>
-                    @elseif($rentalRequest->status === 'approved')
-                        <form action="{{ route('admin.equipment-rental-requests.mark-in-progress', $rentalRequest) }}" method="POST">
-                            @csrf
-                            @method('PATCH')
-                            <button class="btn bg-gray-600 hover:bg-gray-700 text-white border-0 w-full">Batalkan</button>
-                        </form>
-                        <form action="{{ route('admin.equipment-rental-requests.complete', $rentalRequest) }}" method="POST">
-                            @csrf
-                            @method('PATCH')
-                            <button class="btn bg-emerald-500 hover:bg-emerald-600 text-white border-0 w-full">Selesai</button>
-                        </form>
-                    @endif
-                </div>
+
+                @if($rentalRequest->status === 'pending')
+                    <form id="approvalForm" action="{{ route('admin.equipment-rental-requests.approve', $rentalRequest) }}" method="POST" class="space-y-4">
+                        @csrf
+                        @method('PATCH')
+
+                        @if($errors->any())
+                        <div class="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+                            <ul class="list-disc pl-5 space-y-1">
+                                @foreach($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                        @endif
+
+                        <div class="grid grid-cols-1 gap-3">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Harga Pokok</label>
+                                <input type="text" id="hargaPokokDisplay" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-100 text-gray-700" value="Rp {{ number_format($hargaPokok, 0, ',', '.') }}" disabled>
+                                <input type="hidden" name="harga_pokok" id="hargaPokokHidden" value="{{ $hargaPokok }}">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Diskon (%)</label>
+                                <input type="number" id="diskonPersen" name="diskon_persen" min="0" max="100" placeholder="0" value="{{ old('diskon_persen') }}" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-gray-900 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 transition">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Diskon (Rp)</label>
+                                <input type="number" id="diskonNominal" name="diskon_nominal" min="0" placeholder="0" value="{{ old('diskon_nominal') }}" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-gray-900 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 transition">
+                            </div>
+
+                            <div class="rounded-xl border border-emerald-200 bg-emerald-50 p-4">
+                                <p class="text-sm text-gray-600 mb-1">Harga Final</p>
+                                <p class="text-xl font-bold text-emerald-700">Rp <span id="hargaFinalDisplay">{{ number_format($hargaFinal, 0, ',', '.') }}</span></p>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Catatan Admin</label>
+                                <textarea name="admin_notes" rows="3" placeholder="Catatan sebelum approve..." class="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-gray-900 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 transition">{{ old('admin_notes', $rentalRequest->admin_notes) }}</textarea>
+                            </div>
+                        </div>
+
+                        <div class="space-y-3">
+                            <button type="button" onclick="approvalModal.showModal()" class="btn btn-success w-full gap-2">
+                                <i class="fas fa-check"></i>
+                                Setujui
+                            </button>
+                            <button type="button" onclick="rejectModal.showModal()" class="btn btn-error w-full gap-2">
+                                <i class="fas fa-times"></i>
+                                Tolak
+                            </button>
+                        </div>
+                    </form>
+                @elseif($rentalRequest->status === 'approved')
+                    <div class="space-y-3">
+                        <div class="rounded-xl bg-green-50 border border-green-200 p-4">
+                            <p class="text-sm text-gray-600">Status</p>
+                            <p class="font-semibold text-green-700">Disetujui</p>
+                        </div>
+
+                        <div class="space-y-2">
+                            <a href="{{ route('invoice.download', $rentalRequest->id) }}" class="btn btn-primary w-full gap-2">
+                                <i class="fas fa-file-pdf"></i>
+                                Download Invoice
+                            </a>
+                        </div>
+
+                        <button type="button" onclick="cancelModal.showModal()" class="btn btn-error btn-outline w-full gap-2">
+                            <i class="fas fa-ban"></i>
+                            Batalkan
+                        </button>
+                        <button type="button" onclick="completeModal.showModal()" class="btn btn-info w-full gap-2">
+                            <i class="fas fa-flag-checkered"></i>
+                            Selesai
+                        </button>
+                    </div>
+                @elseif($rentalRequest->status === 'rejected')
+                    <div class="badge badge-error badge-lg">Ditolak</div>
+                @elseif($rentalRequest->status === 'cancelled')
+                    <div class="badge badge-error badge-lg">Dibatalkan</div>
+                @else
+                    <div class="badge badge-info badge-lg">Selesai</div>
+                @endif
             </div>
         </div>
     </div>
 </div>
+
+<dialog id="approvalModal" class="modal">
+    <div class="modal-box">
+        <h3 class="font-bold text-lg mb-4">Konfirmasi Persetujuan</h3>
+
+        <div class="space-y-3 mb-6">
+            <div class="bg-blue-50 p-3 rounded">
+                <p class="text-xs text-gray-600">Nomor Pesanan</p>
+                <p class="font-bold text-gray-800">{{ $rentalRequest->order_number }}</p>
+            </div>
+
+            <div class="bg-purple-50 p-3 rounded">
+                <p class="text-xs text-gray-600">Permintaan dari</p>
+                <p class="font-bold text-gray-800">{{ $rentalRequest->renter_name }}</p>
+            </div>
+
+            <div class="bg-green-50 p-3 rounded border-2 border-green-300">
+                <p class="text-xs text-gray-600">Harga Final</p>
+                <p class="font-bold text-green-600 text-lg">Rp <span id="modalHargaFinal">{{ number_format($hargaFinal, 0, ',', '.') }}</span></p>
+            </div>
+        </div>
+
+        <p class="text-center text-gray-700 mb-6">
+            <span class="font-semibold">Apakah anda yakin akan mengkonfirmasi</span> sewa alat <span class="font-bold">{{ $rentalRequest->order_number }}</span>
+            <span class="font-bold text-green-600">dengan harga Rp <span id="modalHargaFinalText">{{ number_format($hargaFinal, 0, ',', '.') }}</span></span>?
+        </p>
+
+        <div class="modal-action">
+            <button type="button" onclick="approvalModal.close()" class="btn">Batal</button>
+            <button type="button" onclick="submitApproval()" class="btn btn-success">
+                <i class="fas fa-check"></i> Ya, Setujui
+            </button>
+        </div>
+    </div>
+</dialog>
+
+<dialog id="rejectModal" class="modal">
+    <div class="modal-box">
+        <h3 class="font-bold text-lg mb-4">Konfirmasi Penolakan</h3>
+
+        <div class="space-y-3 mb-6">
+            <div class="bg-blue-50 p-3 rounded">
+                <p class="text-xs text-gray-600">Nomor Pesanan</p>
+                <p class="font-bold text-gray-800">{{ $rentalRequest->order_number }}</p>
+            </div>
+
+            <div class="bg-purple-50 p-3 rounded">
+                <p class="text-xs text-gray-600">Permintaan dari</p>
+                <p class="font-bold text-gray-800">{{ $rentalRequest->renter_name }}</p>
+            </div>
+        </div>
+
+        <p class="text-center text-gray-700 mb-4">
+            <span class="font-semibold">Apakah Anda yakin akan menolak</span> permintaan sewa alat ini?
+        </p>
+
+        <form action="{{ route('admin.equipment-rental-requests.reject', $rentalRequest) }}" method="POST">
+            @csrf
+            @method('PATCH')
+
+            <div class="form-control mb-4">
+                <label class="label">
+                    <span class="label-text font-semibold">Alasan Penolakan *</span>
+                </label>
+                <textarea name="rejection_reason" placeholder="Jelaskan alasan penolakan..." rows="3" class="textarea textarea-bordered" required></textarea>
+            </div>
+
+            <div class="modal-action">
+                <button type="button" onclick="rejectModal.close()" class="btn">Batal</button>
+                <button type="submit" class="btn btn-error">
+                    <i class="fas fa-times"></i> Ya, Tolak
+                </button>
+            </div>
+        </form>
+    </div>
+</dialog>
+
+<dialog id="cancelModal" class="modal">
+    <div class="modal-box">
+        <h3 class="font-bold text-lg mb-4 text-red-600">Batalkan Permintaan Sewa</h3>
+
+        <div class="space-y-3 mb-6">
+            <div class="bg-blue-50 p-3 rounded">
+                <p class="text-xs text-gray-600">Nomor Pesanan</p>
+                <p class="font-bold text-gray-800">{{ $rentalRequest->order_number }}</p>
+            </div>
+
+            <div class="bg-purple-50 p-3 rounded">
+                <p class="text-xs text-gray-600">Permintaan dari</p>
+                <p class="font-bold text-gray-800">{{ $rentalRequest->renter_name }}</p>
+            </div>
+
+            <div class="bg-red-50 p-3 rounded border-2 border-red-300">
+                <p class="text-xs text-gray-600">Status</p>
+                <p class="font-bold text-red-700">Akan dibatalkan</p>
+            </div>
+        </div>
+
+        <p class="text-center text-gray-700 mb-4">
+            <span class="font-semibold">Apakah anda yakin akan membatalkan</span> sewa alat <span class="font-bold">{{ $rentalRequest->order_number }}</span>?
+        </p>
+
+        <form action="{{ route('admin.equipment-rental-requests.mark-in-progress', $rentalRequest) }}" method="POST" class="space-y-4">
+            @csrf
+            @method('PATCH')
+
+            <div class="form-control mb-4">
+                <label class="label">
+                    <span class="label-text font-semibold">Alasan Pembatalan *</span>
+                </label>
+                <textarea name="cancellation_reason" rows="4" class="textarea textarea-bordered" placeholder="Jelaskan alasan pembatalan..." required minlength="10"></textarea>
+            </div>
+
+            <div class="modal-action">
+                <button type="button" onclick="cancelModal.close()" class="btn">Batal</button>
+                <button type="submit" class="btn btn-error">
+                    <i class="fas fa-ban"></i> Ya, Batalkan
+                </button>
+            </div>
+        </form>
+    </div>
+</dialog>
+
+<dialog id="completeModal" class="modal">
+    <div class="modal-box">
+        <h3 class="font-bold text-lg mb-4">Konfirmasi Selesai</h3>
+
+        <div class="space-y-3 mb-6">
+            <div class="bg-blue-50 p-3 rounded">
+                <p class="text-xs text-gray-600">Nomor Pesanan</p>
+                <p class="font-bold text-gray-800">{{ $rentalRequest->order_number }}</p>
+            </div>
+
+            <div class="bg-purple-50 p-3 rounded">
+                <p class="text-xs text-gray-600">Permintaan dari</p>
+                <p class="font-bold text-gray-800">{{ $rentalRequest->renter_name }}</p>
+            </div>
+
+            <div class="bg-emerald-50 p-3 rounded border-2 border-emerald-300">
+                <p class="text-xs text-gray-600">Status</p>
+                <p class="font-bold text-emerald-700">Akan ditandai selesai</p>
+            </div>
+        </div>
+
+        <p class="text-center text-gray-700 mb-6">
+            <span class="font-semibold">Apakah anda yakin ingin menandai</span> permintaan sewa alat <span class="font-bold">{{ $rentalRequest->order_number }}</span> sebagai selesai?
+        </p>
+
+        <form action="{{ route('admin.equipment-rental-requests.complete', $rentalRequest) }}" method="POST" class="space-y-4">
+            @csrf
+            @method('PATCH')
+
+            <div class="modal-action">
+                <button type="button" onclick="completeModal.close()" class="btn">Batal</button>
+                <button type="submit" class="btn btn-info">
+                    <i class="fas fa-flag-checkered"></i> Ya, Selesai
+                </button>
+            </div>
+        </form>
+    </div>
+</dialog>
+
+@endsection
+
+@section('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const hargaPokokHidden = document.getElementById('hargaPokokHidden');
+    const diskonPersenInput = document.getElementById('diskonPersen');
+    const diskonNominalInput = document.getElementById('diskonNominal');
+    const hargaFinalDisplay = document.getElementById('hargaFinalDisplay');
+    const approvalForm = document.getElementById('approvalForm');
+    const modalHargaFinal = document.getElementById('modalHargaFinal');
+    const modalHargaFinalText = document.getElementById('modalHargaFinalText');
+
+    if (!hargaPokokHidden || !diskonPersenInput || !diskonNominalInput || !hargaFinalDisplay) {
+        return;
+    }
+
+    let lastDiscountField = null;
+
+    function formatNumber(value) {
+        return Math.floor(value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    }
+
+    function recalculatePrice() {
+        const hargaPokok = parseInt(hargaPokokHidden.value, 10) || 0;
+        let diskonPersen = parseFloat(diskonPersenInput.value) || 0;
+        let diskonNominal = parseInt(diskonNominalInput.value, 10) || 0;
+
+        if (lastDiscountField === 'persen') {
+            diskonNominal = Math.floor(hargaPokok * diskonPersen / 100);
+            diskonNominalInput.value = diskonNominal;
+        } else if (lastDiscountField === 'nominal') {
+            diskonPersen = hargaPokok > 0 ? (diskonNominal * 100 / hargaPokok) : 0;
+            diskonPersenInput.value = diskonPersen.toFixed(2);
+        }
+
+        const hargaFinal = Math.max(0, hargaPokok - diskonNominal);
+        hargaFinalDisplay.textContent = formatNumber(hargaFinal);
+        if (modalHargaFinal) {
+            modalHargaFinal.textContent = formatNumber(hargaFinal);
+        }
+        if (modalHargaFinalText) {
+            modalHargaFinalText.textContent = formatNumber(hargaFinal);
+        }
+    }
+
+    window.submitApproval = function () {
+        if (!approvalForm) {
+            return;
+        }
+
+        approvalForm.submit();
+    };
+
+    diskonPersenInput.addEventListener('focus', () => lastDiscountField = 'persen');
+    diskonPersenInput.addEventListener('input', recalculatePrice);
+    diskonNominalInput.addEventListener('focus', () => lastDiscountField = 'nominal');
+    diskonNominalInput.addEventListener('input', recalculatePrice);
+
+    recalculatePrice();
+});
+</script>
 @endsection

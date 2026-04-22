@@ -35,7 +35,7 @@ class StudioBookingApprovedMail extends Mailable
             view: 'emails.studio-booking-approved',
             with: [
                 'booking' => $this->booking,
-                'adminWhatsApp' => env('CONTACT_CP_BAND'),
+                'adminWhatsApp' => config('contact.cp_peralatan', env('CONTACT_CP_PERALATAN')),
             ],
         );
     }

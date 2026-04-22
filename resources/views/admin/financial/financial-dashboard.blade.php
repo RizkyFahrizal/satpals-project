@@ -40,7 +40,7 @@
     <!-- Filter Period -->
     <div class="bg-white rounded-2xl border border-gray-100 shadow-md p-6">
         <form method="GET" action="{{ route('admin.financial.index') }}" class="space-y-4">
-            <div class="grid grid-cols-1 lg:grid-cols-5 gap-4">
+            <div class="grid grid-cols-1 lg:grid-cols-6 gap-4">
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-2">📅 Dari Tanggal</label>
                     <input type="date" name="start_date" value="{{ $startDate->format('Y-m-d') }}" class="input input-bordered w-full rounded-lg border-gray-300 focus:border-yellow-400 focus:ring-yellow-400/20">
@@ -73,6 +73,19 @@
                         <option value="barang" {{ request('filter_expense_type') === 'barang' ? 'selected' : '' }}>📦 Barang</option>
                         <option value="kegiatan" {{ request('filter_expense_type') === 'kegiatan' ? 'selected' : '' }}>🎯 Kegiatan</option>
                     </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">🔎 Cari Berdasarkan</label>
+                    <select name="search_by" class="select select-bordered w-full rounded-lg border-gray-300 focus:border-yellow-400 focus:ring-yellow-400/20">
+                        <option value="all" {{ ($searchBy ?? request('search_by')) === 'all' || !($searchBy ?? request('search_by')) ? 'selected' : '' }}>Semua Kolom</option>
+                        <option value="title" {{ ($searchBy ?? request('search_by')) === 'title' ? 'selected' : '' }}>Judul Transaksi</option>
+                        <option value="description" {{ ($searchBy ?? request('search_by')) === 'description' ? 'selected' : '' }}>Keterangan</option>
+                        <option value="creator" {{ ($searchBy ?? request('search_by')) === 'creator' ? 'selected' : '' }}>Dibuat Oleh</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">🔤 Kata Kunci</label>
+                    <input type="text" name="search" value="{{ $searchTerm ?? request('search') }}" class="input input-bordered w-full rounded-lg border-gray-300 focus:border-yellow-400 focus:ring-yellow-400/20" placeholder="Cari transaksi...">
                 </div>
             </div>
             <div class="flex gap-2 justify-end">
@@ -146,15 +159,9 @@
                                 {{ $transaction['title'] }}
                             </td>
                             <td class="py-3 px-4 text-gray-600" style="width: 160px;">
-                                @if($transaction['type'] === 'income')
-                                    <span class="badge badge-success text-white">
-                                        {{ $transaction['source'] ?? 'Lainnya' }}
-                                    </span>
-                                @else
-                                    <span class="badge {{ $transaction['expense_type'] === 'barang' ? 'badge-warning' : 'badge-info' }}">
-                                        {{ ucfirst($transaction['expense_type']) }}
-                                    </span>
-                                @endif
+                                <span class="badge badge-ghost text-gray-700">
+                                    {{ $transaction['type'] === 'income' ? ($transaction['source'] ?? 'Lainnya') : ucfirst($transaction['expense_type'] ?? 'Lainnya') }}
+                                </span>
                             </td>
                             <td class="py-3 px-4 text-center" style="width: 100px;">
                                 @php

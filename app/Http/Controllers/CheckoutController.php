@@ -109,6 +109,7 @@ class CheckoutController extends Controller
 
                 $order_number = $request_record->order_number;
             session()->forget('cart');
+            session()->flash('booking_id', $request_record->id);
 
             // Send confirmation email to user
             \Mail::send('emails.booking_confirmation', [
@@ -122,11 +123,33 @@ class CheckoutController extends Controller
                     ->subject('Konfirmasi Pesanan - Satya Palapa Rent');
             });
 
-            return redirect()->route('bookings.show', $request_record->id)
+            return redirect()->route('bookings.success')
                 ->with('success', 'Pesanan berhasil dibuat! Nomor pesanan Anda: ' . $order_number);
         } catch (\Exception $e) {
             return redirect()->back()
                 ->with('error', 'Gagal membuat pesanan: ' . $e->getMessage());
         }
+    }
+
+    /**
+     * Show success page after checkout
+     */
+    public function success()
+    {
+        $bookingId = session('booking_id');
+
+        if (!$bookingId) {
+            return redirect()->route('checkout.index')
+                ->with('error', 'Pesanan tidak ditemukan.');
+        }
+
+        $booking = EquipmentRentalRequest::with(['items.equipment'])->find($bookingId);
+
+        if (!$booking) {
+            return redirect()->route('checkout.index')
+                ->with('error', 'Pesanan tidak ditemukan.');
+        }
+
+        return view('bookings.success', compact('booking'));
     }
 }
