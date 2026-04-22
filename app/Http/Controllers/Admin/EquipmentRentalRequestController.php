@@ -31,8 +31,11 @@ class EquipmentRentalRequestController extends Controller
 
             // Search by order number or renter name
             if ($request->has('search') && $request->search !== '') {
-                $query->where('order_number', 'like', '%' . $request->search . '%')
-                    ->orWhere('renter_name', 'like', '%' . $request->search . '%');
+                $searchTerm = '%' . $request->search . '%';
+                $query->where(function ($searchQuery) use ($searchTerm) {
+                    $searchQuery->where('order_number', 'like', $searchTerm)
+                        ->orWhere('renter_name', 'like', $searchTerm);
+                });
             }
 
             // Date range filter
@@ -51,12 +54,20 @@ class EquipmentRentalRequestController extends Controller
             // Paginate
             $requests = $query->paginate(15)->appends($request->query());
 
+            $baseQuery = EquipmentRentalRequest::query();
+
             return view('admin.equipment-rental-requests.index', [
                 'requests' => $requests,
                 'selectedStatus' => $request->get('status'),
                 'searchTerm' => $request->get('search'),
                 'startDate' => $request->get('start_date'),
                 'endDate' => $request->get('end_date'),
+                'allCount' => (clone $baseQuery)->count(),
+                'pendingCount' => (clone $baseQuery)->where('status', 'pending')->count(),
+                'approvedCount' => (clone $baseQuery)->where('status', 'approved')->count(),
+                'inProgressCount' => (clone $baseQuery)->where('status', 'in_progress')->count(),
+                'doneCount' => (clone $baseQuery)->where('status', 'done')->count(),
+                'rejectedCount' => (clone $baseQuery)->where('status', 'rejected')->count(),
             ]);
         } catch (\Exception $e) {
             return redirect()->route('admin.equipment-rental-requests.index')

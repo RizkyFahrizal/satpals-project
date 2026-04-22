@@ -7,175 +7,165 @@
 @section('breadcrumb', 'Manajemen Persewaan')
 
 @section('content')
-<div class="space-y-6">
-    <!-- Alerts -->
+<div class="container mx-auto px-4 py-8">
     @if(session('success'))
-    <div class="alert alert-success shadow-md rounded-2xl border border-green-200">
-        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
-        <span>{{ session('success') }}</span>
+    <div class="alert alert-success mb-6 shadow-md rounded-2xl border border-green-200 bg-gradient-to-r from-green-50 to-emerald-50">
+        <i class="fas fa-check-circle text-green-600 text-lg"></i>
+        <span class="text-green-800 font-medium">{{ session('success') }}</span>
     </div>
     @endif
 
     @if(session('error'))
-    <div class="alert alert-error shadow-md rounded-2xl border border-red-200">
-        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l-2-2m0 0l-2-2m2 2l2-2m-2 2l-2 2m8-8l-2 2m0 0l-2-2m2 2l2-2m-2 2l-2 2" />
-        </svg>
-        <span>{{ session('error') }}</span>
+    <div class="alert alert-error mb-6 shadow-md rounded-2xl border border-red-200 bg-gradient-to-r from-red-50 to-pink-50">
+        <i class="fas fa-exclamation-circle text-red-600 text-lg"></i>
+        <span class="text-red-800 font-medium">{{ session('error') }}</span>
     </div>
     @endif
 
-    <!-- Header dengan Tombol Tambah -->
-    <div class="bg-white rounded-2xl border border-gray-100 shadow-md p-6">
-        <div class="flex justify-between items-center">
-            <h2 class="text-2xl font-bold text-gray-800">📦 Daftar Peralatan</h2>
-            <div class="flex gap-3">
-                <a href="{{ route('admin.equipment-rental-requests.index') }}" class="btn btn-sm bg-blue-500 hover:bg-blue-600 border-0 text-white font-semibold">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                    </svg>
-                    Permintaan Sewa
-                </a>
-                <a href="{{ route('admin.equipment.create') }}" class="btn btn-sm bg-yellow-400 hover:bg-yellow-500 border-0 text-gray-900 font-semibold">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                    </svg>
-                    Tambah Peralatan
-                </a>
-            </div>
+    <div class="mb-8 flex items-center justify-between">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900">Kelola Peralatan Sewa</h1>
+            <p class="text-gray-500 mt-2">Kelola data peralatan, kategori, dan ketersediaan sewa</p>
+        </div>
+        <div class="flex gap-3">
+            <a href="{{ route('admin.equipment-rental-requests.index') }}" class="btn btn-outline btn-sm rounded-xl border-yellow-300 text-gray-700 hover:bg-yellow-100 hover:border-yellow-400 hover:text-gray-900">
+                <i class="fas fa-inbox text-base"></i>
+                <span>Permintaan</span>
+            </a>
+            <a href="{{ route('admin.equipment.create') }}" class="btn btn-sm bg-yellow-400 text-gray-900 border-0 shadow-md rounded-xl hover:bg-yellow-500 font-semibold">
+                <i class="fas fa-plus text-base"></i>
+                <span>Tambah Peralatan</span>
+            </a>
         </div>
     </div>
 
-    <!-- Filter & Search -->
-    <div class="bg-white rounded-2xl border border-gray-100 shadow-md p-6">
-        <form method="GET" action="{{ route('admin.equipment.index') }}" class="space-y-4">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <!-- Search -->
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">🔍 Cari Peralatan</label>
-                    <input type="text" name="search" placeholder="Nama peralatan..." 
-                           value="{{ request('search') }}" class="input input-bordered w-full rounded-lg border-gray-300 focus:border-yellow-400 focus:ring-yellow-400/20" />
-                </div>
-
-                <!-- Category Filter -->
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">📂 Kategori</label>
-                    <select name="category" class="select select-bordered w-full rounded-lg border-gray-300 focus:border-yellow-400 focus:ring-yellow-400/20">
-                        <option value="">Semua Kategori</option>
-                        <option value="paket" {{ request('category') == 'paket' ? 'selected' : '' }}>📦 Paket</option>
-                        <option value="satuan" {{ request('category') == 'satuan' ? 'selected' : '' }}>🎁 Satuan</option>
-                    </select>
-                </div>
-
-                <!-- Submit -->
-                <div class="flex items-end gap-2">
-                    <button type="submit" class="btn btn-sm bg-yellow-400 hover:bg-yellow-500 border-0 text-gray-900 font-semibold flex-1">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                        </svg>
-                        Cari
-                    </button>
-                    @if(request('search') || request('category'))
-                    <a href="{{ route('admin.equipment.index') }}" class="btn btn-sm border border-gray-300 hover:bg-gray-100 text-gray-800">
-                        Reset
-                    </a>
-                    @endif
-                </div>
+    <div class="bg-white rounded-2xl shadow-md border border-gray-100 p-6 mb-8">
+        <form method="GET" action="{{ route('admin.equipment.index') }}" class="flex flex-col gap-4 lg:flex-row lg:items-end">
+            <div class="flex-1">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Cari Peralatan</label>
+                <input
+                    type="text"
+                    name="search"
+                    placeholder="Ketik nama peralatan..."
+                    value="{{ request('search') }}"
+                    class="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-gray-900 placeholder-gray-400 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 transition"
+                >
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Kategori</label>
+                <select name="category" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-gray-900 bg-white focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 transition">
+                    <option value="" {{ request('category') === '' || !request()->has('category') ? 'selected' : '' }}>Semua Kategori</option>
+                    <option value="paket" {{ request('category') === 'paket' ? 'selected' : '' }}>Paket</option>
+                    <option value="satuan" {{ request('category') === 'satuan' ? 'selected' : '' }}>Satuan</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                <select name="status" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-gray-900 bg-white focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 transition">
+                    <option value="all" {{ request('status') === 'all' || !request()->has('status') ? 'selected' : '' }}>Semua</option>
+                    <option value="available" {{ request('status') === 'available' ? 'selected' : '' }}>Tersedia</option>
+                    <option value="unavailable" {{ request('status') === 'unavailable' ? 'selected' : '' }}>Tidak Tersedia</option>
+                </select>
+            </div>
+            <div class="flex gap-2">
+                <button type="submit" class="px-6 py-2.5 bg-yellow-400 text-gray-900 rounded-xl shadow-md font-semibold hover:bg-yellow-500 transition flex items-center gap-2">
+                    <i class="fas fa-search"></i>
+                    <span>Cari</span>
+                </button>
+                @if(request('search') || request('category') || request('status'))
+                <a href="{{ route('admin.equipment.index') }}" class="px-4 py-2.5 border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 transition font-medium">
+                    Reset
+                </a>
+                @endif
             </div>
         </form>
     </div>
 
-    <!-- Tabel Peralatan -->
-    <div class="bg-white rounded-2xl border border-gray-100 shadow-md overflow-hidden">
-        <div class="overflow-x-auto">
-            <table class="w-full text-sm">
-                <thead class="border-b-2 border-yellow-200 bg-yellow-50">
-                    <tr>
-                        <th class="px-6 py-3 text-left font-bold text-gray-800">No</th>
-                        <th class="px-6 py-3 text-left font-bold text-gray-800">Foto</th>
-                        <th class="px-6 py-3 text-left font-bold text-gray-800">Nama Peralatan</th>
-                        <th class="px-6 py-3 text-left font-bold text-gray-800">Kategori</th>
-                        <th class="px-6 py-3 text-right font-bold text-gray-800">Harga/Hari</th>
-                        <th class="px-6 py-3 text-center font-bold text-gray-800">Status</th>
-                        <th class="px-6 py-3 text-center font-bold text-gray-800">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($equipments as $item)
-                    <tr class="border-b border-gray-100 hover:bg-yellow-50 transition-colors">
-                        <td class="px-6 py-4 text-gray-700">{{ ($equipments->currentPage() - 1) * $equipments->perPage() + $loop->iteration }}</td>
-                        <td class="px-6 py-4">
+    @if($equipments->count())
+    <div class="bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden">
+        <table class="w-full">
+            <thead class="bg-gray-50 border-b border-gray-200">
+                <tr>
+                    <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Nama Peralatan</th>
+                    <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Kategori</th>
+                    <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Harga</th>
+                    <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Status</th>
+                    <th class="px-6 py-3 text-center text-sm font-semibold text-gray-700">Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($equipments as $item)
+                <tr class="border-b border-gray-100 hover:bg-yellow-50/40 transition">
+                    <td class="px-6 py-4">
+                        <div class="flex items-center gap-3">
                             @if($item->photo)
-                            <img src="{{ asset('storage/' . $item->photo) }}" alt="{{ $item->name }}" 
-                                 class="w-12 h-12 object-cover rounded-lg shadow-sm" />
+                            <img src="{{ asset('storage/' . $item->photo) }}" alt="{{ $item->name }}" class="w-10 h-10 rounded-lg object-cover shadow-sm">
                             @else
-                            <div class="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                </svg>
+                            <div class="w-10 h-10 rounded-lg bg-yellow-50 flex items-center justify-center border border-yellow-200">
+                                <i class="fas fa-toolbox text-yellow-600"></i>
                             </div>
                             @endif
-                        </td>
-                        <td class="px-6 py-4 font-semibold text-gray-800">{{ $item->name }}</td>
-                        <td class="px-6 py-4">
-                            <span class="badge {{ $item->category === 'paket' ? 'badge-info' : 'badge-warning' }} text-white font-semibold">
-                                {{ $item->category === 'paket' ? '📦 Paket' : '🎁 Satuan' }}
-                            </span>
-                        </td>
-                        <td class="px-6 py-4 text-right font-semibold text-green-600">Rp {{ number_format($item->price_per_day, 0, ',', '.') }}</td>
-                        <td class="px-6 py-4 text-center">
-                            <form action="{{ route('admin.equipment.toggleAvailability', $item) }}" method="POST" class="inline">
+                            <div>
+                                <p class="font-semibold text-gray-800">{{ $item->name }}</p>
+                                <p class="text-sm text-gray-500">{{ Str::limit($item->description, 30) }}</p>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium {{ $item->category === 'paket' ? 'bg-amber-50 text-amber-700 border border-amber-200' : 'bg-orange-50 text-orange-700 border border-orange-200' }}">
+                            {{ $item->category === 'paket' ? 'Paket' : 'Satuan' }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="text-sm">
+                            <p class="text-gray-800">Rp {{ number_format($item->price_per_day, 0, ',', '.') }}/hari</p>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <form action="{{ route('admin.equipment.toggleAvailability', $item) }}" method="POST" class="inline">
+                            @csrf
+                            @method('PATCH')
+                            <button type="submit" class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border transition hover:opacity-80 {{ $item->is_available ? 'bg-green-50 text-green-700 border-green-200' : 'bg-red-50 text-red-700 border-red-200' }}">
+                                <i class="fas {{ $item->is_available ? 'fa-check-circle' : 'fa-times-circle' }} mr-1"></i>
+                                {{ $item->is_available ? 'Tersedia' : 'Tidak Tersedia' }}
+                            </button>
+                        </form>
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="flex justify-center gap-2">
+                            <a href="{{ route('admin.equipment.show', $item) }}" class="flex items-center justify-center w-10 h-10 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition border border-blue-200 tooltip" data-tip="Lihat Detail">
+                                <i class="fas fa-eye text-base"></i>
+                            </a>
+                            <a href="{{ route('admin.equipment.edit', $item) }}" class="flex items-center justify-center w-10 h-10 rounded-lg bg-yellow-50 text-yellow-600 hover:bg-yellow-100 transition border border-yellow-200 tooltip" data-tip="Edit">
+                                <i class="fas fa-edit text-base"></i>
+                            </a>
+                            <form action="{{ route('admin.equipment.destroy', $item) }}" method="POST" class="inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus peralatan ini?');">
                                 @csrf
-                                @method('PATCH')
-                                <button type="submit" class="badge {{ $item->is_available ? 'badge-success' : 'badge-error' }} text-white font-semibold cursor-pointer hover:opacity-80 transition">
-                                    {{ $item->is_available ? '✓ Tersedia' : '✕ Tidak' }}
+                                @method('DELETE')
+                                <button type="submit" class="flex items-center justify-center w-10 h-10 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition border border-red-200 tooltip" data-tip="Hapus">
+                                    <i class="fas fa-trash text-base"></i>
                                 </button>
                             </form>
-                        </td>
-                        <td class="px-6 py-4 text-center">
-                            <div class="flex justify-center gap-2">
-                                <a href="{{ route('admin.equipment.show', $item) }}" class="btn btn-xs btn-ghost" title="Detail">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                    </svg>
-                                </a>
-                                <a href="{{ route('admin.equipment.edit', $item) }}" class="btn btn-xs btn-ghost" title="Edit">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                    </svg>
-                                </a>
-                                <form action="{{ route('admin.equipment.destroy', $item) }}" method="POST" class="inline"
-                                      onsubmit="return confirm('Apakah Anda yakin ingin menghapus peralatan ini?');">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-xs btn-ghost text-red-600 hover:text-red-700" title="Hapus">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                        </svg>
-                                    </button>
-                                </form>
-                            </div>
-                        </td>
-                    </tr>
-                    @empty
-                    <tr>
-                        <td colspan="7" class="px-6 py-8 text-center text-gray-500">
-                            <div class="text-4xl mb-2">📦</div>
-                            <p class="font-semibold">Belum ada peralatan</p>
-                        </td>
-                    </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-
-        <!-- Pagination -->
-        <div class="px-6 py-4 border-t border-gray-100">
-            {{ $equipments->links() }}
-        </div>
+                        </div>
+                    </td>
+                </tr>
+                @endforeach
+            </tbody>
+        </table>
     </div>
+
+    <div class="mt-8 flex justify-center">
+        {{ $equipments->links() }}
+    </div>
+    @else
+    <div class="bg-white rounded-2xl shadow-md border border-gray-100 p-12 text-center">
+        <i class="fas fa-toolbox text-5xl text-yellow-200 mb-4 block"></i>
+        <p class="text-gray-600 text-lg font-medium mb-6">Tidak ada peralatan ditemukan</p>
+        <a href="{{ route('admin.equipment.create') }}" class="inline-flex items-center gap-2 px-6 py-3 bg-yellow-400 text-gray-900 rounded-xl shadow-md font-semibold hover:bg-yellow-500 transition">
+            <i class="fas fa-plus"></i>
+            Tambah Peralatan Baru
+        </a>
+    </div>
+    @endif
 </div>
 @endsection

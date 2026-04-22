@@ -28,6 +28,11 @@ class EquipmentController extends Controller
                 $query->where('category', $request->category);
             }
 
+            // Filter by status availability
+            if ($request->has('status') && $request->status !== null && $request->status !== '' && $request->status !== 'all') {
+                $query->where('is_available', $request->status === 'available');
+            }
+
             // Search by name
             if ($request->has('search') && $request->search !== '') {
                 $query->where('name', 'like', '%' . $request->search . '%');
@@ -44,6 +49,7 @@ class EquipmentController extends Controller
             return view('admin.equipment.index', [
                 'equipments' => $equipments,
                 'selectedCategory' => $request->get('category'),
+                'selectedStatus' => $request->get('status'),
                 'searchTerm' => $request->get('search'),
             ]);
         } catch (\Exception $e) {
