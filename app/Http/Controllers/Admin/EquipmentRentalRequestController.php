@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Mail\BookingApprovedMail;
 use App\Models\EquipmentRentalRequest;
 use App\Models\EquipmentRentalRequestItem;
+use App\Models\Income;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -26,7 +27,11 @@ class EquipmentRentalRequestController extends Controller
 
             // Filter by status
             if ($request->has('status') && $request->status !== null && $request->status !== '') {
-                $query->where('status', $request->status);
+                if ($request->status === 'completed') {
+                    $query->whereIn('status', ['completed', 'done']);
+                } else {
+                    $query->where('status', $request->status);
+                }
             }
 
             // Search by order number or renter name
@@ -65,8 +70,8 @@ class EquipmentRentalRequestController extends Controller
                 'allCount' => (clone $baseQuery)->count(),
                 'pendingCount' => (clone $baseQuery)->where('status', 'pending')->count(),
                 'approvedCount' => (clone $baseQuery)->where('status', 'approved')->count(),
-                'inProgressCount' => (clone $baseQuery)->where('status', 'in_progress')->count(),
-                'doneCount' => (clone $baseQuery)->where('status', 'done')->count(),
+                'cancelledCount' => (clone $baseQuery)->where('status', 'cancelled')->count(),
+                'completedCount' => (clone $baseQuery)->whereIn('status', ['completed', 'done'])->count(),
                 'rejectedCount' => (clone $baseQuery)->where('status', 'rejected')->count(),
             ]);
         } catch (\Exception $e) {
@@ -84,7 +89,7 @@ class EquipmentRentalRequestController extends Controller
     public function show($id)
     {
         try {
-            $rentalRequest = EquipmentRentalRequest::with('items.equipment')->findOrFail($id);
+            $rentalRequest = EquipmentRentalRequest::with(['items.equipment', 'income', 'approvedBy'])->findOrFail($id);
 
             return view('admin.equipment-rental-requests.show', [
                 'rentalRequest' => $rentalRequest,
@@ -116,18 +121,33 @@ class EquipmentRentalRequestController extends Controller
 
             DB::beginTransaction();
 
+            $income = Income::create([
+                'title' => 'Persewaan Alat - ' . $rentalRequest->order_number,
+                'description' => 'Persewaan Alat - ' . $rentalRequest->order_number,
+                'nominal' => $rentalRequest->total_price,
+                'source' => 'Persewaan Alat',
+                'status' => 'pending',
+                'income_date' => now(),
+                'created_by' => Auth::id(),
+                'creator_name' => $rentalRequest->renter_name,
+            ]);
+
             $rentalRequest->update([
                 'status' => 'approved',
-                'admin_notes' => $rentalRequest->admin_notes . "\n[Disetujui oleh " . Auth::user()->name . " pada " . now()->format('d-m-Y H:i:s') . "]",
+                'approved_at' => now(),
+                'approved_by' => Auth::id(),
+                'income_id' => $income->id,
+                'admin_notes' => ($rentalRequest->admin_notes ? $rentalRequest->admin_notes . "\n" : '') .
+                    "[Disetujui oleh " . Auth::user()->name . " pada " . now()->format('d-m-Y H:i:s') . "]",
             ]);
 
             // Send approval email
-            $this->sendApprovalEmail($rentalRequest);
+            $this->sendApprovalEmail($rentalRequest->load('items.equipment'));
 
             DB::commit();
 
             return redirect()->route('admin.equipment-rental-requests.show', $id)
-                ->with('success', 'Permintaan rental berhasil disetujui. Email notifikasi telah dikirim.');
+                ->with('success', 'Permintaan rental berhasil disetujui. Income telah dibuat dan invoice dikirim ke email pelanggan.');
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             DB::rollBack();
             return redirect()->route('admin.equipment-rental-requests.index')
@@ -204,20 +224,21 @@ class EquipmentRentalRequestController extends Controller
 
             if ($rentalRequest->status !== 'approved') {
                 return redirect()->route('admin.equipment-rental-requests.index')
-                    ->with('error', 'Hanya permintaan yang disetujui yang dapat dimulai.');
+                    ->with('error', 'Hanya permintaan yang disetujui yang dapat dibatalkan.');
             }
 
             DB::beginTransaction();
 
             $rentalRequest->update([
-                'status' => 'in_progress',
-                'admin_notes' => $rentalRequest->admin_notes . "\n[Dimulai oleh " . Auth::user()->name . " pada " . now()->format('d-m-Y H:i:s') . "]",
+                'status' => 'cancelled',
+                'admin_notes' => ($rentalRequest->admin_notes ? $rentalRequest->admin_notes . "\n" : '') .
+                    "[Dibatalkan oleh " . Auth::user()->name . " pada " . now()->format('d-m-Y H:i:s') . "]",
             ]);
 
             DB::commit();
 
             return redirect()->route('admin.equipment-rental-requests.show', $id)
-                ->with('success', 'Permintaan rental berhasil dimulai.');
+                ->with('success', 'Permintaan rental berhasil dibatalkan.');
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             DB::rollBack();
             return redirect()->route('admin.equipment-rental-requests.index')
@@ -240,16 +261,17 @@ class EquipmentRentalRequestController extends Controller
         try {
             $rentalRequest = EquipmentRentalRequest::findOrFail($id);
 
-            if ($rentalRequest->status !== 'in_progress') {
+            if ($rentalRequest->status !== 'approved') {
                 return redirect()->route('admin.equipment-rental-requests.index')
-                    ->with('error', 'Hanya permintaan yang sedang berlangsung yang dapat diselesaikan.');
+                    ->with('error', 'Hanya permintaan yang disetujui yang dapat diselesaikan.');
             }
 
             DB::beginTransaction();
 
             $rentalRequest->update([
-                'status' => 'done',
-                'admin_notes' => $rentalRequest->admin_notes . "\n[Diselesaikan oleh " . Auth::user()->name . " pada " . now()->format('d-m-Y H:i:s') . "]",
+                'status' => 'completed',
+                'admin_notes' => ($rentalRequest->admin_notes ? $rentalRequest->admin_notes . "\n" : '') .
+                    "[Diselesaikan oleh " . Auth::user()->name . " pada " . now()->format('d-m-Y H:i:s') . "]",
             ]);
 
             // Send completion email
@@ -258,7 +280,7 @@ class EquipmentRentalRequestController extends Controller
             DB::commit();
 
             return redirect()->route('admin.equipment-rental-requests.show', $id)
-                ->with('success', 'Permintaan rental berhasil diselesaikan. Email notifikasi telah dikirim.');
+                ->with('success', 'Permintaan rental berhasil diselesaikan.');
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             DB::rollBack();
             return redirect()->route('admin.equipment-rental-requests.index')

@@ -20,10 +20,10 @@
       </div>
 
       <div style="background:#fff;padding:28px;border-radius:0 0 16px 16px;box-shadow:0 10px 25px rgba(0,0,0,.06);">
-         <p style="margin:0 0 16px;font-size:15px;line-height:1.6;">Halo <strong>{{ $booking->renter_name }}</strong>, kami dengan senang hati menginformasikan bahwa pesanan Anda telah <strong>disetujui</strong> oleh admin Satya Palapa.</p>
+         <p style="margin:0 0 16px;font-size:15px;line-height:1.6;">Halo <strong>{{ $booking->renter_name }}</strong>, kami dengan senang hati menginformasikan bahwa permintaan persewaan alat Anda telah <strong>disetujui</strong> oleh admin Satya Palapa.</p>
 
          <div style="background:#eff6ff;border-left:4px solid #3b82f6;padding:16px;border-radius:12px;margin:20px 0;">
-            <h2 style="margin:0 0 12px;font-size:18px;color:#1d4ed8;">Detail Pesanan</h2>
+            <h2 style="margin:0 0 12px;font-size:18px;color:#1d4ed8;">Detail Permintaan</h2>
             <table style="width:100%;border-collapse:collapse;font-size:14px;">
                <tr><td style="padding:8px 0;width:40%;color:#6b7280;">Nomor Pesanan</td><td style="padding:8px 0;">{{ $booking->order_number }}</td></tr>
                <tr><td style="padding:8px 0;color:#6b7280;">Tanggal Mulai</td><td style="padding:8px 0;">{{ \Carbon\Carbon::parse($booking->start_date)->format('d M Y') }}</td></tr>

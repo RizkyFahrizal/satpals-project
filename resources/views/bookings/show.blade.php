@@ -22,10 +22,10 @@
                     <span class="badge badge-xl {{ 
                         $booking->status === 'pending' ? 'badge-warning' :
                         ($booking->status === 'approved' ? 'badge-info' :
-                        ($booking->status === 'in_progress' ? 'badge-primary' :
-                        ($booking->status === 'done' ? 'badge-success' : 'badge-error')))
+                        ($booking->status === 'completed' || $booking->status === 'done' ? 'badge-success' :
+                        ($booking->status === 'cancelled' ? 'badge-neutral' : 'badge-error')))
                     }}">
-                        {{ ucfirst($booking->status) }}
+                        {{ $booking->status === 'completed' ? 'Selesai' : ($booking->status === 'done' ? 'Selesai' : ($booking->status === 'cancelled' ? 'Dibatalkan' : ucfirst($booking->status))) }}
                     </span>
                 </div>
                 <p class="text-sm text-gray-600">Dibuat: {{ $booking->created_at->format('d M Y H:i') }}</p>
@@ -168,19 +168,19 @@
                     <span class="badge badge-lg {{ 
                         $booking->status === 'pending' ? 'badge-warning' :
                         ($booking->status === 'approved' ? 'badge-info' :
-                        ($booking->status === 'in_progress' ? 'badge-primary' :
-                        ($booking->status === 'done' ? 'badge-success' : 'badge-error')))
+                        ($booking->status === 'completed' || $booking->status === 'done' ? 'badge-success' :
+                        ($booking->status === 'cancelled' ? 'badge-neutral' : 'badge-error')))
                     }}">
-                        {{ ucfirst($booking->status) }}
+                        {{ $booking->status === 'completed' ? 'Selesai' : ($booking->status === 'done' ? 'Selesai' : ($booking->status === 'cancelled' ? 'Dibatalkan' : ucfirst($booking->status))) }}
                     </span>
 
                     @if($booking->status === 'pending')
                     <p class="text-xs text-gray-600 mt-2">Menunggu persetujuan dari admin</p>
                     @elseif($booking->status === 'approved')
                     <p class="text-xs text-gray-600 mt-2">Pesanan telah disetujui, silakan lakukan pembayaran</p>
-                    @elseif($booking->status === 'in_progress')
-                    <p class="text-xs text-gray-600 mt-2">Peralatan sedang dalam proses penyewaan</p>
-                    @elseif($booking->status === 'done')
+                    @elseif($booking->status === 'cancelled')
+                    <p class="text-xs text-gray-600 mt-2">Pesanan telah dibatalkan</p>
+                    @elseif($booking->status === 'completed' || $booking->status === 'done')
                     <p class="text-xs text-gray-600 mt-2">Penyewaan telah selesai</p>
                     @elseif($booking->status === 'rejected')
                     <p class="text-xs text-red-600 mt-2">Pesanan telah ditolak</p>
@@ -202,7 +202,7 @@
                 </div>
 
                 <!-- Invoice Download -->
-                @if($booking->status === 'approved')
+                @if($booking->status === 'approved' || $booking->status === 'completed' || $booking->status === 'done')
                 <div class="space-y-2 mb-6">
                     <a href="{{ route('invoice.download', $booking->id) }}" 
                        class="btn btn-sm btn-success w-full gap-2">
@@ -216,7 +216,7 @@
                 @endif
 
                 <!-- Payment Info -->
-                @if($booking->status === 'approved')
+                @if($booking->status === 'approved' || $booking->status === 'completed' || $booking->status === 'done')
                 <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 space-y-3">
                     <p class="text-sm font-semibold text-yellow-800">
                         <i class="fas fa-info-circle"></i> Instruksi Pembayaran

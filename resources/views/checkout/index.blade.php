@@ -97,11 +97,11 @@
                         <i class="fas fa-calendar-alt text-yellow-600"></i> Informasi Penyewaan
                     </h2>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Tanggal Mulai *</label>
                             <input type="date" name="start_date" class="input input-bordered w-full @error('start_date') input-error @enderror" 
-                                   value="{{ old('start_date') }}" min="{{ now()->format('Y-m-d') }}" required onchange="calculateDuration()">
+                                   value="{{ old('start_date') }}" min="{{ now()->format('Y-m-d') }}" required onchange="handleStartDateChange()">
                             @error('start_date')
                             <p class="text-error text-sm mt-1">{{ $message }}</p>
                             @enderror
@@ -110,7 +110,7 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Tanggal Selesai *</label>
                             <input type="date" name="end_date" class="input input-bordered w-full @error('end_date') input-error @enderror" 
-                                   value="{{ old('end_date') }}" min="{{ now()->addDay()->format('Y-m-d') }}" required onchange="calculateDuration()">
+                                   value="{{ old('end_date') }}" min="{{ now()->format('Y-m-d') }}" required onchange="calculateDuration()">
                             @error('end_date')
                             <p class="text-error text-sm mt-1">{{ $message }}</p>
                             @enderror
@@ -206,26 +206,57 @@ function showPreview(input) {
     }
 }
 
-function calculateDuration() {
-    const startDate = new Date(document.querySelector('input[name="start_date"]').value);
-    const endDate = new Date(document.querySelector('input[name="end_date"]').value);
-    
-    if (startDate && endDate && endDate > startDate) {
-        const duration = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24));
-        const durationText = duration + ' hari';
-        document.getElementById('duration_text').textContent = durationText;
-        
-        // Calculate grand total
-        const pricePerDay = {{ $total }};
-        const grandTotal = pricePerDay * duration;
-        const grandTotalFormatted = new Intl.NumberFormat('id-ID', {
-            style: 'currency',
-            currency: 'IDR',
-            minimumFractionDigits: 0
-        }).format(grandTotal).replace('IDR', 'Rp').trim();
-        
-        document.getElementById('grand_total').textContent = grandTotalFormatted;
+function handleStartDateChange() {
+    const startInput = document.querySelector('input[name="start_date"]');
+    const endInput = document.querySelector('input[name="end_date"]');
+
+    if (!startInput || !endInput) {
+        return;
     }
+
+    endInput.min = startInput.value || '{{ now()->format('Y-m-d') }}';
+
+    if (startInput.value && endInput.value && endInput.value < startInput.value) {
+        endInput.value = startInput.value;
+    }
+
+    calculateDuration();
+}
+
+function calculateDuration() {
+    const startInput = document.querySelector('input[name="start_date"]');
+    const endInput = document.querySelector('input[name="end_date"]');
+    const startValue = startInput ? startInput.value : '';
+    const endValue = endInput ? endInput.value : '';
+
+    if (!startValue || !endValue) {
+        document.getElementById('duration_text').textContent = '-';
+        document.getElementById('grand_total').textContent = 'Rp {{ number_format($total, 0, ',', '.') }}';
+        return;
+    }
+    
+    const startDate = new Date(startValue + 'T00:00:00');
+    const endDate = new Date(endValue + 'T00:00:00');
+
+    if (endDate < startDate) {
+        document.getElementById('duration_text').textContent = '-';
+        document.getElementById('grand_total').textContent = 'Rp {{ number_format($total, 0, ',', '.') }}';
+        return;
+    }
+
+    const duration = Math.floor((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
+    document.getElementById('duration_text').textContent = duration + ' hari';
+
+    // Calculate grand total
+    const pricePerDay = {{ $total }};
+    const grandTotal = pricePerDay * duration;
+    const grandTotalFormatted = new Intl.NumberFormat('id-ID', {
+        style: 'currency',
+        currency: 'IDR',
+        minimumFractionDigits: 0
+    }).format(grandTotal).replace('IDR', 'Rp').trim();
+
+    document.getElementById('grand_total').textContent = grandTotalFormatted;
 }
 
 // Calculate on load if dates are filled

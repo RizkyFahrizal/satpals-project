@@ -49,20 +49,20 @@
             <span>Disetujui</span>
             <span class="inline-flex items-center justify-center w-6 h-6 {{ request('status') === 'approved' ? 'bg-white text-gray-900' : 'bg-gray-100 text-gray-700' }} rounded-lg text-xs font-bold">{{ $approvedCount ?? 0 }}</span>
         </a>
-        <a href="{{ route('admin.equipment-rental-requests.index', ['status' => 'in_progress']) }}" class="flex-1 min-w-fit px-5 py-3 rounded-xl {{ request('status') === 'in_progress' ? 'bg-gradient-to-r from-yellow-400 to-orange-400 text-gray-900 font-semibold shadow-md' : 'text-gray-700 hover:bg-gray-50' }} transition flex items-center justify-center gap-2 text-sm">
-            <i class="fas fa-spinner text-base"></i>
-            <span>Berlangsung</span>
-            <span class="inline-flex items-center justify-center w-6 h-6 {{ request('status') === 'in_progress' ? 'bg-white text-gray-900' : 'bg-gray-100 text-gray-700' }} rounded-lg text-xs font-bold">{{ $inProgressCount ?? 0 }}</span>
-        </a>
-        <a href="{{ route('admin.equipment-rental-requests.index', ['status' => 'done']) }}" class="flex-1 min-w-fit px-5 py-3 rounded-xl {{ request('status') === 'done' ? 'bg-gradient-to-r from-yellow-400 to-orange-400 text-gray-900 font-semibold shadow-md' : 'text-gray-700 hover:bg-gray-50' }} transition flex items-center justify-center gap-2 text-sm">
-            <i class="fas fa-flag-checkered text-base"></i>
-            <span>Selesai</span>
-            <span class="inline-flex items-center justify-center w-6 h-6 {{ request('status') === 'done' ? 'bg-white text-gray-900' : 'bg-gray-100 text-gray-700' }} rounded-lg text-xs font-bold">{{ $doneCount ?? 0 }}</span>
-        </a>
         <a href="{{ route('admin.equipment-rental-requests.index', ['status' => 'rejected']) }}" class="flex-1 min-w-fit px-5 py-3 rounded-xl {{ request('status') === 'rejected' ? 'bg-gradient-to-r from-yellow-400 to-orange-400 text-gray-900 font-semibold shadow-md' : 'text-gray-700 hover:bg-gray-50' }} transition flex items-center justify-center gap-2 text-sm">
             <i class="fas fa-times-circle text-base"></i>
             <span>Ditolak</span>
             <span class="inline-flex items-center justify-center w-6 h-6 {{ request('status') === 'rejected' ? 'bg-white text-gray-900' : 'bg-gray-100 text-gray-700' }} rounded-lg text-xs font-bold">{{ $rejectedCount ?? 0 }}</span>
+        </a>
+        <a href="{{ route('admin.equipment-rental-requests.index', ['status' => 'cancelled']) }}" class="flex-1 min-w-fit px-5 py-3 rounded-xl {{ request('status') === 'cancelled' ? 'bg-gradient-to-r from-yellow-400 to-orange-400 text-gray-900 font-semibold shadow-md' : 'text-gray-700 hover:bg-gray-50' }} transition flex items-center justify-center gap-2 text-sm">
+            <i class="fas fa-ban text-base"></i>
+            <span>Dibatalkan</span>
+            <span class="inline-flex items-center justify-center w-6 h-6 {{ request('status') === 'cancelled' ? 'bg-white text-gray-900' : 'bg-gray-100 text-gray-700' }} rounded-lg text-xs font-bold">{{ $cancelledCount ?? 0 }}</span>
+        </a>
+        <a href="{{ route('admin.equipment-rental-requests.index', ['status' => 'completed']) }}" class="flex-1 min-w-fit px-5 py-3 rounded-xl {{ request('status') === 'completed' ? 'bg-gradient-to-r from-yellow-400 to-orange-400 text-gray-900 font-semibold shadow-md' : 'text-gray-700 hover:bg-gray-50' }} transition flex items-center justify-center gap-2 text-sm">
+            <i class="fas fa-flag-checkered text-base"></i>
+            <span>Selesai</span>
+            <span class="inline-flex items-center justify-center w-6 h-6 {{ request('status') === 'completed' ? 'bg-white text-gray-900' : 'bg-gray-100 text-gray-700' }} rounded-lg text-xs font-bold">{{ $completedCount ?? 0 }}</span>
         </a>
     </div>
 
@@ -99,12 +99,12 @@
         <table class="w-full">
             <thead class="bg-gray-50 border-b border-gray-200">
                 <tr>
-                    <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">No. Pesanan</th>
                     <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Penyewa</th>
                     <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Tanggal Sewa</th>
-                    <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Durasi</th>
-                    <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Total Harga</th>
+                    <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Kode Sewa</th>
+                    <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Kategori Rental</th>
                     <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Status</th>
+                    <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Dibuat</th>
                     <th class="px-6 py-4 text-center text-sm font-semibold text-gray-700">Aksi</th>
                 </tr>
             </thead>
@@ -112,24 +112,37 @@
                 @forelse($requests as $request)
                 <tr class="border-b border-gray-100 hover:bg-yellow-50/30 transition">
                     <td class="px-6 py-4">
-                        <span class="inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-bold bg-blue-100 text-blue-700 border border-blue-300">
-                            {{ $request->order_number }}
-                        </span>
-                    </td>
-                    <td class="px-6 py-4">
                         <div>
                             <p class="font-semibold text-gray-900">{{ $request->renter_name }}</p>
-                            <p class="text-sm text-gray-600">{{ $request->renter_phone }}</p>
+                            <p class="text-sm text-gray-600">{{ $request->renter_npm_nik }}</p>
                         </div>
                     </td>
-                    <td class="px-6 py-4">
+                    <td class="px-6 py-4 whitespace-nowrap">
                         <div>
                             <p class="font-semibold text-gray-900">{{ $request->start_date->format('d M Y') }}</p>
                             <p class="text-sm text-gray-600">s/d {{ $request->end_date->format('d M Y') }}</p>
                         </div>
                     </td>
-                    <td class="px-6 py-4 text-gray-700 font-medium">{{ $request->duration_days }} Hari</td>
-                    <td class="px-6 py-4 text-gray-900 font-semibold">Rp {{ number_format($request->total_price, 0, ',', '.') }}</td>
+                    <td class="px-6 py-4">
+                        <span class="inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-bold bg-blue-100 text-blue-700 border border-blue-300">
+                            {{ $request->order_number }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4">
+                        @php
+                            $rentalCategories = $request->items
+                                ->map(fn ($item) => $item->equipment->category ?? null)
+                                ->filter()
+                                ->unique()
+                                ->values();
+                            $rentalCategoryLabel = $rentalCategories->count() === 1
+                                ? ucfirst($rentalCategories->first())
+                                : 'Campuran';
+                        @endphp
+                        <span class="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium {{ $rentalCategoryLabel === 'Paket' ? 'bg-amber-50 text-amber-700 border border-amber-200' : ($rentalCategoryLabel === 'Satuan' ? 'bg-orange-50 text-orange-700 border border-orange-200' : 'bg-gray-50 text-gray-700 border border-gray-200') }}">
+                            {{ $rentalCategoryLabel }}
+                        </span>
+                    </td>
                     <td class="px-6 py-4">
                         @switch($request->status)
                             @case('pending')
@@ -142,12 +155,7 @@
                                     <i class="fas fa-check-circle mr-1"></i> Disetujui
                                 </span>
                                 @break
-                            @case('in_progress')
-                                <span class="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-semibold bg-blue-100 text-blue-700 border border-blue-300">
-                                    <i class="fas fa-spinner mr-1"></i> Berlangsung
-                                </span>
-                                @break
-                            @case('done')
+                            @case('completed')
                                 <span class="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-semibold bg-emerald-100 text-emerald-700 border border-emerald-300">
                                     <i class="fas fa-flag-checkered mr-1"></i> Selesai
                                 </span>
@@ -157,7 +165,20 @@
                                     <i class="fas fa-times-circle mr-1"></i> Ditolak
                                 </span>
                                 @break
+                            @case('cancelled')
+                                <span class="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-semibold bg-gray-100 text-gray-700 border border-gray-300">
+                                    <i class="fas fa-ban mr-1"></i> Dibatalkan
+                                </span>
+                                @break
+                            @default
+                                <span class="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-semibold bg-gray-100 text-gray-700 border border-gray-300">
+                                    {{ $request->status }}
+                                </span>
+                                @break
                         @endswitch
+                    </td>
+                    <td class="px-6 py-4 text-sm text-gray-600">
+                        {{ $request->created_at->format('d M Y H:i') }}
                     </td>
                     <td class="px-6 py-4">
                         <div class="flex justify-center gap-2">
