@@ -6,7 +6,10 @@
 
 @section('content')
 @php
-    $computedHargaPokok = $booking->harga_pokok ?: (($pricePerPerson ?? 15000) * ($booking->jumlah_non_ukm ?? 0));
+    $isNonUkmBooking = ($booking->jumlah_non_ukm ?? 0) > 0;
+    $computedHargaPokok = $isNonUkmBooking
+        ? ($booking->harga_pokok ?: (($pricePerPerson ?? 15000) * ($booking->jumlah_non_ukm ?? 0)))
+        : 0;
     $computedHargaFinal = $booking->harga_final ?? max(0, $computedHargaPokok - ($booking->diskon_nominal ?? 0));
 @endphp
 <div class="container mx-auto px-4 py-6">
@@ -89,32 +92,48 @@
 
         <!-- Participant & Pricing Info -->
         <div class="bg-white rounded-lg shadow p-6">
-            <h2 class="text-2xl font-bold text-gray-800 mb-4">Informasi Peserta & Harga</h2>
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">Informasi Peserta</h2>
             
             <div class="grid grid-cols-2 gap-4 mb-6">
                 <div class="bg-gray-50 p-4 rounded">
                     <p class="text-gray-600 text-sm">Jumlah Non-UKM</p>
-                    <p class="font-bold text-gray-800 text-lg">{{ $booking->jumlah_non_ukm ?? 0 }} Orang</p>
-                </div>
-                <div class="bg-gray-50 p-4 rounded">
-                    <p class="text-gray-600 text-sm">Harga per Orang</p>
-                    <p class="font-bold text-gray-800 text-lg">Rp {{ number_format($booking->harga_satuan ?? $pricePerPerson ?? 15000, 0, ',', '.') }}</p>
+                    <p class="font-bold text-gray-800 text-lg">{{ ($booking->jumlah_non_ukm ?? 0) > 0 ? ($booking->jumlah_non_ukm . ' Orang') : 'UKM semua' }}</p>
                 </div>
             </div>
 
-            <!-- Pricing Details -->
-            <div class="grid grid-cols-2 gap-4">
-                <div class="bg-blue-50 p-4 rounded border-l-4 border-blue-500">
-                    <p class="text-gray-600 text-sm font-semibold">Total Harga Pokok</p>
-                    <p class="font-bold text-gray-800 text-lg">Rp {{ number_format($computedHargaPokok, 0, ',', '.') }}</p>
+            @if(($booking->jumlah_non_ukm ?? 0) === 0)
+                <!-- UKM Only - No Pricing -->
+                <div class="bg-green-50 p-4 rounded border-l-4 border-green-500">
+                    <p class="text-green-800 font-semibold">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline mr-2" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                        </svg>
+                        Anak UKM tidak perlu membayar
+                    </p>
                 </div>
-            </div>
+            @else
+                <!-- Non-UKM or Mixed - Show Pricing -->
+                <div class="grid grid-cols-2 gap-4 mb-6">
+                    <div class="bg-gray-50 p-4 rounded">
+                        <p class="text-gray-600 text-sm">Harga per Orang</p>
+                        <p class="font-bold text-gray-800 text-lg">Rp {{ number_format($booking->harga_satuan ?? $pricePerPerson ?? 15000, 0, ',', '.') }}</p>
+                    </div>
+                </div>
 
-            @if(($booking->diskon_nominal ?? 0) > 0)
-            <div class="mt-4 bg-yellow-50 p-4 rounded border-l-4 border-yellow-500">
-                <p class="text-gray-600 text-sm font-semibold">Diskon</p>
-                <p class="font-bold text-gray-800">Rp {{ number_format($booking->diskon_nominal, 0, ',', '.') }} ({{ $booking->diskon_persen ?? 0 }}%)</p>
-            </div>
+                <!-- Pricing Details -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-blue-50 p-4 rounded border-l-4 border-blue-500">
+                        <p class="text-gray-600 text-sm font-semibold">Total Harga Pokok</p>
+                        <p class="font-bold text-gray-800 text-lg">Rp {{ number_format($computedHargaPokok, 0, ',', '.') }}</p>
+                    </div>
+                </div>
+
+                @if(($booking->diskon_nominal ?? 0) > 0)
+                <div class="mt-4 bg-yellow-50 p-4 rounded border-l-4 border-yellow-500">
+                    <p class="text-gray-600 text-sm font-semibold">Diskon</p>
+                    <p class="font-bold text-gray-800">Rp {{ number_format($booking->diskon_nominal, 0, ',', '.') }} ({{ $booking->diskon_persen ?? 0 }}%)</p>
+                </div>
+                @endif
             @endif
         </div>
 
@@ -147,35 +166,48 @@
             <h3 class="font-bold text-gray-800 mb-4">Status Permintaan</h3>
 
                 @if ($booking->status === 'pending')
-                    <form action="{{ route('admin.studio-bookings.approve', $booking->id) }}" method="POST">
+                    <form id="approvalForm" action="{{ route('admin.studio-bookings.approve', $booking->id) }}" method="POST">
                         @csrf
                         <div class="space-y-4">
-                            <div class="form-control">
-                                <label class="label">
-                                    <span class="label-text font-semibold">Harga Pokok *</span>
-                                </label>
-                                <input type="number" id="hargaPokokInput" value="{{ old('harga_pokok', $computedHargaPokok) }}" class="input input-bordered input-sm" min="0" disabled>
-                                <input type="hidden" name="harga_pokok" id="hargaPokokHidden" value="{{ $computedHargaPokok }}">
-                            </div>
+                            @if($isNonUkmBooking)
+                                <!-- Show Pricing Only for Non-UKM -->
+                                <div class="form-control">
+                                    <label class="label">
+                                        <span class="label-text font-semibold">Harga Pokok *</span>
+                                    </label>
+                                    <input type="number" id="hargaPokokInput" value="{{ old('harga_pokok', $computedHargaPokok) }}" class="input input-bordered input-sm" min="0" disabled>
+                                    <input type="hidden" name="harga_pokok" id="hargaPokokHidden" value="{{ $computedHargaPokok }}">
+                                </div>
 
-                            <div class="form-control">
-                                <label class="label">
-                                    <span class="label-text font-semibold">Diskon (%)</span>
-                                </label>
-                                <input type="number" id="diskonPersenInput" name="diskon_persen" placeholder="0%" class="input input-bordered input-sm" min="0" max="100">
-                            </div>
+                                <div class="form-control">
+                                    <label class="label">
+                                        <span class="label-text font-semibold">Diskon (%)</span>
+                                    </label>
+                                    <input type="number" id="diskonPersenInput" name="diskon_persen" placeholder="0%" class="input input-bordered input-sm" min="0" max="100">
+                                </div>
 
-                            <div class="form-control">
-                                <label class="label">
-                                    <span class="label-text font-semibold">Diskon (Rp)</span>
-                                </label>
-                                <input type="number" id="diskonNominalInput" name="diskon_nominal" placeholder="0" class="input input-bordered input-sm" min="0">
-                            </div>
+                                <div class="form-control">
+                                    <label class="label">
+                                        <span class="label-text font-semibold">Diskon (Rp)</span>
+                                    </label>
+                                    <input type="number" id="diskonNominalInput" name="diskon_nominal" placeholder="0" class="input input-bordered input-sm" min="0">
+                                </div>
 
-                            <div class="bg-green-50 p-3 rounded border-2 border-green-300">
-                                <p class="text-xs text-gray-600">Harga Final</p>
-                                <p class="text-lg font-bold text-green-600">Rp <span id="hargaFinalPreview">{{ number_format($computedHargaFinal, 0, ',', '.') }}</span></p>
-                            </div>
+                                <div class="bg-green-50 p-3 rounded border-2 border-green-300">
+                                    <p class="text-xs text-gray-600">Harga Final</p>
+                                    <p class="text-lg font-bold text-green-600">Rp <span id="hargaFinalPreview">{{ number_format($computedHargaFinal, 0, ',', '.') }}</span></p>
+                                </div>
+                            @else
+                                <!-- UKM Only - No Pricing Fields -->
+                                <div class="hidden">
+                                    <input type="hidden" name="harga_pokok" id="hargaPokokHidden" value="0">
+                                    <input type="hidden" name="diskon_persen" value="0">
+                                    <input type="hidden" name="diskon_nominal" value="0">
+                                </div>
+                                <div class="bg-green-50 p-3 rounded border-2 border-green-400">
+                                    <p class="text-sm font-semibold text-green-800">✓ Peserta UKM - Tidak ada biaya</p>
+                                </div>
+                            @endif
 
                             <div class="form-control">
                                 <label class="label">
@@ -394,10 +426,11 @@
 
     // Confirmation before approval
     function confirmApproval() {
+        const isNonUkmBooking = @json($isNonUkmBooking);
         const hargaPokokHidden = document.getElementById('hargaPokokHidden');
-        const hargaPokok = parseInt(hargaPokokHidden.value) || 0;
+        const hargaPokok = parseInt(hargaPokokHidden?.value ?? '0', 10) || 0;
         
-        if (!hargaPokok) {
+        if (isNonUkmBooking && !hargaPokok) {
             alert('Silakan isi harga pokok terlebih dahulu');
             return;
         }

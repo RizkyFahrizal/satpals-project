@@ -48,7 +48,7 @@
     </div>
 
     @php
-        $baseFilters = request()->only(['search', 'filter_tanggal']);
+        $baseFilters = request()->only(['search', 'filter_bulan']);
         $totalCount = \App\Models\StudioBooking::count();
         $pendingCount = \App\Models\StudioBooking::where('status', 'pending')->count();
         $approvedCount = \App\Models\StudioBooking::where('status', 'approved')->count();
@@ -109,10 +109,21 @@
                     </div>
 
                     <div class="w-full md:w-48">
-                        <input type="date"
-                               name="filter_tanggal"
-                               value="{{ request('filter_tanggal') }}"
-                               class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 transition-all">
+                        <select name="filter_bulan" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 transition-all">
+                            <option value="">Semua Bulan</option>
+                            <option value="1" {{ request('filter_bulan') === '1' ? 'selected' : '' }}>Januari</option>
+                            <option value="2" {{ request('filter_bulan') === '2' ? 'selected' : '' }}>Februari</option>
+                            <option value="3" {{ request('filter_bulan') === '3' ? 'selected' : '' }}>Maret</option>
+                            <option value="4" {{ request('filter_bulan') === '4' ? 'selected' : '' }}>April</option>
+                            <option value="5" {{ request('filter_bulan') === '5' ? 'selected' : '' }}>Mei</option>
+                            <option value="6" {{ request('filter_bulan') === '6' ? 'selected' : '' }}>Juni</option>
+                            <option value="7" {{ request('filter_bulan') === '7' ? 'selected' : '' }}>Juli</option>
+                            <option value="8" {{ request('filter_bulan') === '8' ? 'selected' : '' }}>Agustus</option>
+                            <option value="9" {{ request('filter_bulan') === '9' ? 'selected' : '' }}>September</option>
+                            <option value="10" {{ request('filter_bulan') === '10' ? 'selected' : '' }}>Oktober</option>
+                            <option value="11" {{ request('filter_bulan') === '11' ? 'selected' : '' }}>November</option>
+                            <option value="12" {{ request('filter_bulan') === '12' ? 'selected' : '' }}>Desember</option>
+                        </select>
                     </div>
 
                     <div class="w-full md:w-48">
@@ -128,7 +139,7 @@
 
                     <div class="flex gap-2">
                         <button type="submit" class="px-6 py-2.5 bg-yellow-400 hover:bg-yellow-500 text-gray-800 font-semibold rounded-xl transition-all whitespace-nowrap">Filter</button>
-                        @if(request('search') || request('filter_tanggal') || request('filter_status'))
+                        @if(request('search') || request('filter_bulan') || request('filter_status'))
                             <a href="{{ route('admin.studio-bookings.index') }}" class="px-6 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-xl transition-all whitespace-nowrap">Reset</a>
                         @endif
                     </div>
@@ -153,8 +164,8 @@
                         <tr class="border-b border-gray-100 hover:bg-yellow-50/30 transition">
                             <td class="px-6 py-4">
                                 <div>
-                                    <p class="font-semibold text-gray-900">{{ $booking->nama_pemohon ?? ($booking->user?->name ?? 'N/A') }}</p>
-                                    <p class="text-sm text-gray-600">{{ $booking->renter_phone ?? $booking->nomor_identitas ?? ($booking->user?->email ?? '-') }}</p>
+                                    <p class="font-semibold text-gray-900">{{ $booking->nama_pemohon ?? 'N/A' }}</p>
+                                    <p class="text-sm text-gray-600">{{ $booking->nomor_identitas ?? '-' }}</p>
                                 </div>
                             </td>
                             <td class="px-6 py-4">
@@ -200,7 +211,7 @@
             </div>
 
             <div class="mt-8 flex justify-center">
-                {{ $allBookings->links() }}
+                {{ $allBookings->appends(request()->query())->links() }}
             </div>
             @else
             <div class="bg-white rounded-2xl shadow-md border border-gray-100 p-12 text-center">
@@ -312,8 +323,8 @@
 
                                                 @if ($sesi['booking'])
                                                     <div class="bg-white p-3 rounded-lg border-l-4 border-yellow-400 mt-2">
-                                                        <p class="font-semibold text-gray-800">{{ $sesi['booking']->user?->name ?? $sesi['booking']->nama_pemohon }}</p>
-                                                        <p class="text-sm text-gray-600">NPM: {{ $sesi['booking']->user?->username ?? $sesi['booking']->nomor_identitas }}</p>
+                                                        <p class="font-semibold text-gray-800">{{ $sesi['booking']->nama_pemohon }}</p>
+                                                        <p class="text-sm text-gray-600">Identitas: {{ $sesi['booking']->nomor_identitas }}</p>
                                                         <p class="text-sm text-gray-700 mt-2">{{ $sesi['booking']->keperluan }}</p>
                                                         <div class="flex gap-2 mt-2">
                                                             <span class="badge
@@ -371,8 +382,8 @@
                                     <a href="{{ route('admin.studio-bookings.show', $booking->id) }}" class="block p-3 border border-yellow-200 rounded-lg hover:bg-yellow-50 transition-colors">
                                         <div class="flex items-start justify-between gap-2 mb-2">
                                             <div>
-                                                <p class="font-semibold text-gray-800 text-sm">{{ $booking->user?->name ?? $booking->nama_pemohon }}</p>
-                                                <p class="text-xs text-gray-500">{{ $booking->user?->username ?? $booking->nomor_identitas }}</p>
+                                                <p class="font-semibold text-gray-800 text-sm">{{ $booking->nama_pemohon }}</p>
+                                                <p class="text-xs text-gray-500">{{ $booking->nomor_identitas }}</p>
                                             </div>
                                             <span class="badge badge-warning badge-sm">Menunggu</span>
                                         </div>

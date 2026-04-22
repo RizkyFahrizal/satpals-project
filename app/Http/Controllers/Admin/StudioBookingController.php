@@ -28,7 +28,7 @@ class StudioBookingController extends Controller
         // Get active bookings for selected date
         $bookingsForDate = StudioBooking::byDate($selectedDate)
             ->whereIn('status', [StudioBooking::STATUS_PENDING, StudioBooking::STATUS_APPROVED])
-            ->with(['user', 'approvedBy'])
+            ->with(['approvedBy'])
             ->orderByDesc('created_at')
             ->orderBy('sesi')
             ->get();
@@ -43,7 +43,7 @@ class StudioBookingController extends Controller
             ->groupBy('tanggal_booking');
 
         // Get ALL bookings for table view with search and filter
-        $query = StudioBooking::with(['user', 'approvedBy', 'income']);
+        $query = StudioBooking::with(['approvedBy', 'income']);
 
         // Search by nama_pemohon
         if ($request->filled('search')) {
@@ -57,10 +57,11 @@ class StudioBookingController extends Controller
             });
         }
 
-        // Filter by tanggal_booking
-        if ($request->filled('filter_tanggal')) {
-            $filterTanggal = $request->input('filter_tanggal');
-            $query->whereDate('tanggal_booking', '=', $filterTanggal);
+        // Filter by bulan (created_at)
+        if ($request->filled('filter_bulan')) {
+            $filterBulan = (int) $request->input('filter_bulan');
+            // Filter berdasarkan bulan data dibuat (created_at)
+            $query->whereMonth('created_at', $filterBulan);
         }
 
         // Filter by status (support both old filter_status and new tab status param)
@@ -85,7 +86,6 @@ class StudioBookingController extends Controller
 
         // Get pending bookings
         $pendingBookings = StudioBooking::pending()
-            ->with(['user'])
             ->orderBy('created_at', 'desc')
             ->get();
 
@@ -139,7 +139,7 @@ class StudioBookingController extends Controller
      */
     public function show(StudioBooking $booking)
     {
-        $booking->load(['user', 'approvedBy', 'income']);
+        $booking->load(['approvedBy', 'income']);
         return view('admin.studio-bookings.show', [
             'booking' => $booking,
             'pricePerPerson' => StudioBookingSetting::currentPricePerPerson(),
@@ -199,16 +199,19 @@ class StudioBookingController extends Controller
 
         $hargaFinal = max(0, $hargaPokok - $diskonNominal);
 
-        $income = Income::create([
-            'title' => 'Booking Studio - ' . $booking->booking_code,
-            'description' => 'Booking Studio ' . $booking->booking_code,
-            'nominal' => $hargaFinal,
-            'source' => 'Booking Studio',
-            'income_date' => now(),
-            'created_by' => Auth::id(),
-            'creator_name' => $booking->nama_pemohon,
-            'status' => 'pending',
-        ]);
+        $income = null;
+        if ($hargaFinal > 0) {
+            $income = Income::create([
+                'title' => 'Booking Studio - ' . $booking->booking_code,
+                'description' => 'Booking Studio ' . $booking->booking_code,
+                'nominal' => $hargaFinal,
+                'source' => 'Booking Studio',
+                'income_date' => now(),
+                'created_by' => Auth::id(),
+                'creator_name' => $booking->nama_pemohon,
+                'status' => 'pending',
+            ]);
+        }
 
         $booking->update([
             'status' => StudioBooking::STATUS_APPROVED,
@@ -219,10 +222,10 @@ class StudioBookingController extends Controller
             'approved_by' => Auth::id(),
             'approved_at' => now(),
             'catatan_admin' => $validated['catatan'] ?? null,
-            'income_id' => $income->id,
+            'income_id' => $income?->id,
         ]);
 
-        $recipientEmail = $booking->renter_email ?: $booking->user?->email;
+        $recipientEmail = $booking->renter_email;
 
         if ($recipientEmail) {
             try {
@@ -235,12 +238,16 @@ class StudioBookingController extends Controller
                     'error' => $exception->getMessage(),
                 ]);
 
-                return back()->with('success', 'Booking berhasil di-approve dan pemasukan telah dibuat')
+                return back()->with('success', $hargaFinal > 0
+                    ? 'Booking berhasil di-approve dan pemasukan telah dibuat'
+                    : 'Booking berhasil di-approve tanpa pemasukan karena booking UKM semua')
                     ->with('warning', 'Booking sudah disetujui, tetapi email notifikasi gagal dikirim.');
             }
         }
 
-        return back()->with('success', 'Booking berhasil di-approve dan pemasukan telah dibuat');
+        return back()->with('success', $hargaFinal > 0
+            ? 'Booking berhasil di-approve dan pemasukan telah dibuat'
+            : 'Booking berhasil di-approve tanpa pemasukan karena booking UKM semua');
     }
 
     /**

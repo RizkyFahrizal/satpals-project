@@ -7,6 +7,42 @@
 @section('breadcrumb', 'Manajemen Band')
 
 @section('content')
+@php
+    $pricePerHour = $rental->band->price_per_hour ?? 0;
+    $pricePerEvent = $rental->band->price_per_event ?? 0;
+
+    $hasStartEndTimes = !empty($rental->performance_start_time) && !empty($rental->performance_end_time);
+    $calculatedDurationMinutes = 0;
+
+    if (($rental->performance_duration_hours ?? 0) > 0 || ($rental->performance_duration_minutes ?? 0) > 0) {
+        $calculatedDurationMinutes = ((int) ($rental->performance_duration_hours ?? 0) * 60) + (int) ($rental->performance_duration_minutes ?? 0);
+    } elseif ($hasStartEndTimes) {
+        try {
+            $startTime = \Carbon\Carbon::parse($rental->performance_start_time);
+            $endTime = \Carbon\Carbon::parse($rental->performance_end_time);
+            $calculatedDurationMinutes = $startTime->diffInMinutes($endTime, false);
+
+            if ($calculatedDurationMinutes < 0) {
+                $calculatedDurationMinutes += 24 * 60;
+            }
+
+            $breakMinutes = ((int) ($rental->break_duration_hours ?? 0) * 60) + (int) ($rental->break_duration_minutes ?? 0);
+            $calculatedDurationMinutes = max(0, $calculatedDurationMinutes - $breakMinutes);
+        } catch (\Throwable $exception) {
+            $calculatedDurationMinutes = 0;
+        }
+    }
+
+    $calculatedHargaHourly = $calculatedDurationMinutes > 0
+        ? ceil($calculatedDurationMinutes / 60) * $pricePerHour
+        : 0;
+
+    $rentalType = $rental->rental_type
+        ?? (($rental->performance_start_time || $rental->performance_end_time) ? 'hourly' : 'event');
+    $isEventRental = $rentalType === 'event';
+    $computedHargaPokok = $rental->harga_pokok ?: ($isEventRental ? $pricePerEvent : $calculatedHargaHourly);
+    $computedHargaFinal = $rental->harga_final ?? max(0, $computedHargaPokok - ($rental->diskon_nominal ?? 0));
+@endphp
 <div class="container mx-auto px-4 py-6">
     <!-- Header -->
     <div class="flex justify-between items-start mb-6">
@@ -51,7 +87,9 @@
                     </div>
                     <div class="bg-gray-50 p-4 rounded">
                         <p class="text-gray-600 text-sm">Tanggal Pertunjukan</p>
-                        <p class="font-bold text-gray-800">{{ $rental->performance_date->format('d M Y') }}</p>
+                        <p class="font-bold text-gray-800">
+                            {{ $rental->performance_date ? \Carbon\Carbon::parse($rental->performance_date)->format('d M Y') : '-' }}
+                        </p>
                     </div>
                     <div class="bg-gray-50 p-4 rounded">
                         <p class="text-gray-600 text-sm">Status</p>
@@ -69,10 +107,18 @@
                             @endif
                         </div>
                     </div>
+                    <div class="bg-gray-50 p-4 rounded">
+                        <p class="text-gray-600 text-sm">Tipe Penyewaan</p>
+                        <p class="font-bold text-gray-800">{{ $isEventRental ? 'Event' : 'Per Jam' }}</p>
+                    </div>
+                    <div class="bg-gray-50 p-4 rounded">
+                        <p class="text-gray-600 text-sm">Harga Event</p>
+                        <p class="font-bold text-gray-800">Rp {{ number_format($pricePerEvent, 0, ',', '.') }}</p>
+                    </div>
                 </div>
 
                 <!-- Performance Times -->
-                @if($rental->performance_start_time && $rental->performance_end_time)
+                @if(!$isEventRental && $rental->performance_start_time && $rental->performance_end_time)
                 <div class="grid grid-cols-2 gap-4 mb-6">
                     <div class="bg-green-50 p-4 rounded border-l-4 border-green-500">
                         <p class="text-gray-600 text-sm font-semibold">Waktu Mulai</p>
@@ -83,10 +129,15 @@
                         <p class="font-bold text-gray-800 text-lg">{{ $rental->performance_end_time }}</p>
                     </div>
                 </div>
+                @else
+                <div class="bg-blue-50 p-4 rounded border-l-4 border-blue-500 mb-6">
+                    <p class="text-gray-600 text-sm font-semibold">Detail Event</p>
+                    <p class="font-bold text-gray-800 text-lg">Sewa event tanpa jam dan break</p>
+                </div>
                 @endif
 
                 <!-- Break & Performance Duration -->
-                @if($rental->break_duration_hours !== null || $rental->break_duration_minutes !== null)
+                @if(!$isEventRental && ($rental->break_duration_hours !== null || $rental->break_duration_minutes !== null))
                 <div class="grid grid-cols-2 gap-4 mb-6">
                     <div class="bg-yellow-50 p-4 rounded border-l-4 border-yellow-500">
                         <p class="text-gray-600 text-sm font-semibold">Total Jam Break</p>
@@ -142,12 +193,12 @@
                         <p class="font-bold text-gray-800">{{ $rental->band->band_name }}</p>
                     </div>
                     <div class="bg-gray-50 p-4 rounded">
-                        <p class="text-gray-600 text-sm">Harga (Per Jam)</p>
-                        <p class="font-bold text-green-600">Rp {{ number_format($rental->band->price_per_hour, 0, ',', '.') }}</p>
+                        <p class="text-gray-600 text-sm">Harga Sewa</p>
+                        <p class="font-bold text-green-600">Rp {{ number_format($isEventRental ? $pricePerEvent : $pricePerHour, 0, ',', '.') }}</p>
                     </div>
                     <div class="bg-gray-50 p-4 rounded">
                         <p class="text-gray-600 text-sm">Harga (Per Event)</p>
-                        <p class="font-bold text-green-600">Rp {{ number_format($rental->band->price_per_event, 0, ',', '.') }}</p>
+                        <p class="font-bold text-green-600">Rp {{ number_format($pricePerEvent, 0, ',', '.') }}</p>
                     </div>
                     <div class="bg-gray-50 p-4 rounded">
                         <p class="text-gray-600 text-sm">Status Band</p>
@@ -239,8 +290,8 @@
                             <label class="label">
                                 <span class="label-text font-semibold">Harga Pokok *</span>
                             </label>
-                            <input type="number" id="hargaPokok" placeholder="Rp 0" class="input input-bordered input-sm" disabled min="0">
-                            <input type="hidden" name="harga_pokok" id="hargaPokokHidden" value="0">
+                            <input type="text" id="hargaPokok" placeholder="Rp 0" class="input input-bordered input-sm" disabled>
+                            <input type="hidden" name="harga_pokok" id="hargaPokokHidden" value="{{ $computedHargaPokok }}">
                         </div>
 
                         <!-- Diskon Persen -->
@@ -452,9 +503,54 @@ const diskonNominalInput = document.getElementById('diskonNominal');
 const hargaFinalDisplay = document.getElementById('hargaFinal');
 
 // Data dari blade
-const pricePerHour = {{ $rental->band->price_per_hour }};
-const performanceDurationHours = {{ $rental->performance_duration_hours ?? 0 }};
-const performanceDurationMinutes = {{ $rental->performance_duration_minutes ?? 0 }};
+const rentalType = @json($rentalType ?? 'hourly');
+const pricePerHour = {{ (int) $pricePerHour }};
+const pricePerEvent = {{ (int) $pricePerEvent }};
+const performanceDurationHours = {{ (int) ($rental->performance_duration_hours ?? 0) }};
+const performanceDurationMinutes = {{ (int) ($rental->performance_duration_minutes ?? 0) }};
+const performanceStartTime = @json($rental->performance_start_time ?? null);
+const performanceEndTime = @json($rental->performance_end_time ?? null);
+const breakDurationHours = {{ (int) ($rental->break_duration_hours ?? 0) }};
+const breakDurationMinutes = {{ (int) ($rental->break_duration_minutes ?? 0) }};
+
+function parseTimeToMinutes(timeValue) {
+    if (!timeValue) {
+        return null;
+    }
+
+    const parts = String(timeValue).split(':').map(Number);
+    if (parts.length < 2 || Number.isNaN(parts[0]) || Number.isNaN(parts[1])) {
+        return null;
+    }
+
+    return (parts[0] * 60) + parts[1];
+}
+
+function getBaseHargaPokok() {
+    if (rentalType === 'event') {
+        return pricePerEvent;
+    }
+
+    let totalMinutes = (performanceDurationHours * 60) + performanceDurationMinutes;
+
+    if (totalMinutes <= 0) {
+        const startMinutes = parseTimeToMinutes(performanceStartTime);
+        const endMinutes = parseTimeToMinutes(performanceEndTime);
+
+        if (startMinutes !== null && endMinutes !== null) {
+            let eventMinutes = endMinutes - startMinutes;
+            if (eventMinutes < 0) {
+                eventMinutes += 24 * 60;
+            }
+
+            const totalBreakMinutes = (breakDurationHours * 60) + breakDurationMinutes;
+            totalMinutes = Math.max(0, eventMinutes - totalBreakMinutes);
+        }
+    }
+
+    const durationHours = Math.ceil(totalMinutes / 60);
+    return durationHours > 0 ? durationHours * pricePerHour : 0;
+}
 
 // Format number to Indonesian currency style (without Rp prefix)
 function formatNumber(num) {
@@ -469,14 +565,10 @@ function hitungDurasi() {
 
 // Auto-calculate harga pokok on page load
 function initializeHargaPokok() {
-    const durationHours = hitungDurasi();
-    if (durationHours > 0 && pricePerHour > 0) {
-        const calculatedPrice = durationHours * pricePerHour;
-        // Store numeric value in both inputs
-        hargaPokokInput.value = formatNumber(calculatedPrice);
-        document.getElementById('hargaPokokHidden').value = calculatedPrice;
-        hitungHargaFinal();
-    }
+    const calculatedPrice = getBaseHargaPokok();
+    hargaPokokInput.value = 'Rp ' + formatNumber(calculatedPrice);
+    document.getElementById('hargaPokokHidden').value = calculatedPrice;
+    hitungHargaFinal();
 }
 
 // Calculate final price

@@ -83,6 +83,7 @@ Route::get('/bands', [\App\Http\Controllers\BandRentalController::class, 'index'
 Route::get('/bands/{band}', [\App\Http\Controllers\BandRentalController::class, 'show'])->name('public.bands.show');
 Route::get('/bands/{band}/rental', [\App\Http\Controllers\BandRentalController::class, 'createRequest'])->name('public.bands.rental-form');
 Route::post('/bands/{band}/rental', [\App\Http\Controllers\BandRentalController::class, 'storeRequest'])->name('public.bands.rental-store');
+Route::get('/bands/{band}/rental/success', [\App\Http\Controllers\BandRentalController::class, 'success'])->name('public.bands.rental-success');
 Route::get('/studio-bookings/create', [\App\Http\Controllers\StudioBookingController::class, 'create'])->name('studio-bookings.create');
 Route::post('/studio-bookings', [\App\Http\Controllers\StudioBookingController::class, 'store'])->name('studio-bookings.store');
 Route::get('/studio-bookings/success', [\App\Http\Controllers\StudioBookingController::class, 'success'])->name('studio-bookings.success');

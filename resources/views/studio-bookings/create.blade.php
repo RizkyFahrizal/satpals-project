@@ -244,6 +244,10 @@
                                 @enderror
                             </div>
 
+                            <div id="ukm-all-message" class="hidden alert alert-info shadow-sm">
+                                <span>Mode UKM semua aktif. Tidak ada biaya yang dihitung.</span>
+                            </div>
+
                             <!-- Price Summary -->
                             <div id="price-summary-card" class="bg-yellow-50 border border-yellow-200 rounded-2xl p-5">
                                 <div class="flex items-center justify-between mb-3 gap-4">
@@ -340,7 +344,6 @@
 
     <script>
         const pricePerPerson = {{ (int) $pricePerPerson }};
-        const defaultBookingScope = @json(old('booking_scope', 'ukm_all'));
 
         function formatRupiah(value) {
             return 'Rp ' + Number(value || 0).toLocaleString('id-ID');
@@ -354,26 +357,29 @@
         function toggleParticipantFields() {
             const scope = getSelectedBookingScope();
             const wrapper = document.getElementById('non-ukm-wrapper');
+            const ukmAllMessage = document.getElementById('ukm-all-message');
             const qtyInput = document.getElementById('jumlah_non_ukm');
             const priceCard = document.getElementById('price-summary-card');
             const priceNote = document.getElementById('price-summary-note');
 
-            if (!wrapper || !qtyInput || !priceCard || !priceNote) {
+            if (!wrapper || !ukmAllMessage || !qtyInput || !priceCard || !priceNote) {
                 return;
             }
 
             const isNonUkm = scope === 'non_ukm';
 
             wrapper.classList.toggle('hidden', !isNonUkm);
+            ukmAllMessage.classList.toggle('hidden', isNonUkm);
             qtyInput.required = isNonUkm;
             qtyInput.min = isNonUkm ? '1' : '0';
 
             if (!isNonUkm) {
                 qtyInput.value = '0';
-                priceCard.classList.add('opacity-75');
-                priceNote.textContent = 'Pilih "Ada peserta non-UKM" jika ada biaya per orang. Untuk UKM semua, total harga menjadi Rp 0.';
+                priceCard.classList.add('hidden');
+                priceNote.textContent = 'Pilih "Ada peserta non-UKM" jika ada biaya per orang.';
                 document.getElementById('total-price').textContent = formatRupiah(0);
             } else {
+                priceCard.classList.remove('hidden');
                 priceCard.classList.remove('opacity-75');
                 priceNote.textContent = 'Total dihitung dari jumlah non-UKM × harga per orang.';
                 updatePriceSummary();

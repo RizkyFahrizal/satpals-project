@@ -18,7 +18,7 @@ class BandRentalRequestController extends Controller
      */
     public function index(Request $request)
     {
-        $query = BandRentalRequest::with(['band', 'user'])
+        $query = BandRentalRequest::with(['band.members'])
             ->orderBy('created_at', 'desc');
         
         // Filter by status if provided
@@ -36,7 +36,7 @@ class BandRentalRequestController extends Controller
      */
     public function show(BandRentalRequest $rental)
     {
-        $rental->load(['band', 'user']);
+        $rental->load(['band.members']);
         
         return view('admin.band-rentals.show', compact('rental'));
     }
@@ -222,7 +222,7 @@ class BandRentalRequestController extends Controller
             abort(403, 'Invoice hanya dapat dilihat untuk sewa yang sudah disetujui');
         }
 
-        $rental->load(['band', 'user']);
+        $rental->load(['band']);
         return InvoiceService::generate($rental)->stream();
     }
 }

@@ -18,6 +18,9 @@ class InvoiceService
             'user' => $rental->user,
             'invoiceDate' => now()->format('d M Y'),
             'invoiceNumber' => $rental->kode_order,
+            'rentalType' => $rental->rental_type ?? 'hourly',
+            'pricePerHour' => $rental->band?->price_per_hour ?? 0,
+            'pricePerEvent' => $rental->band?->price_per_event ?? 0,
             'durationHours' => self::calculateDuration($rental),
         ];
 
@@ -44,11 +47,31 @@ class InvoiceService
      */
     private static function calculateDuration(BandRentalRequest $rental)
     {
-        if ($rental->performance_duration_hours === null && $rental->performance_duration_minutes === null) {
-            return 0;
+        if (($rental->performance_duration_hours !== null || $rental->performance_duration_minutes !== null)
+            && ((int) $rental->performance_duration_hours > 0 || (int) $rental->performance_duration_minutes > 0)) {
+            $totalMinutes = ((int) $rental->performance_duration_hours * 60) + (int) $rental->performance_duration_minutes;
+            return ceil($totalMinutes / 60);
         }
 
-        $totalMinutes = ($rental->performance_duration_hours * 60) + $rental->performance_duration_minutes;
-        return ceil($totalMinutes / 60); // Round up to next hour
+        if ($rental->performance_start_time && $rental->performance_end_time) {
+            try {
+                $startTime = \Carbon\Carbon::parse($rental->performance_start_time);
+                $endTime = \Carbon\Carbon::parse($rental->performance_end_time);
+                $totalMinutes = $startTime->diffInMinutes($endTime, false);
+
+                if ($totalMinutes < 0) {
+                    $totalMinutes += 24 * 60;
+                }
+
+                $breakMinutes = ((int) $rental->break_duration_hours * 60) + (int) $rental->break_duration_minutes;
+                $mainMinutes = max(0, $totalMinutes - $breakMinutes);
+
+                return ceil($mainMinutes / 60);
+            } catch (\Throwable $exception) {
+                return 0;
+            }
+        }
+
+        return 0;
     }
 }

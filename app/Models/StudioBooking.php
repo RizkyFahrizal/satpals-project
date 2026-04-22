@@ -11,7 +11,6 @@ class StudioBooking extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_id',
         'booking_code',
         'tanggal_booking',
         'sesi',
@@ -50,14 +49,6 @@ class StudioBooking extends Model
         3 => ['label' => 'Sesi 3', 'start' => '14:00', 'end' => '17:00'],
         4 => ['label' => 'Sesi 4', 'start' => '17:00', 'end' => '20:00'],
     ];
-
-    /**
-     * Relationship: Booking belongs to User
-     */
-    public function user()
-    {
-        return $this->belongsTo(User::class);
-    }
 
     /**
      * Relationship: Booking approved by user (pengurus)

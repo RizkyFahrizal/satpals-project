@@ -27,7 +27,6 @@ class StudioBookingFactory extends Factory
         $hargaPokok = $jumlahNonUkm * $hargaSatuan;
 
         return [
-            'user_id' => User::factory(),
             'booking_code' => null,
             'tanggal_booking' => $this->faker->dateTimeBetween('+1 day', '+30 days')->format('Y-m-d'),
             'sesi' => $this->faker->numberBetween(1, 4),

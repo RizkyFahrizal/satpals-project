@@ -63,7 +63,7 @@
                 </div>
                 <div class="border-l-4 border-orange-500 pl-4">
                     <p class="text-sm text-gray-600 font-semibold">Jumlah Non-UKM</p>
-                    <p class="text-lg text-gray-900 font-semibold">{{ $booking->jumlah_non_ukm ?? 0 }} Orang</p>
+                    <p class="text-lg text-gray-900 font-semibold">{{ ($booking->jumlah_non_ukm ?? 0) > 0 ? ($booking->jumlah_non_ukm . ' Orang') : 'UKM semua' }}</p>
                 </div>
                 <div class="border-l-4 border-yellow-500 pl-4">
                     <p class="text-sm text-gray-600 font-semibold">Total Harga</p>

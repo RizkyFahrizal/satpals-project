@@ -6,8 +6,15 @@
    <title>Pesanan Disetujui</title>
 </head>
 <body style="margin:0;padding:0;background:#f9fafb;font-family:Arial,sans-serif;color:#111827;">
+   @php
+      $logoPath = public_path('assets/images/logoukm.png');
+      $logoBase64 = file_exists($logoPath) ? 'data:image/png;base64,' . base64_encode(file_get_contents($logoPath)) : null;
+   @endphp
    <div style="max-width:640px;margin:0 auto;padding:24px;">
       <div style="background:linear-gradient(135deg,#3b82f6 0%,#2563eb 100%);color:#fff;padding:28px;border-radius:16px 16px 0 0;text-align:center;">
+         @if($logoBase64)
+            <img src="{{ $logoBase64 }}" alt="Logo UKM" style="width:54px;height:54px;object-fit:contain;margin:0 auto 12px;display:block;">
+         @endif
          <h1 style="margin:0;font-size:28px;">🎉 Pesanan Anda Telah Disetujui</h1>
          <p style="margin:10px 0 0;font-size:14px;opacity:.95;">Satya Palapa</p>
       </div>

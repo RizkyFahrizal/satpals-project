@@ -25,15 +25,12 @@ class StudioBookingController extends Controller
                 return $booking->tanggal_booking->format('Y-m-d');
             });
 
-        // Get user's bookings if logged in
+        // Get user's bookings if logged in (by email)
         $myBookings = null;
         if (auth()->check()) {
-            $myBookings = StudioBooking::where(function($query) {
-                $query->where('user_id', auth()->id())
-                      ->orWhere('nomor_identitas', auth()->user()?->username ?? '');
-            })
-            ->orderBy('created_at', 'desc')
-            ->get();
+            $myBookings = StudioBooking::where('renter_email', auth()->user()?->email)
+                ->orderBy('created_at', 'desc')
+                ->get();
         }
 
         // Group bookings by date for calendar
@@ -85,9 +82,6 @@ class StudioBookingController extends Controller
      */
     public function store(Request $request)
     {
-        // Log request data untuk debug
-        \Log::info('StudioBooking store - request data:', $request->all());
-        
         $validated = $request->validate([
             'npm' => 'required|string',
             'nama_lengkap' => 'required|string',
@@ -96,7 +90,8 @@ class StudioBookingController extends Controller
             'tanggal_booking' => 'required|date|after_or_equal:today',
             'sesi' => 'required|integer|in:1,2,3,4',
             'keperluan' => 'required|string|min:10|max:500',
-            'jumlah_non_ukm' => 'required|integer|min:0|max:999',
+            'booking_scope' => 'required|in:ukm_all,non_ukm',
+            'jumlah_non_ukm' => 'required_if:booking_scope,non_ukm|integer|min:1|max:999',
         ], [
             'npm.required' => 'NPM wajib diisi',
             'nama_lengkap.required' => 'Nama lengkap wajib diisi',
@@ -107,14 +102,18 @@ class StudioBookingController extends Controller
             'tanggal_booking.after_or_equal' => 'Tanggal tidak boleh di masa lalu',
             'sesi.required' => 'Sesi wajib dipilih',
             'sesi.in' => 'Sesi tidak valid',
+            'booking_scope.required' => 'Pilih tipe peserta terlebih dahulu',
+            'booking_scope.in' => 'Tipe peserta tidak valid',
             'keperluan.required' => 'Keperluan wajib diisi',
             'keperluan.min' => 'Keperluan minimal 10 karakter',
-            'jumlah_non_ukm.required' => 'Jumlah non-UKM wajib diisi',
-            'jumlah_non_ukm.min' => 'Jumlah non-UKM minimal 0',
+            'jumlah_non_ukm.required_if' => 'Jumlah non-UKM wajib diisi jika memilih ada peserta non-UKM',
+            'jumlah_non_ukm.min' => 'Jumlah non-UKM minimal 1 orang',
         ]);
 
         // Pastikan format date konsisten (YYYY-MM-DD) dan convert ke Carbon
         $validated['tanggal_booking'] = \Carbon\Carbon::createFromFormat('Y-m-d', $validated['tanggal_booking'])->toDateString();
+        $isNonUkmBooking = $validated['booking_scope'] === 'non_ukm';
+        $validated['jumlah_non_ukm'] = $isNonUkmBooking ? (int) $validated['jumlah_non_ukm'] : 0;
 
         // Validasi: cek npm dan nama di tabel members
         $member = Member::where('npm', $validated['npm'])
@@ -138,13 +137,6 @@ class StudioBookingController extends Controller
         // Validasi: cek ketersediaan sesi
         $sesiAvailable = StudioBooking::isSesiAvailable($validated['tanggal_booking'], $validated['sesi']);
         
-        // Debug logging
-        \Log::info('Booking validation', [
-            'tanggal' => $validated['tanggal_booking'],
-            'sesi' => $validated['sesi'],
-            'sesiAvailable' => $sesiAvailable,
-        ]);
-        
         if (!$sesiAvailable) {
             return back()
                 ->withInput()
@@ -152,9 +144,7 @@ class StudioBookingController extends Controller
         }
 
         // Cek apakah member sudah punya booking pada tanggal dan sesi yang sama
-        $existingBooking = StudioBooking::whereHas('user.member', function ($query) use ($validated) {
-            $query->where('npm', $validated['npm']);
-        })
+        $existingBooking = StudioBooking::where('nomor_identitas', $validated['npm'])
             ->whereDate('tanggal_booking', $validated['tanggal_booking'])
             ->where('sesi', $validated['sesi'])
             ->first();
@@ -166,18 +156,11 @@ class StudioBookingController extends Controller
         }
 
         $pricePerPerson = StudioBookingSetting::currentPricePerPerson();
-        $hargaPokok = $pricePerPerson * (int) $validated['jumlah_non_ukm'];
-
-        // Cari user dari member jika ada
-        $user = null;
-        if ($member->diklatRegistration && $member->diklatRegistration->user) {
-            $user = $member->diklatRegistration->user;
-        }
+        $hargaPokok = $isNonUkmBooking ? ($pricePerPerson * (int) $validated['jumlah_non_ukm']) : 0;
 
         // Create booking
         try {
             $booking = StudioBooking::create([
-                'user_id' => $user?->id,
                 'tanggal_booking' => $validated['tanggal_booking'],
                 'sesi' => $validated['sesi'],
                 'keperluan' => $validated['keperluan'],
@@ -218,16 +201,14 @@ class StudioBookingController extends Controller
         // Get booking ID from session flash
         $bookingId = session('booking_id');
 
-        // If no booking_id in session, try to get latest booking for current user
-        if (!$bookingId && auth()->check()) {
-            $booking = StudioBooking::where('user_id', auth()->id())
-                ->latest()
-                ->first();
-        } else {
-            $booking = $bookingId ? StudioBooking::find($bookingId) : null;
+        // Get booking from session or show error
+        if (!$bookingId) {
+            return redirect()->route('studio-bookings.index')
+                ->with('error', 'Booking tidak ditemukan');
         }
 
-        // If no booking found, redirect back to index
+        $booking = StudioBooking::find($bookingId);
+
         if (!$booking) {
             return redirect()->route('studio-bookings.index')
                 ->with('error', 'Booking tidak ditemukan');
