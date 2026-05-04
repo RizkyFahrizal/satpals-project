@@ -39,8 +39,9 @@
 
     <!-- Filter Period -->
     <div class="bg-white rounded-2xl border border-gray-100 shadow-md p-6">
-        <form method="GET" action="{{ route('admin.financial.index') }}" class="space-y-4">
-            <div class="grid grid-cols-1 lg:grid-cols-6 gap-4">
+        <form method="GET" action="{{ route('admin.financial.index') }}" class="space-y-5">
+            <!-- Row 1: Date Range -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-2">📅 Dari Tanggal</label>
                     <input type="date" name="start_date" value="{{ $startDate->format('Y-m-d') }}" class="input input-bordered w-full rounded-lg border-gray-300 focus:border-yellow-400 focus:ring-yellow-400/20">
@@ -66,6 +67,10 @@
                         <option value="rejected" {{ request('filter_status') === 'rejected' ? 'selected' : '' }}>✕ Rejected</option>
                     </select>
                 </div>
+            </div>
+
+            <!-- Row 2: Expense Type & Search -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-2">📌 Jenis Pengeluaran</label>
                     <select name="filter_expense_type" class="select select-bordered w-full rounded-lg border-gray-300 focus:border-yellow-400 focus:ring-yellow-400/20">
@@ -74,30 +79,24 @@
                         <option value="kegiatan" {{ request('filter_expense_type') === 'kegiatan' ? 'selected' : '' }}>🎯 Kegiatan</option>
                     </select>
                 </div>
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">🔎 Cari Berdasarkan</label>
-                    <select name="search_by" class="select select-bordered w-full rounded-lg border-gray-300 focus:border-yellow-400 focus:ring-yellow-400/20">
-                        <option value="all" {{ ($searchBy ?? request('search_by')) === 'all' || !($searchBy ?? request('search_by')) ? 'selected' : '' }}>Semua Kolom</option>
-                        <option value="title" {{ ($searchBy ?? request('search_by')) === 'title' ? 'selected' : '' }}>Judul Transaksi</option>
-                        <option value="description" {{ ($searchBy ?? request('search_by')) === 'description' ? 'selected' : '' }}>Keterangan</option>
-                        <option value="creator" {{ ($searchBy ?? request('search_by')) === 'creator' ? 'selected' : '' }}>Dibuat Oleh</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">🔤 Kata Kunci</label>
-                    <input type="text" name="search" value="{{ $searchTerm ?? request('search') }}" class="input input-bordered w-full rounded-lg border-gray-300 focus:border-yellow-400 focus:ring-yellow-400/20" placeholder="Cari transaksi...">
+                <div class="lg:col-span-2">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">🔍 Cari Transaksi</label>
+                    <input type="text" name="search" value="{{ $searchTerm ?? request('search') }}" class="input input-bordered w-full rounded-lg border-gray-300 focus:border-yellow-400 focus:ring-yellow-400/20" placeholder="Cari judul, keterangan, atau dibuat oleh...">
                 </div>
             </div>
-            <div class="flex gap-2 justify-end">
-                <button type="submit" class="btn btn-sm bg-yellow-400 hover:bg-yellow-500 border-0 text-gray-900 font-semibold">
+
+            <!-- Row 3: Buttons -->
+            <div class="flex gap-2 justify-end pt-2">
+                <button type="submit" class="btn btn-sm bg-yellow-400 hover:bg-yellow-500 border-0 text-gray-900 font-semibold rounded-lg">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
                     Filter
                 </button>
-                <a href="{{ route('admin.financial.index') }}" class="btn btn-sm border border-gray-300 hover:bg-gray-100 text-gray-800">
+                <a href="{{ route('admin.financial.index') }}" class="btn btn-sm border border-gray-300 hover:bg-gray-100 text-gray-800 rounded-lg">
                     Reset
                 </a>
+            </div>
             </div>
         </form>
     </div>

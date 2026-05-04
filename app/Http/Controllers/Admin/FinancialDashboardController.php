@@ -19,7 +19,7 @@ class FinancialDashboardController extends Controller
         $startDate = $request->start_date ? Carbon::parse($request->start_date) : Carbon::now()->startOfMonth();
         $endDate = $request->end_date ? Carbon::parse($request->end_date) : Carbon::now()->endOfMonth();
         $searchTerm = trim((string) $request->get('search', ''));
-        $searchBy = $request->get('search_by', 'all');
+        $searchBy = 'all'; // Always search across all fields (title, description, creator)
 
         // Calculate totals for the period
         $totalIncome = Income::approved()->whereBetween('created_at', [$startDate, $endDate])->sum('nominal');
