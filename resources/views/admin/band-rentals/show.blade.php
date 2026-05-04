@@ -86,6 +86,14 @@
                         </p>
                     </div>
                     <div class="bg-gray-50 p-4 rounded">
+                        <p class="text-gray-600 text-sm">Email Penyewa</p>
+                        <p class="font-bold text-gray-800">
+                            <a href="mailto:{{ $rental->renter_email }}" class="text-blue-600 hover:underline break-all">
+                                {{ $rental->renter_email }}
+                            </a>
+                        </p>
+                    </div>
+                    <div class="bg-gray-50 p-4 rounded">
                         <p class="text-gray-600 text-sm">Tanggal Pertunjukan</p>
                         <p class="font-bold text-gray-800">
                             {{ $rental->performance_date ? \Carbon\Carbon::parse($rental->performance_date)->format('d M Y') : '-' }}

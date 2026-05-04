@@ -108,6 +108,30 @@
                 </table>
             </div>
 
+            <div class="bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-100 bg-gray-50">
+                    <h3 class="font-semibold text-gray-900">Ringkasan Harga</h3>
+                </div>
+                <div class="p-6">
+                    <div class="space-y-3">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Harga Pokok:</span>
+                            <span class="font-semibold text-gray-900">Rp {{ number_format($hargaPokok, 0, ',', '.') }}</span>
+                        </div>
+                        @if($diskonNominal > 0)
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Diskon:</span>
+                            <span class="font-semibold text-red-600">- Rp {{ number_format($diskonNominal, 0, ',', '.') }} ({{ $diskonPersen }}%)</span>
+                        </div>
+                        @endif
+                        <div class="border-t border-gray-200 pt-3 flex justify-between">
+                            <span class="font-semibold text-gray-900">Total yang Harus Dibayar:</span>
+                            <span class="text-lg font-bold text-emerald-600">Rp {{ number_format($hargaFinal, 0, ',', '.') }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="bg-white rounded-2xl shadow-md border border-gray-100 p-6">
                 <h3 class="font-semibold text-gray-900 mb-4">Catatan Admin</h3>
                 <p class="text-gray-700 whitespace-pre-line">{{ $rentalRequest->admin_notes ?? '-' }}</p>

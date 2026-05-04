@@ -238,12 +238,39 @@
                                                 @endforeach
                                             </tbody>
                                             <tfoot>
+                                                @php
+                                                    $hargaPokok = (int) ($request->harga_pokok ?? $request->total_price ?? 0);
+                                                    $diskonPersen = (int) ($request->diskon_persen ?? 0);
+                                                    $diskonNominal = (int) ($request->diskon_nominal ?? 0);
+                                                    $hargaFinal = (int) ($request->harga_final ?? max(0, $hargaPokok - $diskonNominal));
+                                                @endphp
+                                                @if($diskonNominal > 0)
+                                                <tr class="bg-gray-50 border-t border-gray-200">
+                                                    <td colspan="5" class="px-4 py-3 text-right font-semibold text-gray-700">Harga Pokok</td>
+                                                    <td class="px-4 py-3 text-right font-semibold text-gray-900 whitespace-nowrap">
+                                                        Rp {{ number_format((float) $hargaPokok, 0, ',', '.') }}
+                                                    </td>
+                                                </tr>
+                                                <tr class="bg-gray-50 border-t border-gray-200">
+                                                    <td colspan="5" class="px-4 py-3 text-right font-semibold text-red-700">Diskon ({{ $diskonPersen }}%)</td>
+                                                    <td class="px-4 py-3 text-right font-semibold text-red-900 whitespace-nowrap">
+                                                        - Rp {{ number_format((float) $diskonNominal, 0, ',', '.') }}
+                                                    </td>
+                                                </tr>
+                                                <tr class="bg-emerald-50 border-t border-emerald-200">
+                                                    <td colspan="5" class="px-4 py-3 text-right font-semibold text-emerald-800">Total Keseluruhan</td>
+                                                    <td class="px-4 py-3 text-right font-bold text-emerald-900 whitespace-nowrap">
+                                                        Rp {{ number_format((float) $hargaFinal, 0, ',', '.') }}
+                                                    </td>
+                                                </tr>
+                                                @else
                                                 <tr class="bg-yellow-50 border-t border-yellow-200">
                                                     <td colspan="5" class="px-4 py-3 text-right font-semibold text-yellow-800">Total Keseluruhan</td>
                                                     <td class="px-4 py-3 text-right font-bold text-yellow-900 whitespace-nowrap">
-                                                        Rp {{ number_format((float) $request->total_price, 0, ',', '.') }}
+                                                        Rp {{ number_format((float) $hargaFinal, 0, ',', '.') }}
                                                     </td>
                                                 </tr>
+                                                @endif
                                             </tfoot>
                                         </table>
                                     </div>

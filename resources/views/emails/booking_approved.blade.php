@@ -32,7 +32,17 @@
                     <tr><td style="padding:8px 0;color:#6b7280;">Tanggal Mulai</td><td style="padding:8px 0;">{{ \Carbon\Carbon::parse($booking->start_date)->translatedFormat('d F Y') }}</td></tr>
                     <tr><td style="padding:8px 0;color:#6b7280;">Tanggal Selesai</td><td style="padding:8px 0;">{{ \Carbon\Carbon::parse($booking->end_date)->translatedFormat('d F Y') }}</td></tr>
                     <tr><td style="padding:8px 0;color:#6b7280;">Durasi</td><td style="padding:8px 0;">{{ $booking->duration_days }} hari</td></tr>
-                    <tr><td style="padding:8px 0;color:#6b7280;">Total Harga</td><td style="padding:8px 0;font-weight:bold;color:#166534;">Rp {{ number_format($booking->total_price, 0, ',', '.') }}</td></tr>
+                    @php
+                        $hargaPokok = (int) ($booking->harga_pokok ?? $booking->total_price ?? 0);
+                        $diskonPersen = (int) ($booking->diskon_persen ?? 0);
+                        $diskonNominal = (int) ($booking->diskon_nominal ?? 0);
+                        $hargaFinal = (int) ($booking->harga_final ?? max(0, $hargaPokok - $diskonNominal));
+                    @endphp
+                    @if($diskonNominal > 0)
+                        <tr><td style="padding:8px 0;color:#6b7280;">Harga Awal</td><td style="padding:8px 0;text-decoration:line-through;color:#9ca3af;">Rp {{ number_format($hargaPokok, 0, ',', '.') }}</td></tr>
+                        <tr><td style="padding:8px 0;color:#6b7280;">Diskon</td><td style="padding:8px 0;color:#ef4444;">- Rp {{ number_format($diskonNominal, 0, ',', '.') }} ({{ $diskonPersen }}%)</td></tr>
+                    @endif
+                    <tr><td style="padding:8px 0;color:#6b7280;">Total Harga</td><td style="padding:8px 0;font-weight:bold;color:#166534;">Rp {{ number_format($hargaFinal, 0, ',', '.') }}</td></tr>
                 </table>
             </div>
 
