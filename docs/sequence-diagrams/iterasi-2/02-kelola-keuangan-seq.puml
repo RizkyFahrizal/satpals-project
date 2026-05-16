@@ -1,0 +1,22 @@
+@startuml Kelola_Keuangan_Sequence
+
+title Sequence Diagram - Kelola Keuangan
+
+actor Admin
+participant "Financial Dashboard" as View
+participant "Income/Expense Controller" as Controller
+database DB
+
+Admin -> View: Buka menu keuangan
+View -> Controller: index()
+Controller -> DB: Ambil ringkasan dan transaksi
+DB --> Controller: Data keuangan
+Controller --> View: Tampilkan dashboard
+
+Admin -> View: Tambah transaksi / filter data / approve transaksi
+View -> Controller: store() / filter() / approve() / reject()
+Controller -> DB: Simpan atau update data
+DB --> Controller: Berhasil
+Controller --> View: Tampilkan pesan sukses
+
+@enduml

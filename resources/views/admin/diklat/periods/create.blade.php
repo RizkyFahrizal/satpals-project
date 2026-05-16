@@ -79,6 +79,40 @@
                     @enderror
                 </div>
 
+                <!-- Tanggal Buka -->
+                <div class="form-control mb-4">
+                    <label class="label">
+                        <span class="label-text font-semibold">Tanggal Buka</span>
+                    </label>
+                    <input type="date" name="tanggal_buka" class="input input-bordered" 
+                           value="{{ old('tanggal_buka') }}" required>
+                    <label class="label">
+                        <span class="label-text-alt text-gray-500">Tanggal mulai pendaftaran dibuka</span>
+                    </label>
+                    @error('tanggal_buka')
+                        <label class="label">
+                            <span class="label-text-alt text-error">{{ $message }}</span>
+                        </label>
+                    @enderror
+                </div>
+
+                <!-- Tanggal Tutup -->
+                <div class="form-control mb-4">
+                    <label class="label">
+                        <span class="label-text font-semibold">Tanggal Tutup</span>
+                    </label>
+                    <input type="date" name="tanggal_tutup" class="input input-bordered" 
+                           value="{{ old('tanggal_tutup') }}" required>
+                    <label class="label">
+                        <span class="label-text-alt text-gray-500">Tanggal terakhir pendaftaran dibuka</span>
+                    </label>
+                    @error('tanggal_tutup')
+                        <label class="label">
+                            <span class="label-text-alt text-error">{{ $message }}</span>
+                        </label>
+                    @enderror
+                </div>
+
                 <!-- Keterangan -->
                 <div class="form-control mb-6">
                     <label class="label">

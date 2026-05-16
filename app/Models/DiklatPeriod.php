@@ -40,12 +40,50 @@ class DiklatPeriod extends Model
     public function toggleOpen(): void
     {
         $this->is_open = !$this->is_open;
-        if ($this->is_open) {
-            $this->tanggal_buka = now();
-        } else {
-            $this->tanggal_tutup = now();
-        }
         $this->save();
+    }
+
+    /**
+     * Sync open/close status based on the selected date range.
+     */
+    public function syncStatusFromDates(): bool
+    {
+        if (!$this->tanggal_buka || !$this->tanggal_tutup) {
+            return false;
+        }
+
+        $shouldBeOpen = now()->betweenIncluded(
+            $this->tanggal_buka->copy()->startOfDay(),
+            $this->tanggal_tutup->copy()->endOfDay()
+        );
+
+        if ($this->is_open === $shouldBeOpen) {
+            return false;
+        }
+
+        $this->forceFill(['is_open' => $shouldBeOpen])->saveQuietly();
+
+        return true;
+    }
+
+    /**
+     * Sync all periods using their date windows.
+     */
+    public static function syncAllStatusesFromDates(): int
+    {
+        $updated = 0;
+
+        static::whereNotNull('tanggal_buka')
+            ->whereNotNull('tanggal_tutup')
+            ->chunkById(100, function ($periods) use (&$updated) {
+                foreach ($periods as $period) {
+                    if ($period->syncStatusFromDates()) {
+                        $updated++;
+                    }
+                }
+            });
+
+        return $updated;
     }
 
     /**

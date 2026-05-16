@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\BoardMember;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -23,7 +24,13 @@ class UserController extends Controller
      */
     public function create()
     {
-        return view('admin.users.create');
+        // Get members without user account
+        $availableMembers = \App\Models\Member::where('status', 'aktif')
+            ->whereDoesntHave('user')
+            ->orderBy('nama_lengkap')
+            ->get();
+
+        return view('admin.users.create', compact('availableMembers'));
     }
 
     /**
@@ -31,22 +38,53 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
+        // Get allowed roles (all roles except super_admin)
+        $allowedRoles = array_keys(User::getBoardMemberRoles());
+        $allowedRoles[] = User::ROLE_PUBLIC;
+        
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
+            'member_id' => 'required|exists:members,id|unique:users,member_id',
+            'role' => ['required', Rule::in($allowedRoles)],
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:8|confirmed',
-            'role' => ['required', Rule::in([User::ROLE_PENGURUS, User::ROLE_PUBLIC])], // Super Admin tidak bisa ditambahkan
+        ], [
+            'member_id.unique' => 'Anggota ini sudah memiliki akun user.',
+            'member_id.exists' => 'Anggota yang dipilih tidak valid.',
+            'email.required' => 'Email wajib diisi.',
+            'email.email' => 'Format email tidak valid.',
+            'email.unique' => 'Email sudah digunakan.',
+            'password.min' => 'Password minimal 8 karakter.',
+            'password.confirmed' => 'Konfirmasi password tidak cocok.',
         ]);
 
-        User::create([
-            'name' => $validated['name'],
+        $member = \App\Models\Member::findOrFail($validated['member_id']);
+
+        // Check if account with same name and npm already exists
+        $existingUser = User::whereHas('member', function ($query) use ($member) {
+            $query->where('nama_lengkap', $member->nama_lengkap)
+                  ->where('npm', $member->npm);
+        })->first();
+
+        if ($existingUser) {
+            return back()
+                ->withErrors(['member_id' => "Akun sudah ada dengan nama '{$member->nama_lengkap}' dan NPM '{$member->npm}'. Gunakan akun yang sudah ada atau ubah data anggota."])
+                ->withInput();
+        }
+
+        $user = User::create([
+            'member_id' => $validated['member_id'],
+            'name' => $member->nama_lengkap,
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
             'role' => $validated['role'],
             'email_verified_at' => now(),
         ]);
 
-        return redirect()->route('admin.users.index')->with('success', 'User berhasil ditambahkan!');
+        $this->syncBoardMemberUserLink($user);
+
+        $message = "User berhasil ditambahkan!\n📧 Email: {$user->email}\n🔐 Anggota: {$user->name}\n👤 Role: {$user->role_label}";
+
+        return redirect()->route('admin.users.index')->with('success', $message);
     }
 
     /**
@@ -63,9 +101,14 @@ class UserController extends Controller
     public function update(Request $request, User $user)
     {
         // Jika user adalah super_admin, role tidak bisa diubah
-        $roleValidation = $user->isSuperAdmin() 
-            ? ['required', Rule::in([User::ROLE_SUPER_ADMIN])] 
-            : ['required', Rule::in([User::ROLE_PENGURUS, User::ROLE_PUBLIC])];
+        if ($user->isSuperAdmin()) {
+            $roleValidation = ['required', Rule::in([User::ROLE_SUPER_ADMIN])];
+        } else {
+            // Allowed roles (all roles except super_admin)
+            $allowedRoles = array_keys(User::getBoardMemberRoles());
+            $allowedRoles[] = User::ROLE_PUBLIC;
+            $roleValidation = ['required', Rule::in($allowedRoles)];
+        }
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
@@ -87,12 +130,26 @@ class UserController extends Controller
         }
 
         $user->save();
+        $this->syncBoardMemberUserLink($user);
 
         return redirect()->route('admin.users.index')->with('success', 'User berhasil diupdate!');
     }
 
     /**
-     * Update user role only.
+     * Show the form for editing user role.
+     */
+    public function editRole(User $user)
+    {
+        // Super Admin cannot change role
+        if ($user->isSuperAdmin()) {
+            return redirect()->route('admin.users.index')->with('error', 'Role Super Admin tidak dapat diubah!');
+        }
+
+        return view('admin.users.edit-role', compact('user'));
+    }
+
+    /**
+     * Update user role.
      */
     public function updateRole(Request $request, User $user)
     {
@@ -101,14 +158,33 @@ class UserController extends Controller
             return redirect()->route('admin.users.index')->with('error', 'Role Super Admin tidak dapat diubah!');
         }
 
+        // Get allowed roles (all roles except super_admin)
+        $allowedRoles = array_keys(User::getBoardMemberRoles());
+        $allowedRoles[] = User::ROLE_PUBLIC;
+
         $validated = $request->validate([
-            'role' => ['required', Rule::in([User::ROLE_PENGURUS, User::ROLE_PUBLIC])],
+            'role' => ['required', Rule::in($allowedRoles)],
         ]);
 
         $user->role = $validated['role'];
         $user->save();
 
+        $this->syncBoardMemberUserLink($user);
+
         return redirect()->route('admin.users.index')->with('success', 'Role user berhasil diubah!');
+    }
+
+    /**
+     * Sync board member records to this user by member_id.
+     */
+    private function syncBoardMemberUserLink(User $user): void
+    {
+        if (!$user->member_id) {
+            return;
+        }
+
+        BoardMember::where('member_id', $user->member_id)
+            ->update(['user_id' => $user->id]);
     }
 
     /**
@@ -124,5 +200,27 @@ class UserController extends Controller
         $user->delete();
 
         return redirect()->route('admin.users.index')->with('success', 'User berhasil dihapus!');
+    }
+
+    /**
+     * Toggle user active status (activate/deactivate account)
+     */
+    public function toggleStatus(User $user)
+    {
+        // Prevent toggling self
+        if (auth()->id() === $user->id) {
+            return redirect()->route('admin.users.index')->with('error', 'Tidak dapat mengubah status akun sendiri!');
+        }
+
+        // Prevent toggling super admin
+        if ($user->isSuperAdmin()) {
+            return redirect()->route('admin.users.index')->with('error', 'Status Super Admin tidak dapat diubah!');
+        }
+
+        $user->is_active = !($user->is_active ?? true);
+        $user->save();
+
+        $status = $user->is_active ? 'diaktifkan' : 'dinonaktifkan';
+        return redirect()->route('admin.users.index')->with('success', "User berhasil {$status}.");
     }
 }

@@ -3,6 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>
+        (function () {
+            try {
+                const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+                if (!timezone) return;
+
+                const cookieMatch = document.cookie.match(/(?:^|;\s*)user_timezone=([^;]+)/);
+                const current = cookieMatch ? decodeURIComponent(cookieMatch[1]) : null;
+
+                if (current !== timezone) {
+                    document.cookie = `user_timezone=${encodeURIComponent(timezone)}; path=/; max-age=31536000; samesite=lax`;
+
+                    if (!sessionStorage.getItem('tzSynced')) {
+                        sessionStorage.setItem('tzSynced', '1');
+                        location.reload();
+                    }
+                } else {
+                    sessionStorage.removeItem('tzSynced');
+                }
+            } catch (_) {
+                // noop
+            }
+        })();
+    </script>
     <title>@yield('title', 'Admin - Satya Palapa')</title>
     <link href="https://cdn.jsdelivr.net/npm/daisyui@4.7.2/dist/full.min.css" rel="stylesheet" type="text/css" />
     <script src="https://cdn.tailwindcss.com"></script>
@@ -237,7 +261,19 @@
                         <!-- User Info - Hidden on Mobile -->
                         <div class="hidden md:block text-right">
                             <p class="text-sm font-semibold text-gray-800">{{ Auth::user()->name ?? 'User' }}</p>
-                            <p class="text-xs text-gray-500">{{ Auth::user()->role_label ?? 'Guest' }}</p>
+                            <div class="flex items-center gap-2 mt-0.5 justify-end">
+                                @php
+                                    $roleColor = match(Auth::user()->role) {
+                                        'super_admin' => 'bg-red-100 text-red-700',
+                                        'ketua_umum' => 'bg-purple-100 text-purple-700',
+                                        'public' => 'bg-gray-100 text-gray-700',
+                                        default => 'bg-yellow-100 text-yellow-700',
+                                    };
+                                @endphp
+                                <span class="inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold {{ $roleColor }}">
+                                    {{ Auth::user()->role_label ?? 'Guest' }}
+                                </span>
+                            </div>
                         </div>
 
                         <!-- User Avatar Dropdown -->
@@ -246,7 +282,8 @@
                                 {{ strtoupper(substr(Auth::user()->name ?? 'U', 0, 1)) }}
                             </button>
                             <ul class="dropdown-content z-50 menu p-2 shadow bg-white rounded-lg w-52 border border-gray-200">
-                                <li class="menu-title"><span class="text-gray-700">Akun</span></li>
+                                <li class="menu-title"><span class="text-gray-700 font-semibold">{{ Auth::user()->name ?? 'User' }}</span></li>
+                                <li class="mb-2"><span class="inline-block px-2.5 py-1 rounded-full text-xs font-semibold {{ $roleColor }}">{{ Auth::user()->role_label ?? 'Guest' }}</span></li>
                                 <li><a href="{{ route('admin.users.edit', Auth::id()) }}" class="text-sm hover:bg-yellow-50">Profil Saya</a></li>
                                 <li><a href="#" class="text-sm hover:bg-yellow-50">Pengaturan</a></li>
                                 <li class="divider m-0"></li>

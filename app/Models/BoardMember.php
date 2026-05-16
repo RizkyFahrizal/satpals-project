@@ -12,15 +12,15 @@ class BoardMember extends Model
 
     const JABATAN_OPTIONS = [
         'ketua_umum' => 'Ketua Umum',
-        'wakil_ketua_umum' => 'Wakil Ketua Umum',
+        'wakil_ketua_umum' => 'Wakil Ketua',
         'sekretaris' => 'Sekretaris',
         'bendahara' => 'Bendahara',
-        'mpa' => 'Ketua Majelis Perwakilan Anggota',
-        'subsie_band' => 'Subsie Band',
-        'subsie_peralatan' => 'Subsie Peralatan',
-        'subsie_humas' => 'Subsie Humas',
-        'subsie_pdd' => 'Subsie Produksi dan Dokumentasi',
-        'subsie_kesekretariatan' => 'Subsie Kesekretariatan',
+        'mpa' => 'MPA',
+        'subsie_band' => 'Band',
+        'subsie_peralatan' => 'Peralatan',
+        'subsie_humas' => 'Humas',
+        'subsie_pdd' => 'PDD',
+        'subsie_kesekretariatan' => 'Kesekretariatan',
     ];
 
     // Grouping for display
@@ -80,29 +80,61 @@ class BoardMember extends Model
     }
 
     /**
+     * Map jabatan to user role
+     */
+    public static function jabatanToRole($jabatan): string
+    {
+        return match($jabatan) {
+            'ketua_umum' => 'ketua_umum',
+            'wakil_ketua_umum' => 'wakil_ketua_umum',
+            'sekretaris' => 'sekretaris',
+            'bendahara' => 'bendahara',
+            'mpa' => 'mpa',
+            'subsie_band' => 'band',
+            'subsie_peralatan' => 'peralatan',
+            'subsie_humas' => 'humas',
+            'subsie_pdd' => 'pdd',
+            'subsie_kesekretariatan' => 'kesekretariatan',
+            default => 'pengurus', // Fallback for legacy
+        };
+    }
+
+    /**
      * Create user account for this board member
      */
     public function createUserAccount(): User
     {
         $member = $this->member;
+
+        $existingUser = User::where('member_id', $member->id)->first();
+        if ($existingUser) {
+            $this->update(['user_id' => $existingUser->id]);
+            return $existingUser;
+        }
         
-        // Generate email from npm
-        $email = strtolower(str_replace(' ', '', $member->nama_lengkap)) . '@satpals.com';
+        // Generate email from member nama with gmail domain
+        $email = strtolower(str_replace(' ', '', $member->nama_lengkap)) . '@gmail.com';
         
         // Check if email exists, append number if needed
         $originalEmail = $email;
         $counter = 1;
         while (User::where('email', $email)->exists()) {
-            $email = str_replace('@satpals.com', $counter . '@satpals.com', $originalEmail);
+            $email = str_replace('@gmail.com', $counter . '@gmail.com', $originalEmail);
             $counter++;
         }
+
+        // Generate default password from nama_lengkap (username)
+        $defaultPassword = strtolower(str_replace(' ', '', $member->nama_lengkap));
+
+        // Map jabatan to role
+        $role = self::jabatanToRole($this->jabatan);
 
         $user = User::create([
             'member_id' => $member->id,
             'name' => $member->nama_lengkap,
             'email' => $email,
-            'password' => Hash::make('satpals123'), // Default password
-            'role' => 'pengurus',
+            'password' => Hash::make($defaultPassword), // Default password = username
+            'role' => $role, // Use role mapped from jabatan
         ]);
 
         // Update this board member with user_id
@@ -125,6 +157,33 @@ class BoardMember extends Model
     public function scopePeriode($query, $periode)
     {
         return $query->where('periode', $periode);
+    }
+
+    /**
+     * Get all available periodes from active members angkatan
+     * Periode format: "tahun+1 / tahun+2" relative to angkatan
+     */
+    public static function getAvailablePeriodes()
+    {
+        // Get distinct angkatan from active members
+        $angkatanList = Member::where('status', 'aktif')
+            ->distinct()
+            ->pluck('angkatan')
+            ->filter()
+            ->map(fn($tahun) => (int)$tahun)
+            ->sort()
+            ->reverse()
+            ->values();
+        
+        // Convert angkatan to periode format: "tahun+1 / tahun+2"
+        // Contoh: angkatan 2024 -> periode 2025/2026
+        $periodeList = $angkatanList->map(function($tahun) {
+            $tahun1 = $tahun + 1;
+            $tahun2 = $tahun + 2;
+            return "{$tahun1}/{$tahun2}";
+        })->unique()->values();
+
+        return $periodeList;
     }
 
     /**

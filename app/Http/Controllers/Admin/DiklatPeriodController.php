@@ -13,6 +13,7 @@ class DiklatPeriodController extends Controller
      */
     public function index()
     {
+        DiklatPeriod::syncAllStatusesFromDates();
         $periods = DiklatPeriod::latest()->paginate(10);
         return view('admin.diklat.periods.index', compact('periods'));
     }
@@ -22,6 +23,7 @@ class DiklatPeriodController extends Controller
      */
     public function create()
     {
+        DiklatPeriod::syncAllStatusesFromDates();
         return view('admin.diklat.periods.create');
     }
 
@@ -35,15 +37,22 @@ class DiklatPeriodController extends Controller
             'tahun_masuk' => 'required|integer|min:2020|max:' . (date('Y') + 10),
             'rekening_number' => 'required|string|max:50',
             'rekening_info' => 'required|string|max:500',
+            'tanggal_buka' => 'required|date',
+            'tanggal_tutup' => 'required|date|after_or_equal:tanggal_buka',
             'keterangan' => 'nullable|string|max:1000',
         ], [
             'nama_periode.required' => 'Nama periode wajib diisi',
             'tahun_masuk.required' => 'Tahun masuk wajib diisi',
             'rekening_number.required' => 'Nomor rekening wajib diisi',
             'rekening_info.required' => 'Info rekening wajib diisi',
+            'tanggal_buka.required' => 'Tanggal buka wajib diisi',
+            'tanggal_tutup.required' => 'Tanggal tutup wajib diisi',
+            'tanggal_tutup.after_or_equal' => 'Tanggal tutup harus sama atau setelah tanggal buka',
         ]);
 
         DiklatPeriod::create($validated);
+
+        DiklatPeriod::syncAllStatusesFromDates();
 
         return redirect()->route('admin.diklat.periods.index')
             ->with('success', 'Periode diklat berhasil dibuat.');
@@ -54,6 +63,7 @@ class DiklatPeriodController extends Controller
      */
     public function edit(DiklatPeriod $period)
     {
+        DiklatPeriod::syncAllStatusesFromDates();
         return view('admin.diklat.periods.edit', compact('period'));
     }
 
@@ -67,10 +77,14 @@ class DiklatPeriodController extends Controller
             'tahun_masuk' => 'required|integer|min:2020|max:' . (date('Y') + 10),
             'rekening_number' => 'required|string|max:50',
             'rekening_info' => 'required|string|max:500',
+            'tanggal_buka' => 'required|date',
+            'tanggal_tutup' => 'required|date|after_or_equal:tanggal_buka',
             'keterangan' => 'nullable|string|max:1000',
         ]);
 
         $period->update($validated);
+
+        DiklatPeriod::syncAllStatusesFromDates();
 
         return redirect()->route('admin.diklat.periods.index')
             ->with('success', 'Periode diklat berhasil diperbarui.');

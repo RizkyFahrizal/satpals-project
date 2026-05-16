@@ -1,0 +1,42 @@
+@startuml Persewaan_Alat_Activity
+
+title Activity Diagram - Persewaan Alat
+
+start
+:User buka katalog alat;
+:User pilih alat dan masukkan ke keranjang;
+:User buka keranjang;
+:User lanjut checkout;
+
+:User isi data penyewa dan tanggal sewa;
+:User pilih tujuan sewa / keperluan;
+:System hitung total harga;
+:System validasi data;
+
+if (Data valid?) then (Ya)
+  :Simpan pesanan dengan status pending;
+  :Kirim notifikasi ke admin;
+  :Tampilkan halaman sukses;
+else (Tidak)
+  :Tampilkan pesan error;
+endif
+
+:Admin buka daftar pesanan;
+if (Pesanan diproses?) then (Ya)
+  :Review detail pesanan;
+
+  if (Disetujui?) then (Ya)
+    :Update status approved;
+    :Generate invoice;
+    :Kirim email konfirmasi + invoice;
+    :Buat income pada keuangan;
+  else (Tidak)
+    :Update status rejected/cancelled;
+    :Jika sudah approved lalu dibatalkan, income diubah menjadi rejected;
+    :Kirim email penolakan/pembatalan;
+  endif
+endif
+
+stop
+
+@enduml

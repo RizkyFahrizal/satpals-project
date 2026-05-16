@@ -1,0 +1,38 @@
+@startuml Kelola_Keuangan_Activity
+
+title Activity Diagram - Kelola Keuangan
+
+start
+:Admin buka menu keuangan;
+:System tampilkan ringkasan income, expense, dan saldo;
+
+:Admin pilih aksi;
+if (Tambah transaksi?) then (Ya)
+  :Isi form pemasukan/pengeluaran;
+  :Validasi nominal, kategori, dan tanggal;
+  if (Valid?) then (Ya)
+    :Simpan transaksi;
+    :Update total pemasukan/pengeluaran/saldo;
+    :Tampilkan notifikasi berhasil;
+  else (Tidak)
+    :Tampilkan pesan error;
+  endif
+elseif (Lihat / filter data?) then (Ya)
+  :Pilih periode, tipe, atau status;
+  :System tampilkan data terfilter;
+elseif (Approve / reject transaksi?) then (Ya)
+  :Pilih transaksi pending;
+  :Setujui atau tolak transaksi;
+  :Update status transaksi;
+  if (Status approved?) then (Ya)
+    :Transaksi masuk ke income;
+  else (Tidak)
+    :Transaksi ditandai rejected;
+  endif
+else (Selesai)
+  :Kembali ke dashboard keuangan;
+endif
+
+stop
+
+@enduml
