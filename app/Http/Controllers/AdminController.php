@@ -46,9 +46,15 @@ class AdminController extends Controller
             ->where('status', 'approved')
             ->whereBetween('created_at', [$startDate, $endDate])
             ->count();
-        $pendingApproval = Expense::where('status', 'pending')
+        
+        // Get pending approval count from both Income and Expense
+        $pendingExpense = Expense::where('status', 'pending')
             ->whereBetween('created_at', [$startDate, $endDate])
             ->count();
+        $pendingIncome = Income::where('status', 'pending')
+            ->whereBetween('created_at', [$startDate, $endDate])
+            ->count();
+        $pendingApproval = $pendingExpense + $pendingIncome;
 
         // Get monthly data for charts (last 6 months)
         // Get monthly data for charts within selected quarter
