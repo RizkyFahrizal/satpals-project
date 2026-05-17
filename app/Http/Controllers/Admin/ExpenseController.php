@@ -194,35 +194,26 @@ class ExpenseController extends Controller
     {
         $user = Auth::user();
 
-        // Check if user is admin
-        if ($user->role === 'admin') {
+        // Check if user is super_admin
+        if ($user->role === 'super_admin') {
             return true;
         }
 
-        // Check if user is an active board member with specific roles (Ketua Umum, Wakil Ketua Umum)
-        $isLeadership = \App\Models\BoardMember::where('user_id', $user->id)
-            ->where('is_active', true)
-            ->whereIn('jabatan', ['ketua_umum', 'wakil_ketua_umum'])
-            ->exists();
+        // Check if user has one of the approval roles: bendahara, wakil_ketua_umum, ketua_umum
+        $allowedRoles = [
+            \App\Models\User::ROLE_BENDAHARA,
+            \App\Models\User::ROLE_WAKIL_KETUA_UMUM,
+            \App\Models\User::ROLE_KETUA_UMUM,
+        ];
 
-        if ($isLeadership) {
-            return true;
-        }
-
-        // Check if user is Bendahara (jabatan must be 'bendahara' only)
-        $isBendahara = \App\Models\BoardMember::where('user_id', $user->id)
-            ->where('is_active', true)
-            ->where('jabatan', 'bendahara')
-            ->exists();
-
-        return $isBendahara;
+        return in_array($user->role, $allowedRoles);
     }
 
     public function approve(Request $request, Expense $expense)
     {
-        // Check authorization
+        // Check authorization: only super_admin, bendahara, wakil_ketua_umum, ketua_umum can approve
         if (!$this->canApproveExpense()) {
-            return redirect()->back()->with('error', 'Anda tidak memiliki otorisasi untuk menyetujui pengeluaran. Hanya admin atau pengurus aktif (Ketua Umum, Wakil Ketua Umum, Bendahara) yang dapat menyetujui.');
+            return redirect()->back()->with('error', 'Anda tidak memiliki akses untuk menyetujui pengeluaran. Hanya Bendahara, Wakil Ketua Umum, dan Ketua Umum yang dapat menyetujui.');
         }
 
         if ($expense->status !== 'pending') {
@@ -261,9 +252,9 @@ class ExpenseController extends Controller
      */
     public function reject(Request $request, Expense $expense)
     {
-        // Check authorization
+        // Check authorization: only super_admin, bendahara, wakil_ketua_umum, ketua_umum can reject
         if (!$this->canApproveExpense()) {
-            return redirect()->back()->with('error', 'Anda tidak memiliki otorisasi untuk menolak pengeluaran. Hanya admin atau pengurus aktif (Ketua Umum, Wakil Ketua Umum, Bendahara) yang dapat menolak.');
+            return redirect()->back()->with('error', 'Anda tidak memiliki akses untuk menolak pengeluaran. Hanya Bendahara, Wakil Ketua Umum, dan Ketua Umum yang dapat menolak.');
         }
 
         if ($expense->status !== 'pending') {

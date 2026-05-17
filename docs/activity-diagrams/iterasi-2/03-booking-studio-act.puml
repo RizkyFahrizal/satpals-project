@@ -1,0 +1,46 @@
+@startuml Booking_Studio_Activity
+
+title Activity Diagram - Booking Studio
+
+start
+:User buka halaman booking studio;
+:System tampilkan form booking dan jadwal sesi;
+
+:User isi NPM, nama, email, telepon, tanggal, sesi, keperluan;
+:User pilih tipe peserta;
+
+if (Tipe peserta = UKM semua?) then (Ya)
+  :Harga dihitung 0;
+else (Tidak)
+  :Isi jumlah non-UKM;
+  :Harga dihitung berdasarkan jumlah non-UKM;
+endif
+
+:System validasi data dan cek sesi tersedia;
+
+if (Data valid dan sesi tersedia?) then (Ya)
+  :Simpan booking dengan status pending;
+  :Kirim notifikasi ke admin;
+  :Tampilkan halaman sukses;
+else (Tidak)
+  :Tampilkan pesan error atau sesi sudah terpesan;
+  :User pilih tanggal/sesi lain;
+endif
+
+:Admin buka daftar booking pending;
+:Admin review detail booking;
+
+if (Booking disetujui?) then (Ya)
+  :Update status approved;
+  :Generate invoice;
+  :Kirim email konfirmasi + invoice;
+  :Buat income pada keuangan;
+else (Tidak)
+  :Update status rejected/cancelled;
+  :Jika sudah approved lalu dibatalkan, income diubah menjadi rejected;
+  :Kirim email notifikasi penolakan/pembatalan;
+endif
+
+stop
+
+@enduml

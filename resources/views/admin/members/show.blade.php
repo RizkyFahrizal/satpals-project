@@ -23,11 +23,11 @@
                 <!-- Photo Section -->
                 <div class="relative bg-gradient-to-br from-yellow-400 via-orange-400 to-red-500 p-8 pb-24">
                     <div class="absolute -bottom-16 left-1/2 -translate-x-1/2">
-                        <div class="w-32 h-32 aspect-square rounded-full border-4 border-white shadow-lg bg-gradient-to-br from-purple-500 to-pink-500 flex-none shrink-0 flex items-center justify-center text-white text-4xl font-bold overflow-hidden">
+                        <div class="w-32 h-32 aspect-square rounded-full border-4 border-white shadow-lg bg-gradient-to-br from-yellow-400 to-orange-500 flex-none shrink-0 flex items-center justify-center text-white text-4xl font-bold overflow-hidden">
                             @if($member->foto)
                             <img src="{{ asset('storage/' . $member->foto) }}" alt="{{ $member->nama_lengkap }}" class="w-full h-full object-cover">
                             @else
-                            {{ strtoupper(substr($member->nama_lengkap, 0, 2)) }}
+                            {{ strtoupper(substr($member->nama_lengkap, 0, 1)) }}
                             @endif
                         </div>
                     </div>

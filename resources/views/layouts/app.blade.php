@@ -3,6 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>
+        (function () {
+            try {
+                const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+                if (!timezone) return;
+
+                const cookieMatch = document.cookie.match(/(?:^|;\s*)user_timezone=([^;]+)/);
+                const current = cookieMatch ? decodeURIComponent(cookieMatch[1]) : null;
+
+                if (current !== timezone) {
+                    document.cookie = `user_timezone=${encodeURIComponent(timezone)}; path=/; max-age=31536000; samesite=lax`;
+
+                    if (!sessionStorage.getItem('tzSynced')) {
+                        sessionStorage.setItem('tzSynced', '1');
+                        location.reload();
+                    }
+                } else {
+                    sessionStorage.removeItem('tzSynced');
+                }
+            } catch (_) {
+                // noop
+            }
+        })();
+    </script>
     <title>@yield('title', 'Satpals Project')</title>
     <link href="https://cdn.jsdelivr.net/npm/daisyui@4.7.2/dist/full.min.css" rel="stylesheet" type="text/css" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">

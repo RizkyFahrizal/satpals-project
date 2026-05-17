@@ -9,7 +9,7 @@
     <!-- Period Selector & Add Button -->
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div class="flex items-center gap-4">
-            <label class="text-sm font-medium text-gray-700">Periode:</label>
+            <label class="text-sm font-medium text-gray-700">Periode Kepengurusan:</label>
             <form action="{{ route('admin.board.index') }}" method="GET" class="inline">
                 <select name="periode" onchange="this.form.submit()" 
                     class="px-4 py-2 rounded-xl border border-gray-200 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 transition-all">
@@ -23,6 +23,7 @@
             </form>
         </div>
         
+        @if(auth()->user()->canAddBoardMembers($selectedPeriode))
         <button onclick="document.getElementById('addModal').classList.remove('hidden')" 
             class="bg-yellow-400 hover:bg-yellow-500 text-gray-800 font-semibold px-6 py-2 rounded-xl transition-all flex items-center gap-2">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -30,6 +31,14 @@
             </svg>
             Tambah Pengurus
         </button>
+        @else
+        <div class="bg-gray-100 text-gray-600 px-6 py-2 rounded-xl flex items-center gap-2 text-sm">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+            </svg>
+            Hanya Ketua/Wakil/MPA yang aktif dapat menambah
+        </div>
+        @endif
     </div>
 
     <!-- Success/Error Messages -->
@@ -42,6 +51,17 @@
     @if(session('error'))
     <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-xl">
         {{ session('error') }}
+    </div>
+    @endif
+
+    @if($errors->any())
+    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-xl">
+        <p class="font-semibold mb-1">Ada data yang belum valid:</p>
+        <ul class="list-disc list-inside text-sm space-y-1">
+            @foreach($errors->all() as $error)
+            <li>{{ $error }}</li>
+            @endforeach
+        </ul>
     </div>
     @endif
 
@@ -62,6 +82,105 @@
         </button>
     </div>
     @else
+
+    <!-- MPA Section -->
+    @if($grouped['mpa']->isNotEmpty())
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="bg-gradient-to-r from-purple-500 to-indigo-500 px-6 py-4">
+            <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                </svg>
+                MPA (Majelis Perwakilan Anggota)
+            </h3>
+        </div>
+        <div class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                @foreach($grouped['mpa'] as $board)
+                <div class="group relative bg-gradient-to-br from-gray-50 to-white rounded-xl border border-gray-200 p-5 hover:shadow-lg transition-all duration-300">
+                    @if(!$board->is_active)
+                    <span class="absolute top-3 right-3 px-2 py-1 bg-red-100 text-red-600 text-xs font-medium rounded-full">Nonaktif</span>
+                    @endif
+
+                    <div class="flex items-start gap-4">
+                        <div class="w-16 h-16 rounded-full bg-gradient-to-br from-purple-500 to-indigo-500 flex items-center justify-center text-white text-xl font-bold shadow-md flex-shrink-0 overflow-hidden border-2 border-white">
+                            @if($board->foto)
+                            <img src="{{ asset('storage/' . $board->foto) }}" alt="{{ $board->member->nama_lengkap }}" class="w-full h-full object-cover">
+                            @elseif($board->member->foto)
+                            <img src="{{ asset('storage/' . $board->member->foto) }}" alt="{{ $board->member->nama_lengkap }}" class="w-full h-full object-cover">
+                            @else
+                            {{ strtoupper(substr($board->member->nama_lengkap, 0, 1)) }}
+                            @endif
+                        </div>
+
+                        <div class="flex-1 min-w-0">
+                            @php
+                                $hasAccount = (bool) ($board->user || $board->member?->user);
+                            @endphp
+                            <h4 class="font-bold text-gray-800 truncate">{{ $board->member->nama_lengkap }}</h4>
+                            <p class="text-sm font-semibold text-purple-600">{{ $board->jabatan_label }}</p>
+                            <p class="text-xs text-gray-500">{{ $board->member->npm }}</p>
+
+                            @if($hasAccount)
+                            <span class="inline-flex items-center gap-1 mt-2 px-2 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full">
+                                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                </svg>
+                                Punya Akun
+                            </span>
+                            @else
+                            <form action="{{ route('admin.board.create-account', $board) }}" method="POST" class="inline mt-2">
+                                @csrf
+                                <button type="submit" class="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 hover:bg-blue-200 text-blue-700 text-xs font-medium rounded-full transition-colors">
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                                    </svg>
+                                    Buat Akun
+                                </button>
+                            </form>
+                            @endif
+                        </div>
+                    </div>
+
+                    @if(auth()->user()->canAddBoardMembers($selectedPeriode))
+                    <div class="mt-4 pt-4 border-t border-gray-100 flex justify-end gap-2">
+                        <button onclick="document.getElementById('editModal{{ $board->id }}').classList.remove('hidden')" class="p-2 text-blue-500 hover:bg-blue-50 rounded-lg transition-colors" title="Edit">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                            </svg>
+                        </button>
+                        <form action="{{ route('admin.board.toggle-status', $board) }}" method="POST" class="inline">
+                            @csrf
+                            @method('PATCH')
+                            <button type="submit" class="p-2 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors" title="{{ $board->is_active ? 'Nonaktifkan' : 'Aktifkan' }}">
+                                @if($board->is_active)
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                                @else
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                                @endif
+                            </button>
+                        </form>
+                        <form action="{{ route('admin.board.destroy', $board) }}" method="POST" class="inline" onsubmit="return confirm('Yakin ingin menghapus pengurus ini?')">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors" title="Hapus">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                </svg>
+                            </button>
+                        </form>
+                    </div>
+                    @endif
+                </div>
+                @endforeach
+            </div>
+        </div>
+    </div>
+    @endif
 
     <!-- Pimpinan Section -->
     @if($grouped['pimpinan']->isNotEmpty())
@@ -85,7 +204,7 @@
                     
                     <div class="flex items-start gap-4">
                         <!-- Avatar -->
-                        <div class="w-16 h-16 rounded-xl bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center text-white text-xl font-bold shadow-lg flex-shrink-0 overflow-hidden">
+                        <div class="w-16 h-16 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center text-white text-xl font-bold shadow-md flex-shrink-0 overflow-hidden border-2 border-white">
                             @if($board->foto)
                             <img src="{{ asset('storage/' . $board->foto) }}" alt="{{ $board->member->nama_lengkap }}" class="w-full h-full object-cover">
                             @elseif($board->member->foto)
@@ -96,12 +215,15 @@
                         </div>
                         
                         <div class="flex-1 min-w-0">
+                            @php
+                                $hasAccount = (bool) ($board->user || $board->member?->user);
+                            @endphp
                             <h4 class="font-bold text-gray-800 truncate">{{ $board->member->nama_lengkap }}</h4>
                             <p class="text-sm font-semibold text-yellow-600">{{ $board->jabatan_label }}</p>
                             <p class="text-xs text-gray-500">{{ $board->member->npm }}</p>
                             
                             <!-- Login Account Badge -->
-                            @if($board->user)
+                            @if($hasAccount)
                             <span class="inline-flex items-center gap-1 mt-2 px-2 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full">
                                 <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
@@ -123,6 +245,7 @@
                     </div>
                     
                     <!-- Actions -->
+                    @if(auth()->user()->canAddBoardMembers($selectedPeriode))
                     <div class="mt-4 pt-4 border-t border-gray-100 flex justify-end gap-2">
                         <button onclick="document.getElementById('editModal{{ $board->id }}').classList.remove('hidden')" 
                             class="p-2 text-blue-500 hover:bg-blue-50 rounded-lg transition-colors" title="Edit">
@@ -155,6 +278,7 @@
                             </button>
                         </form>
                     </div>
+                    @endif
                 </div>
                 @endforeach
             </div>
@@ -246,7 +370,8 @@
 </div>
 
 <!-- Add Modal -->
-<div id="addModal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+@if(auth()->user()->canAddBoardMembers($selectedPeriode))
+<div id="addModal" class="{{ $errors->any() ? '' : 'hidden' }} fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
         <div class="bg-gradient-to-r from-yellow-400 to-orange-500 px-6 py-4 flex justify-between items-center">
             <h3 class="text-lg font-bold text-gray-800">Tambah Pengurus</h3>
@@ -260,21 +385,33 @@
         <form action="{{ route('admin.board.store') }}" method="POST" enctype="multipart/form-data" class="p-6 space-y-5">
             @csrf
             
+            <!-- Validation Errors -->
+            @if ($errors->any())
+            <div class="bg-red-50 border border-red-200 rounded-xl p-4">
+                <p class="text-sm font-semibold text-red-900 mb-2">Terjadi kesalahan:</p>
+                <ul class="list-disc list-inside space-y-1">
+                    @foreach ($errors->all() as $error)
+                    <li class="text-sm text-red-700">{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+            @endif
+            
             <!-- Periode Selection -->
             <div>
                 <label class="block text-sm font-semibold text-gray-700 mb-2">
                     Periode <span class="text-red-500">*</span>
                 </label>
                 <select name="periode" id="periodeSelect" required class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 transition-all">
-                    <option value="">-- Pilih Periode --</option>
+                    <option value="">-- Pilih Periode Kepengurusan --</option>
                     @foreach($periodeList as $periode)
-                    <option value="{{ $periode }}" {{ $selectedPeriode === $periode ? 'selected' : '' }}>
+                    <option value="{{ $periode }}" {{ old('periode', $selectedPeriode) === $periode ? 'selected' : '' }}>
                         {{ $periode }}
                         @if($periode === $currentPeriode) (Aktif) @endif
                     </option>
                     @endforeach
                 </select>
-                <p class="text-xs text-gray-500 mt-1">Periode berdasarkan angkatan anggota UKM yang tersedia</p>
+                <p class="text-xs text-gray-500 mt-1">Periode kepengurusan berdasarkan angkatan anggota UKM yang tersedia</p>
             </div>
             
             <!-- Member Selection (Searchable) -->
@@ -291,24 +428,10 @@
                 <div class="relative">
                     <input type="text" id="searchMember" placeholder="Cari anggota (nama/npm)..." 
                         class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 transition-all">
-                    <input type="hidden" name="member_id" id="memberInput">
+                    <input type="hidden" name="member_id" id="memberInput" value="{{ old('member_id') }}">
                     <div id="searchResults" class="hidden absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-xl shadow-lg z-10 max-h-48 overflow-y-auto"></div>
                 </div>
                 @endif
-            </div>
-            
-            <!-- Diklat Period Selection (untuk timestamp) -->
-            <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                    Periode Diklat
-                </label>
-                <select name="diklat_period_id" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 transition-all">
-                    <option value="">-- Tidak Ada (Tanpa Periode) --</option>
-                    @foreach($diklatPeriods as $period)
-                    <option value="{{ $period->id }}">{{ $period->nama_periode }} ({{ $period->tahun_masuk }})</option>
-                    @endforeach
-                </select>
-                <p class="text-xs text-gray-500 mt-1">Pilih periode untuk otomatis set tanggal dibuka/ditutup</p>
             </div>
             
             <!-- Jabatan -->
@@ -329,6 +452,7 @@
                         @endforeach
                     </optgroup>
                 </select>
+                <p class="text-xs text-gray-500 mt-1">*Status akun akan dicek otomatis. Jika member sudah punya login, tampil "Punya Akun". Jika belum, bisa dibuat untuk jabatan selain Ketua Umum.</p>
             </div>
             
             <!-- Foto Upload -->
@@ -347,7 +471,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                             </svg>
                             <p class="mt-2 text-sm">Klik untuk upload foto</p>
-                            <p class="text-xs text-gray-400">Max 2MB (JPG, PNG, WebP)</p>
+                            <p class="text-xs text-gray-400">⚠️ Maksimal 2 MB (JPG, PNG, WebP). Jika lebih dari 2 MB, akan ditolak.</p>
                         </div>
                     </label>
                 </div>
@@ -356,10 +480,10 @@
             <!-- Create Account -->
             <div>
                 <label class="flex items-center gap-3 cursor-pointer">
-                    <input type="checkbox" name="create_account" value="1" class="w-5 h-5 rounded border-gray-300 text-yellow-500 focus:ring-yellow-400">
+                    <input type="checkbox" name="create_account" value="1" checked class="w-5 h-5 rounded border-gray-300 text-yellow-500 focus:ring-yellow-400">
                     <div>
                         <span class="font-medium text-gray-800">Buat Akun Login</span>
-                        <p class="text-xs text-gray-500">Pengurus akan bisa login ke admin panel</p>
+                        <p class="text-xs text-gray-500">Pengurus akan bisa login ke admin panel dengan role sesuai jabatan</p>
                     </div>
                 </label>
             </div>
@@ -378,9 +502,11 @@
         </form>
     </div>
 </div>
+@endif
 
 <!-- Edit Modals for each board member -->
 @foreach($boardMembers as $board)
+@if(auth()->user()->canAddBoardMembers($board->periode))
 <div id="editModal{{ $board->id }}" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
         <div class="bg-gradient-to-r from-blue-500 to-cyan-500 px-6 py-4 flex justify-between items-center">
@@ -481,7 +607,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                             </svg>
                             <p class="mt-2 text-sm">Klik untuk upload foto</p>
-                            <p class="text-xs text-gray-400">Max 2MB (JPG, PNG, WebP)</p>
+                            <p class="text-xs text-gray-400">⚠️ Maksimal 2 MB (JPG, PNG, WebP)</p>
                         </div>
                     </label>
                 </div>
@@ -507,6 +633,7 @@
         </form>
     </div>
 </div>
+@endif
 @endforeach
 
 @section('scripts')
@@ -559,10 +686,17 @@ document.addEventListener('DOMContentLoaded', () => {
                     resultsDiv.innerHTML = '<div class="px-4 py-3 text-sm text-gray-500">Tidak ada anggota ditemukan</div>';
                 } else {
                     resultsDiv.innerHTML = members.map(member => `
-                        <div class="px-4 py-2 hover:bg-yellow-50 cursor-pointer border-b last:border-b-0 transition-colors" 
+                        <div class="px-4 py-3 hover:bg-yellow-50 cursor-pointer border-b last:border-b-0 transition-colors" 
                              onclick="selectMember(${member.id}, '${member.nama_lengkap.replace(/'/g, "\\'")}')">
-                            <div class="text-sm font-semibold text-gray-700">${member.nama_lengkap}</div>
-                            <div class="text-xs text-gray-500">${member.npm}</div>
+                            <div class="flex justify-between items-start gap-2">
+                                <div>
+                                    <div class="text-sm font-semibold text-gray-700">${member.nama_lengkap}</div>
+                                    <div class="text-xs text-gray-500">${member.npm}</div>
+                                </div>
+                                <span class="text-xs font-medium px-2 py-1 rounded-full ${member.account_class} ${member.has_account ? 'bg-green-100' : 'bg-blue-100'}">
+                                    ${member.account_status}
+                                </span>
+                            </div>
                         </div>
                     `).join('');
                 }
@@ -606,6 +740,45 @@ function previewFoto(input, previewId) {
         reader.readAsDataURL(input.files[0]);
     }
 }
+
+// Disable create_account checkbox for ketua_umum
+document.addEventListener('DOMContentLoaded', () => {
+    const jabatanSelect = document.getElementById('jabatanSelect');
+    const createAccountCheckbox = document.querySelector('input[name="create_account"]');
+    const createAccountLabel = document.querySelector('label[for="createAccount"], label:has(input[name="create_account"])');
+    
+    if (!jabatanSelect || !createAccountCheckbox) return;
+    
+    function updateCreateAccountState() {
+        const isKetuaUmum = jabatanSelect.value === 'ketua_umum';
+        
+        if (isKetuaUmum) {
+            createAccountCheckbox.checked = false;
+            createAccountCheckbox.disabled = true;
+            if (createAccountLabel) {
+                createAccountLabel.style.opacity = '0.6';
+                createAccountLabel.style.pointerEvents = 'none';
+            }
+        } else {
+            createAccountCheckbox.disabled = false;
+            createAccountCheckbox.checked = true;
+            if (createAccountLabel) {
+                createAccountLabel.style.opacity = '1';
+                createAccountLabel.style.pointerEvents = 'auto';
+            }
+        }
+    }
+    
+    jabatanSelect.addEventListener('change', updateCreateAccountState);
+    updateCreateAccountState(); // Initial state
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+    const hasValidationErrors = @json($errors->any());
+    if (hasValidationErrors) {
+        document.getElementById('addModal')?.classList.remove('hidden');
+    }
+});
 </script>
 @endsection
 @endsection

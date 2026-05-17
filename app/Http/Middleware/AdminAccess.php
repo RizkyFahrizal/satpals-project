@@ -18,7 +18,7 @@ class AdminAccess
             return redirect()->route('login');
         }
 
-        if (!Auth::user()->hasAdminAccess()) {
+        if (!Auth::user()->is_active) {
             Auth::logout();
             return redirect()->route('login')
                 ->withErrors(['email' => 'Anda tidak memiliki akses ke halaman admin.']);

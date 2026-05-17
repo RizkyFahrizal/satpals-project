@@ -147,56 +147,58 @@
 
     <!-- Data Table -->
     <div class="bg-white rounded-2xl shadow-sm border border-yellow-100 overflow-hidden">
-        <div class="overflow-x-auto">
-            <table class="w-full">
+        <div>
+            <table class="w-full table-fixed">
                 <thead class="bg-yellow-50">
                     <tr>
-                        <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">No</th>
-                        <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Nama</th>
-                        <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">NPM</th>
-                        <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Fakultas/Prodi</th>
-                        <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Angkatan</th>
-                        <th class="px-6 py-4 text-center text-sm font-semibold text-gray-700">Status</th>
-                        <th class="px-6 py-4 text-center text-sm font-semibold text-gray-700">Aksi</th>
+                        <th class="px-4 py-4 text-left text-sm font-semibold text-gray-700 w-12">No</th>
+                        <th class="px-4 py-4 text-left text-sm font-semibold text-gray-700 w-64">Nama</th>
+                        <th class="px-4 py-4 text-left text-sm font-semibold text-gray-700 w-28">NPM</th>
+                        <th class="px-4 py-4 text-left text-sm font-semibold text-gray-700 w-64">Fakultas/Prodi</th>
+                        <th class="px-4 py-4 text-left text-sm font-semibold text-gray-700 w-24">Angkatan</th>
+                        <th class="px-4 py-4 text-center text-sm font-semibold text-gray-700 w-28">Status</th>
+                        <th class="px-4 py-4 text-center text-sm font-semibold text-gray-700 w-24">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100">
                     @forelse($members as $index => $member)
                     <tr class="hover:bg-yellow-50 transition-colors">
-                        <td class="px-6 py-4 text-sm text-gray-600">
+                        <td class="px-4 py-4 text-sm text-gray-600">
                             {{ $members->firstItem() + $index }}
                         </td>
-                        <td class="px-6 py-4">
+                        <td class="px-4 py-4">
                             <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 aspect-square rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex-none shrink-0 flex items-center justify-center text-white font-bold overflow-hidden">
+                                <div class="w-10 h-10 aspect-square rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex-none shrink-0 flex items-center justify-center text-white font-bold overflow-hidden border border-yellow-300 shadow-sm">
                                     @if($member->foto)
                                     <img src="{{ asset('storage/' . $member->foto) }}" alt="{{ $member->nama_lengkap }}" class="w-full h-full object-cover">
                                     @else
                                     {{ strtoupper(substr($member->nama_lengkap, 0, 1)) }}
                                     @endif
                                 </div>
-                                <div>
-                                    <span class="font-medium text-gray-800">{{ $member->nama_lengkap }}</span>
-                                    @if($member->isPengurus())
-                                    <span class="ml-2 px-2 py-0.5 bg-yellow-100 text-yellow-700 text-xs font-medium rounded-full">Pengurus</span>
-                                    @endif
-                                    <p class="text-xs text-gray-500">{{ $member->jenis_kelamin === 'laki-laki' ? '👨' : '👩' }} {{ $member->no_telepon }}</p>
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-center gap-2 flex-wrap">
+                                        <span class="font-medium text-gray-800 line-clamp-2">{{ $member->nama_lengkap }}</span>
+                                        @if($member->isPengurus())
+                                        <span class="px-2 py-0.5 bg-yellow-100 text-yellow-700 text-xs font-medium rounded-full flex-shrink-0">Pengurus</span>
+                                        @endif
+                                    </div>
+                                    <p class="text-xs text-gray-500 mt-1">{{ $member->jenis_kelamin === 'laki-laki' ? '👨' : '👩' }} {{ $member->no_telepon }}</p>
                                 </div>
                             </div>
                         </td>
-                        <td class="px-6 py-4 text-sm text-gray-600 font-mono">{{ $member->npm }}</td>
-                        <td class="px-6 py-4">
+                        <td class="px-4 py-4 text-sm text-gray-600 font-mono truncate">{{ $member->npm }}</td>
+                        <td class="px-4 py-4">
                             <div class="text-sm">
-                                <p class="font-medium text-gray-800">{{ $member->fakultas }}</p>
-                                <p class="text-gray-500">{{ $member->prodi }}</p>
+                                <p class="font-medium text-gray-800 break-words">{{ $member->fakultas }}</p>
+                                <p class="text-gray-500 break-words">{{ $member->prodi }}</p>
                             </div>
                         </td>
-                        <td class="px-6 py-4 text-center">
+                        <td class="px-4 py-4 text-center">
                             <span class="px-3 py-1 bg-gray-100 text-gray-700 text-sm font-medium rounded-full">
                                 {{ $member->angkatan }}
                             </span>
                         </td>
-                        <td class="px-6 py-4 text-center">
+                        <td class="px-4 py-4 text-center">
                             <form action="{{ route('admin.members.update-status', $member) }}" method="POST" class="inline">
                                 @csrf
                                 @method('PATCH')
@@ -216,26 +218,26 @@
                                 </div>
                             </form>
                         </td>
-                        <td class="px-6 py-4">
-                            <div class="flex items-center justify-center gap-2">
+                        <td class="px-4 py-4 text-center">
+                            <div class="flex flex-wrap items-center justify-center gap-2">
                                 <a href="{{ route('admin.members.show', $member) }}" 
-                                   class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Detail">
+                                   class="inline-flex items-center justify-center w-9 h-9 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Detail">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                                     </svg>
                                 </a>
-                                <a href="{{ route('admin.members.edit', $member) }}" 
-                                   class="p-2 text-yellow-600 hover:bg-yellow-50 rounded-lg transition-colors" title="Edit">
+                                          <a href="{{ route('admin.members.edit', $member) }}" 
+                                              class="inline-flex items-center justify-center w-9 h-9 text-yellow-600 hover:bg-yellow-50 rounded-lg transition-colors" title="Edit">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                                     </svg>
                                 </a>
-                                <form action="{{ route('admin.members.destroy', $member) }}" method="POST" 
-                                      onsubmit="return confirm('Yakin ingin menghapus anggota ini?')">
+                                                                <form action="{{ route('admin.members.destroy', $member) }}" method="POST" 
+                                                                            onsubmit="return confirm('Yakin ingin menghapus anggota ini?')">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Hapus">
+                                                                        <button type="submit" class="inline-flex items-center justify-center w-9 h-9 text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Hapus">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                                         </svg>

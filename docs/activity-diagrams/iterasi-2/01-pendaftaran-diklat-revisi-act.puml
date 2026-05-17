@@ -1,0 +1,29 @@
+@startuml Diklat_Revisi_Activity
+
+title Activity Diagram - Pendaftaran Diklat (Revisi)
+
+start
+:User buka halaman pendaftaran diklat;
+:System cek periode pendaftaran;
+
+if (Periode dibuka?) then (Ya)
+  :Tampilkan form pendaftaran;
+  :User isi data diri, spesifikasi, dan upload bukti pembayaran;
+  :Sistem validasi input;
+
+  if (Data valid?) then (Ya)
+    :Simpan data pendaftaran;
+    :Upload bukti pembayaran;
+    :Tautkan ke periode aktif;
+    :Tampilkan pesan berhasil;
+  else (Tidak)
+    :Tampilkan pesan error;
+    :User perbaiki data;
+  endif
+else (Tidak)
+  :Tampilkan info pendaftaran ditutup;
+endif
+
+stop
+
+@enduml

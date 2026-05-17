@@ -1,0 +1,39 @@
+@startuml Persewaan_Band_Sequence
+
+title Sequence Diagram - Persewaan Band
+
+actor User
+actor Admin
+participant "Band Page" as View
+participant "BandRentalController" as PublicController
+participant "BandRentalRequestController" as AdminController
+database DB
+participant "Invoice Service" as Invoice
+participant "Email Service" as Mail
+
+User -> View: Buka daftar band
+View -> PublicController: index()
+PublicController -> DB: Ambil band tersedia
+DB --> PublicController: Data band
+PublicController --> View: Tampilkan katalog
+
+User -> View: Isi form sewa band
+View -> PublicController: storeRequest(request)
+PublicController -> DB: Simpan permintaan pending
+DB --> PublicController: Berhasil
+PublicController --> View: Redirect ke halaman sukses
+
+Admin -> AdminController: Buka daftar permintaan
+AdminController -> DB: Ambil data rental
+DB --> AdminController: Data permintaan
+AdminController --> Admin: Tampilkan daftar
+
+Admin -> AdminController: Approve request
+AdminController -> DB: Update status approved + simpan income
+AdminController -> Invoice: Generate invoice
+Invoice --> AdminController: File PDF
+AdminController -> Mail: Kirim invoice ke user
+Mail --> User: Invoice + notifikasi
+AdminController --> Admin: Tampilkan pesan sukses
+
+@enduml

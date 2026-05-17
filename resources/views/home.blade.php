@@ -152,6 +152,7 @@
 <!-- About Section - Modern Design -->
 <div id="about" class="bg-gradient-to-b from-white to-gray-50 py-16 md:py-24">
     <div class="max-w-7xl mx-auto px-4">
+        @if($ketuaUmum)
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 md:gap-12 items-start">
             <!-- Left Column - Foto -->
             <div class="flex justify-center lg:col-span-1" data-aos="fade-right">
@@ -162,7 +163,20 @@
                     
                     <!-- Photo Container -->
                     <div class="relative bg-gradient-to-br from-orange-400 to-orange-500 rounded-2xl overflow-hidden shadow-2xl" style="width: 280px; height: 350px;">
-                        <img src="{{ asset('assets/images/ketua.png') }}" alt="Ketua UKM" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                        @php
+                            $ketuaFoto = $ketuaUmum->foto ?? ($ketuaUmum->member->foto ?? null);
+                        @endphp
+                        @if($ketuaFoto)
+                            <img src="{{ asset('storage/' . $ketuaFoto) }}" alt="{{ $ketuaUmum->member->nama_lengkap }}" class="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500">
+                        @else
+                            <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-orange-400 to-orange-600">
+                                <div class="text-center text-white">
+                                    <svg class="w-20 h-20 mx-auto mb-2 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -176,10 +190,10 @@
                 
                 <!-- Name and Position -->
                 <div class="mb-8">
-                    <h3 class="text-4xl font-bold text-gray-800 mb-2">Daniel Eluzai Aruan</h3>
+                    <h3 class="text-4xl font-bold text-gray-800 mb-2">{{ $ketuaUmum->member->nama_lengkap ?? 'Ketua UKM' }}</h3>
                     <div class="flex items-center gap-4">
                         <div class="h-1 w-20 bg-gradient-to-r from-orange-500 to-yellow-400 rounded-full"></div>
-                        <p class="text-lg text-gray-600 font-semibold">Ketua Umum Periode 2025/2026</p>
+                        <p class="text-lg text-gray-600 font-semibold">Ketua Umum Periode {{ $ketuaUmum->periode ?? now()->year }}</p>
                     </div>
                 </div>
 
@@ -241,6 +255,16 @@
                 </div>
             </div>
         </div>
+        @else
+        <!-- Placeholder ketika tidak ada Ketua Umum aktif -->
+        <div class="text-center py-16">
+            <svg class="w-20 h-20 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <h3 class="text-2xl font-bold text-gray-400 mb-2">Profil Ketua Belum Tersedia</h3>
+            <p class="text-gray-500">Data Ketua Umum periode saat ini sedang diperbarui</p>
+        </div>
+        @endif
     </div>
 </div>
 

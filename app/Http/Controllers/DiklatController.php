@@ -14,8 +14,11 @@ class DiklatController extends Controller
      */
     public function create()
     {
-        // Get the active (open) period
-        $activePeriod = DiklatPeriod::where('is_open', true)->first();
+        // Get the active period (must be open AND past tanggal_buka)
+        // Don't check tanggal_tutup - if admin manually opened it, let registration proceed
+        $activePeriod = DiklatPeriod::where('is_open', true)
+            ->whereDate('tanggal_buka', '<=', now())
+            ->first();
         
         if (!$activePeriod) {
             return view('diklat.register', [
@@ -37,8 +40,11 @@ class DiklatController extends Controller
      */
     public function store(Request $request)
     {
-        // Check if there is an active period
-        $activePeriod = DiklatPeriod::where('is_open', true)->first();
+        // Check if there is an active period (must be open AND past tanggal_buka)
+        // Don't check tanggal_tutup - if admin manually opened it, let registration proceed
+        $activePeriod = DiklatPeriod::where('is_open', true)
+            ->whereDate('tanggal_buka', '<=', now())
+            ->first();
         
         if (!$activePeriod) {
             return redirect()->route('diklat.register')

@@ -1,0 +1,30 @@
+@startuml Diklat_Revisi_Sequence
+
+title Sequence Diagram - Pendaftaran Diklat (Revisi)
+
+actor User
+participant "Form Diklat" as Form
+participant "DiklatController" as Controller
+database "Database" as DB
+participant "Storage" as Storage
+
+User -> Form: Buka halaman pendaftaran
+Form -> Controller: create()
+Controller -> DB: Cek periode aktif
+DB --> Controller: Data periode / null
+Controller --> Form: Tampilkan form atau info tutup
+
+User -> Form: Isi form dan submit
+Form -> Controller: store(request)
+Controller -> Controller: Validasi input
+
+alt Data valid dan periode aktif
+  Controller -> Storage: Upload bukti pembayaran
+  Controller -> DB: Simpan data pendaftaran
+  DB --> Controller: Berhasil
+  Controller --> Form: Redirect ke halaman sukses
+else Data tidak valid / periode tutup
+  Controller --> Form: Tampilkan pesan error
+end
+
+@enduml

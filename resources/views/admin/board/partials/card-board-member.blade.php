@@ -4,7 +4,8 @@
     @endif
     
     <div class="flex flex-col items-center text-center gap-3">
-        <div class="w-14 h-14 rounded-lg bg-gradient-to-br from-purple-400 to-pink-500 flex items-center justify-center text-white font-bold flex-shrink-0 overflow-hidden">
+        <!-- Avatar -->
+        <div class="w-14 h-14 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center text-white font-bold text-lg flex-shrink-0 overflow-hidden shadow-md border-2 border-white">
             @if($board->foto)
             <img src="{{ asset('storage/' . $board->foto) }}" alt="{{ $board->member->nama_lengkap }}" class="w-full h-full object-cover">
             @elseif($board->member->foto)
@@ -13,20 +14,27 @@
             {{ strtoupper(substr($board->member->nama_lengkap, 0, 1)) }}
             @endif
         </div>
-        <div class="flex-1 min-w-0">
-            <p class="text-xs text-purple-600 font-semibold mb-1">{{ $board->jabatan_label }}</p>
-            <h4 class="font-semibold text-gray-800 text-sm line-clamp-2" title="{{ $board->member->nama_lengkap }}">{{ $board->member->nama_lengkap }}</h4>
+        <!-- Info -->
+        <div class="w-full">
+            <p class="text-xs text-yellow-600 font-semibold mb-2 uppercase tracking-wide">{{ $board->jabatan_label }}</p>
+            <h4 class="font-bold text-gray-800 text-sm leading-tight line-clamp-2" title="{{ $board->member->nama_lengkap }}">{{ $board->member->nama_lengkap }}</h4>
+            @if($board->member->npm)
+            <p class="text-xs text-gray-500 mt-1">{{ $board->member->npm }}</p>
+            @endif
         </div>
     </div>
     
     <div class="mt-3 flex justify-center gap-1">
+        @if(auth()->user()->canAddBoardMembers($board->periode))
         <button onclick="document.getElementById('editModal{{ $board->id }}').classList.remove('hidden')" 
             class="p-1.5 text-blue-500 hover:bg-blue-50 rounded transition-colors" title="Edit">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
             </svg>
         </button>
+        @endif
         @if(!$board->user)
+        @if(auth()->user()->canAddBoardMembers($board->periode))
         <form action="{{ route('admin.board.create-account', $board) }}" method="POST" class="inline">
             @csrf
             <button type="submit" class="p-1.5 text-blue-500 hover:bg-blue-50 rounded transition-colors" title="Buat Akun">
@@ -36,6 +44,8 @@
             </button>
         </form>
         @endif
+        @endif
+        @if(auth()->user()->canAddBoardMembers($board->periode))
         <form action="{{ route('admin.board.toggle-status', $board) }}" method="POST" class="inline">
             @csrf
             @method('PATCH')
@@ -60,5 +70,6 @@
                 </svg>
             </button>
         </form>
+        @endif
     </div>
 </div>

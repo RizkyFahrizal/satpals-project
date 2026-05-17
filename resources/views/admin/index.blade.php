@@ -22,6 +22,45 @@
         </div>
     </div>
 
+    <!-- Filter Section -->
+    <div class="bg-white rounded-2xl p-5 lg:p-6 shadow-sm border border-gray-100">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4">🔍 Filter Data</h3>
+        <form method="GET" class="flex flex-col md:flex-row gap-4">
+            <!-- Year Filter -->
+            <div class="flex-1">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Tahun</label>
+                <select name="year" onchange="this.form.submit()" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent">
+                    @foreach($availableYears as $year)
+                        <option value="{{ $year }}" {{ $selectedYear == $year ? 'selected' : '' }}>
+                            {{ $year }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+
+            <!-- Quarter Filter -->
+            <div class="flex-1">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Triwulan</label>
+                <select name="quarter" onchange="this.form.submit()" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent">
+                    <option value="1" {{ $selectedQuarter == '1' ? 'selected' : '' }}>Triwulan 1 (Jan - Mar)</option>
+                    <option value="2" {{ $selectedQuarter == '2' ? 'selected' : '' }}>Triwulan 2 (Apr - Jun)</option>
+                    <option value="3" {{ $selectedQuarter == '3' ? 'selected' : '' }}>Triwulan 3 (Jul - Sep)</option>
+                    <option value="4" {{ $selectedQuarter == '4' ? 'selected' : '' }}>Triwulan 4 (Okt - Des)</option>
+                </select>
+            </div>
+
+            <!-- Period Info -->
+            <div class="flex-1 flex items-end">
+                <div class="w-full p-3 bg-yellow-50 rounded-lg border border-yellow-200">
+                    <p class="text-sm text-gray-600">
+                        <span class="font-semibold">Periode:</span> 
+                        {{ $startDate->format('d M Y') }} - {{ $endDate->format('d M Y') }}
+                    </p>
+                </div>
+            </div>
+        </form>
+    </div>
+
     <!-- Financial Summary Cards -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
         <!-- Sisa Uang UKM -->

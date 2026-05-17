@@ -1,0 +1,38 @@
+@startuml Persewaan_Alat_Sequence
+
+title Sequence Diagram - Persewaan Alat
+
+actor User
+actor Admin
+participant "Equipment / Cart / Checkout" as View
+participant "EquipmentPublicController" as PublicController
+participant "CheckoutController" as CheckoutController
+participant "EquipmentRentalRequestController" as AdminController
+database DB
+participant "Email Service" as Mail
+
+User -> View: Buka katalog alat
+View -> PublicController: index()
+PublicController -> DB: Ambil alat tersedia
+DB --> PublicController: Data alat
+PublicController --> View: Tampilkan katalog
+
+User -> View: Tambah ke keranjang dan checkout
+View -> CheckoutController: store(request)
+CheckoutController -> DB: Simpan order pending + items
+DB --> CheckoutController: Berhasil
+CheckoutController -> Mail: Kirim konfirmasi
+Mail --> User: Email pesanan
+CheckoutController --> View: Redirect sukses
+
+Admin -> AdminController: Buka daftar pesanan
+AdminController -> DB: Ambil pesanan
+DB --> AdminController: Data pesanan
+AdminController --> Admin: Tampilkan list
+
+Admin -> AdminController: Approve / reject / cancel / complete
+AdminController -> DB: Update status pesanan dan keuangan
+DB --> AdminController: Berhasil
+AdminController --> User: Notifikasi status
+
+@enduml
