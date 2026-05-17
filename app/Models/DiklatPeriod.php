@@ -44,7 +44,7 @@ class DiklatPeriod extends Model
     }
 
     /**
-     * Sync open/close status based on the selected date range.
+     * Sync open/close status for expired periods only.
      */
     public function syncStatusFromDates(): bool
     {
@@ -52,16 +52,15 @@ class DiklatPeriod extends Model
             return false;
         }
 
-        $shouldBeOpen = now()->betweenIncluded(
-            $this->tanggal_buka->copy()->startOfDay(),
-            $this->tanggal_tutup->copy()->endOfDay()
-        );
-
-        if ($this->is_open === $shouldBeOpen) {
+        if (now()->lessThanOrEqualTo($this->tanggal_tutup->copy()->endOfDay())) {
             return false;
         }
 
-        $this->forceFill(['is_open' => $shouldBeOpen])->saveQuietly();
+        if (!$this->is_open) {
+            return false;
+        }
+
+        $this->forceFill(['is_open' => false])->saveQuietly();
 
         return true;
     }

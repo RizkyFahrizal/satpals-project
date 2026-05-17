@@ -69,8 +69,22 @@ class BoardMemberController extends Controller
     {
         // Check authorization: only super_admin, ketua_umum, wakil_ketua_umum, and mpa (active) can add
         if (!auth()->user()->canAddBoardMembers($request->get('periode'))) {
-            return back()->with('error', 'Anda tidak memiliki akses untuk menambah pengurus. Hanya Ketua Umum, Wakil Ketua Umum, dan MPA yang aktif yang dapat menambah pengurus.');
+            $user = auth()->user();
+            \Log::warning('Unauthorized board member add attempt', [
+                'user_id' => $user->id,
+                'user_role' => $user->role,
+                'user_is_active' => $user->is_active,
+                'periode' => $request->get('periode'),
+            ]);
+            return back()->with('error', 'Anda tidak memiliki akses untuk menambah pengurus. Hanya Ketua Umum, Wakil Ketua Umum, dan MPA yang aktif yang dapat menambah pengurus. (Role: ' . $user->role . ', Active: ' . ($user->is_active ? 'Ya' : 'Tidak') . ')');
         }
+        
+        \Log::info('Board member store started', [
+            'user_id' => auth()->user()->id,
+            'periode' => $request->get('periode'),
+            'member_id' => $request->get('member_id'),
+            'jabatan' => $request->get('jabatan'),
+        ]);
 
         $validated = $request->validate([
             'member_id' => 'required|exists:members,id',
@@ -78,6 +92,14 @@ class BoardMemberController extends Controller
             'periode' => 'required|string',
             'foto' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
             'create_account' => 'nullable|boolean',
+        ], [
+            'foto.max' => 'Ukuran file foto terlalu besar. Maksimal 2 MB.',
+            'foto.image' => 'File harus berupa gambar (JPEG, PNG, WebP).',
+            'foto.mimes' => 'Format gambar tidak didukung. Gunakan JPEG, PNG, atau WebP.',
+            'member_id.required' => 'Silakan pilih anggota terlebih dahulu.',
+            'member_id.exists' => 'Anggota yang dipilih tidak ditemukan.',
+            'jabatan.required' => 'Silakan pilih jabatan.',
+            'periode.required' => 'Silakan pilih periode kepengurusan.',
         ]);
 
         // Check if member already has position in this periode
@@ -100,37 +122,47 @@ class BoardMemberController extends Controller
             }
         }
 
-        // Get max urutan
-        $maxUrutan = BoardMember::where('periode', $validated['periode'])->max('urutan') ?? 0;
+        try {
+            // Get max urutan
+            $maxUrutan = BoardMember::where('periode', $validated['periode'])->max('urutan') ?? 0;
 
-        // Handle foto upload
-        $fotoPath = null;
-        if ($request->hasFile('foto')) {
-            $fotoPath = $request->file('foto')->store('board-members', 'public');
-        }
-
-        $boardMember = BoardMember::create([
-            'member_id' => $validated['member_id'],
-            'jabatan' => $validated['jabatan'],
-            'periode' => $validated['periode'],
-            'foto' => $fotoPath,
-            'is_active' => true,
-            'urutan' => $maxUrutan + 1,
-        ]);
-
-        // Create user account if requested
-        if ($request->filled('create_account') && $request->create_account) {
-            if ($boardMember->member?->user) {
-                return back()->with('error', 'Pengurus berhasil ditambahkan, tetapi akun login tidak dibuat karena member ini sudah memiliki akun.');
+            // Handle foto upload
+            $fotoPath = null;
+            if ($request->hasFile('foto')) {
+                $fotoPath = $request->file('foto')->store('board-members', 'public');
             }
 
-            $user = $boardMember->createUserAccount();
-            $defaultPassword = strtolower(str_replace(' ', '', $boardMember->member->nama_lengkap));
-            $message = "Pengurus berhasil ditambahkan. Akun login: {$user->email} / {$defaultPassword}";
-            return back()->with('success', $message);
-        }
+            $boardMember = BoardMember::create([
+                'member_id' => $validated['member_id'],
+                'jabatan' => $validated['jabatan'],
+                'periode' => $validated['periode'],
+                'foto' => $fotoPath,
+                'is_active' => true,
+                'urutan' => $maxUrutan + 1,
+            ]);
+
+            // Create user account if requested
+            if ($request->filled('create_account') && $request->create_account) {
+                if ($boardMember->member?->user) {
+                    return back()->with('error', 'Pengurus berhasil ditambahkan, tetapi akun login tidak dibuat karena member ini sudah memiliki akun.');
+                }
+
+                try {
+                    $user = $boardMember->createUserAccount();
+                    $defaultPassword = strtolower(str_replace(' ', '', $boardMember->member->nama_lengkap));
+                    $message = "Pengurus berhasil ditambahkan. Akun login: {$user->email} / {$defaultPassword}";
+                    return back()->with('success', $message);
+                } catch (\Exception $e) {
+                    \Log::error('Failed to create user account', ['error' => $e->getMessage()]);
+                    return back()->with('error', 'Pengurus ditambahkan, tapi gagal membuat akun: ' . $e->getMessage());
+                }
+            }
 
             return back()->with('success', 'Pengurus berhasil ditambahkan.');
+        } catch (\Exception $e) {
+            \Log::error('Failed to add board member', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+            return back()->with('error', 'Gagal menambahkan pengurus: ' . $e->getMessage());
+        }
     }
 
     /**

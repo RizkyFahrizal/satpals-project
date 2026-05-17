@@ -13,10 +13,43 @@ class UserController extends Controller
     /**
      * Display a listing of users.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $users = User::orderBy('created_at', 'desc')->paginate(10);
-        return view('admin.users.index', compact('users'));
+        $search = $request->query('search', '');
+        
+        $query = User::query();
+        
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%");
+                
+                // Search by role label with exact/prefix matching
+                $roleLabels = \App\Models\User::getRoleLabels();
+                $normalizedSearch = strtolower(str_replace(' ', '', $search));
+                $matchingRoles = [];
+                
+                foreach ($roleLabels as $roleKey => $roleLabel) {
+                    $normalizedLabel = strtolower(str_replace(' ', '', $roleLabel));
+                    
+                    // Exact match after normalization
+                    if ($normalizedLabel === $normalizedSearch) {
+                        $matchingRoles[] = $roleKey;
+                    }
+                    // Or if search starts with this label (for partial matches like "bendahara", "band")
+                    else if (strlen($search) > 3 && strpos($normalizedLabel, $normalizedSearch) === 0) {
+                        $matchingRoles[] = $roleKey;
+                    }
+                }
+                
+                if (!empty($matchingRoles)) {
+                    $q->orWhereIn('role', $matchingRoles);
+                }
+            });
+        }
+        
+        $users = $query->orderBy('created_at', 'desc')->paginate(10);
+        return view('admin.users.index', compact('users', 'search'));
     }
 
     /**

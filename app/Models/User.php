@@ -53,6 +53,20 @@ class User extends Authenticatable
     }
     
     /**
+     * Get all role labels (board member roles + super_admin + public)
+     */
+    public static function getRoleLabels(): array
+    {
+        return array_merge(
+            self::getBoardMemberRoles(),
+            [
+                self::ROLE_SUPER_ADMIN => 'Super Admin',
+                self::ROLE_PUBLIC => 'Public',
+            ]
+        );
+    }
+    
+    /**
      * Get board member roles excluding ketua_umum (for struktur pengurus form)
      */
     public static function getBoardMemberRolesWithoutKetuaUmum(): array

@@ -54,6 +54,17 @@
     </div>
     @endif
 
+    @if($errors->any())
+    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-xl">
+        <p class="font-semibold mb-1">Ada data yang belum valid:</p>
+        <ul class="list-disc list-inside text-sm space-y-1">
+            @foreach($errors->all() as $error)
+            <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+    @endif
+
     <!-- Empty State -->
     @if($boardMembers->isEmpty())
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-12 text-center">
@@ -360,7 +371,7 @@
 
 <!-- Add Modal -->
 @if(auth()->user()->canAddBoardMembers($selectedPeriode))
-<div id="addModal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+<div id="addModal" class="{{ $errors->any() ? '' : 'hidden' }} fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
         <div class="bg-gradient-to-r from-yellow-400 to-orange-500 px-6 py-4 flex justify-between items-center">
             <h3 class="text-lg font-bold text-gray-800">Tambah Pengurus</h3>
@@ -374,6 +385,18 @@
         <form action="{{ route('admin.board.store') }}" method="POST" enctype="multipart/form-data" class="p-6 space-y-5">
             @csrf
             
+            <!-- Validation Errors -->
+            @if ($errors->any())
+            <div class="bg-red-50 border border-red-200 rounded-xl p-4">
+                <p class="text-sm font-semibold text-red-900 mb-2">Terjadi kesalahan:</p>
+                <ul class="list-disc list-inside space-y-1">
+                    @foreach ($errors->all() as $error)
+                    <li class="text-sm text-red-700">{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+            @endif
+            
             <!-- Periode Selection -->
             <div>
                 <label class="block text-sm font-semibold text-gray-700 mb-2">
@@ -382,7 +405,7 @@
                 <select name="periode" id="periodeSelect" required class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 transition-all">
                     <option value="">-- Pilih Periode Kepengurusan --</option>
                     @foreach($periodeList as $periode)
-                    <option value="{{ $periode }}" {{ $selectedPeriode === $periode ? 'selected' : '' }}>
+                    <option value="{{ $periode }}" {{ old('periode', $selectedPeriode) === $periode ? 'selected' : '' }}>
                         {{ $periode }}
                         @if($periode === $currentPeriode) (Aktif) @endif
                     </option>
@@ -405,7 +428,7 @@
                 <div class="relative">
                     <input type="text" id="searchMember" placeholder="Cari anggota (nama/npm)..." 
                         class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 transition-all">
-                    <input type="hidden" name="member_id" id="memberInput">
+                    <input type="hidden" name="member_id" id="memberInput" value="{{ old('member_id') }}">
                     <div id="searchResults" class="hidden absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-xl shadow-lg z-10 max-h-48 overflow-y-auto"></div>
                 </div>
                 @endif
@@ -448,7 +471,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                             </svg>
                             <p class="mt-2 text-sm">Klik untuk upload foto</p>
-                            <p class="text-xs text-gray-400">Max 2MB (JPG, PNG, WebP)</p>
+                            <p class="text-xs text-gray-400">⚠️ Maksimal 2 MB (JPG, PNG, WebP). Jika lebih dari 2 MB, akan ditolak.</p>
                         </div>
                     </label>
                 </div>
@@ -584,7 +607,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                             </svg>
                             <p class="mt-2 text-sm">Klik untuk upload foto</p>
-                            <p class="text-xs text-gray-400">Max 2MB (JPG, PNG, WebP)</p>
+                            <p class="text-xs text-gray-400">⚠️ Maksimal 2 MB (JPG, PNG, WebP)</p>
                         </div>
                     </label>
                 </div>
@@ -748,6 +771,13 @@ document.addEventListener('DOMContentLoaded', () => {
     
     jabatanSelect.addEventListener('change', updateCreateAccountState);
     updateCreateAccountState(); // Initial state
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+    const hasValidationErrors = @json($errors->any());
+    if (hasValidationErrors) {
+        document.getElementById('addModal')?.classList.remove('hidden');
+    }
 });
 </script>
 @endsection

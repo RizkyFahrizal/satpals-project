@@ -188,13 +188,29 @@ class MemberController extends Controller
      */
     public function destroy(Member $member)
     {
-        // Delete photo
-        if ($member->foto) {
-            Storage::disk('public')->delete($member->foto);
-        }
+            // Prevent delete if member is still listed in board structure (active or inactive)
+            if ($member->boardPositions()->exists()) {
+                return redirect()->route('admin.members.index')
+                    ->with('error', 'Tidak dapat menghapus data anggota karena masih terdaftar di struktur pengurus. Hapus data pengurus terlebih dahulu.');
+            }
 
-        $member->delete();
+            // Check if member still has active diklat registration
+            $hasActiveDiklat = $member->diklatRegistration()
+                ->whereIn('status', ['diterima', 'mengikuti', 'lulus'])
+                ->exists();
 
-        return redirect()->route('admin.members.index')->with('success', 'Data anggota berhasil dihapus.');
+            if ($hasActiveDiklat) {
+                return redirect()->route('admin.members.index')
+                    ->with('error', 'Tidak dapat menghapus anggota yang masih memiliki pendaftaran diklat aktif. Silakan ubah status pendaftaran terlebih dahulu.');
+            }
+
+            // Delete photo
+            if ($member->foto) {
+                Storage::disk('public')->delete($member->foto);
+            }
+
+            $member->delete();
+
+            return redirect()->route('admin.members.index')->with('success', 'Data anggota berhasil dihapus.');
     }
 }

@@ -153,6 +153,25 @@ class DiklatRegistrationController extends Controller
      */
     public function destroy(DiklatRegistration $registration)
     {
+        // Prevent deletion if this registration is already linked to UKM member data
+        $member = Member::where('diklat_registration_id', $registration->id)
+            ->orWhere('npm', $registration->npm)
+            ->first();
+
+        if ($member) {
+            $hasBoardPosition = $member->boardPositions()->exists();
+
+            if ($hasBoardPosition) {
+                return redirect()->route('admin.diklat.index')->with('error',
+                    'Pendaftaran diklat tidak dapat dihapus karena peserta sudah menjadi pengurus dan anggota UKM. Hapus data pengurus dan data anggota UKM terlebih dahulu.'
+                );
+            }
+
+            return redirect()->route('admin.diklat.index')->with('error',
+                'Pendaftaran diklat tidak dapat dihapus karena peserta sudah terdaftar sebagai anggota UKM. Hapus data anggota UKM terlebih dahulu.'
+            );
+        }
+
         // Delete the bukti pembayaran file
         if ($registration->bukti_pembayaran) {
             \Storage::disk('public')->delete($registration->bukti_pembayaran);

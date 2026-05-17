@@ -13,7 +13,8 @@ class DiklatPeriodController extends Controller
      */
     public function index()
     {
-        DiklatPeriod::syncAllStatusesFromDates();
+        // Don't sync here - only sync when explicitly needed
+        // This prevents auto-closing from overriding manual toggles
         $periods = DiklatPeriod::latest()->paginate(10);
         return view('admin.diklat.periods.index', compact('periods'));
     }
@@ -23,7 +24,6 @@ class DiklatPeriodController extends Controller
      */
     public function create()
     {
-        DiklatPeriod::syncAllStatusesFromDates();
         return view('admin.diklat.periods.create');
     }
 
@@ -52,8 +52,6 @@ class DiklatPeriodController extends Controller
 
         DiklatPeriod::create($validated);
 
-        DiklatPeriod::syncAllStatusesFromDates();
-
         return redirect()->route('admin.diklat.periods.index')
             ->with('success', 'Periode diklat berhasil dibuat.');
     }
@@ -63,7 +61,6 @@ class DiklatPeriodController extends Controller
      */
     public function edit(DiklatPeriod $period)
     {
-        DiklatPeriod::syncAllStatusesFromDates();
         return view('admin.diklat.periods.edit', compact('period'));
     }
 
@@ -84,20 +81,38 @@ class DiklatPeriodController extends Controller
 
         $period->update($validated);
 
-        DiklatPeriod::syncAllStatusesFromDates();
-
         return redirect()->route('admin.diklat.periods.index')
             ->with('success', 'Periode diklat berhasil diperbarui.');
     }
 
     /**
      * Toggle open/close status of period.
+     * 
+     * Allow opening only if current date >= tanggal_buka.
+     * Can still toggle even if past tanggal_tutup (manual override).
+     * Auto-close happens in syncAllStatusesFromDates() based on date.
      */
     public function toggleOpen(DiklatPeriod $period)
     {
+        if (!$period->is_open) {
+            if (!$period->tanggal_buka || !$period->tanggal_tutup) {
+                return back()->with('error', 'Tanggal buka dan tutup harus diisi terlebih dahulu.');
+            }
+
+            $now = now();
+            $buka = $period->tanggal_buka->copy()->startOfDay();
+
+            // Only prevent opening if belum masuk tanggal buka
+            if ($now->lt($buka)) {
+                return back()->with('error', 'Periode belum bisa dibuka karena belum masuk tanggal buka.');
+            }
+
+            // Allow opening even if past tanggal_tutup (manual override)
+        }
+
         $period->toggleOpen();
         $status = $period->is_open ? 'dibuka' : 'ditutup';
-        
+
         return back()->with('success', "Periode diklat berhasil {$status}.");
     }
 
