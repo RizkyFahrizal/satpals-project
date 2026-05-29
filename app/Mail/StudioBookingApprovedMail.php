@@ -3,6 +3,7 @@
 namespace App\Mail;
 
 use App\Models\StudioBooking;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Attachment;
@@ -11,7 +12,7 @@ use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 use PDF;
 
-class StudioBookingApprovedMail extends Mailable
+class StudioBookingApprovedMail extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 

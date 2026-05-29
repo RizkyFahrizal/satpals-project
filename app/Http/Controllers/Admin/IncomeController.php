@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Income;
 use App\Models\IncomeDocument;
 use App\Models\IncomeApproval;
+use App\Models\IncomeApprovalDocument;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -199,13 +200,30 @@ class IncomeController extends Controller
             'notes' => 'nullable|string',
         ]);
 
-        IncomeApproval::create([
+        $approval = IncomeApproval::create([
             'income_id' => $income->id,
             'approved_by' => Auth::id(),
             'approval_status' => 'approved',
             'notes' => $validated['notes'] ?? null,
             'approved_at' => now(),
         ]);
+
+        // Save approval document if uploaded
+        if ($request->hasFile('bukti_dokumen')) {
+            try {
+                $file = $request->file('bukti_dokumen');
+                $path = $file->store('income-approvals', 'public');
+                
+                IncomeApprovalDocument::create([
+                    'income_approval_id' => $approval->id,
+                    'file_path' => $path,
+                    'original_name' => $file->getClientOriginalName(),
+                    'document_type' => $validated['document_type'] ?? 'bukti transfer',
+                ]);
+            } catch (\Exception $e) {
+                \Log::error('Error uploading approval document', ['error' => $e->getMessage()]);
+            }
+        }
 
         // Check if all approvals are done (need 1 approval for income)
         $approvedCount = IncomeApproval::where('income_id', $income->id)

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Mail\BookingApprovedMail;
+use App\Mail\BookingRejectedMail;
 use App\Models\EquipmentRentalRequest;
 use App\Models\EquipmentRentalRequestItem;
 use App\Models\Income;
@@ -390,7 +391,7 @@ class EquipmentRentalRequestController extends Controller
         try {
             // Send email with PDF invoice attachment
             Mail::to($rentalRequest->renter_email)
-                ->send(new BookingApprovedMail($rentalRequest));
+                ->queue(new BookingApprovedMail($rentalRequest));
         } catch (\Exception $e) {
             \Log::error('Failed to send approval email: ' . $e->getMessage());
         }
@@ -412,11 +413,9 @@ class EquipmentRentalRequestController extends Controller
                 'rejection_reason' => $rejectionReason,
             ];
 
-            // Send email using mail facade
-            // Mail::send('emails.equipment-rental-rejected', $data, function ($message) use ($rentalRequest) {
-            //     $message->to($rentalRequest->renter_email)
-            //         ->subject('Permintaan Rental Peralatan Anda Telah Ditolak');
-            // });
+            if ($rentalRequest->renter_email) {
+                Mail::to($rentalRequest->renter_email)->queue(new BookingRejectedMail($rentalRequest, $rejectionReason));
+            }
         } catch (\Exception $e) {
             \Log::error('Failed to send rejection email: ' . $e->getMessage());
         }

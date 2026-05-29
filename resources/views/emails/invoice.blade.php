@@ -436,6 +436,11 @@
             <!-- Payment Information -->
             <div class="payment-info">
                 <h4>📋 INFORMASI PEMBAYARAN</h4>
+                @php
+                    $bankName = env('UKM_BANK_NAME', 'CIMB Niaga');
+                    $bankAccount = env('UKM_BANK_ACCOUNT', '2141375549');
+                    $bankAccountName = env('UKM_BANK_ACCOUNT_NAME', 'ZAHLUL NOER LAILY');
+                @endphp
                 <p><strong>Status Pembayaran:</strong> 
                     @if($booking->payment_status === 'paid')
                         <span style="color: #059669; font-weight: bold;">✓ LUNAS</span>
@@ -443,6 +448,9 @@
                         <span style="color: #d97706; font-weight: bold;">Menunggu Pembayaran</span>
                     @endif
                 </p>
+                <p><strong>Nama Bank:</strong> {{ $bankName }}</p>
+                <p><strong>Nomor Rekening:</strong> {{ $bankAccount }}</p>
+                <p><strong>Atas Nama:</strong> {{ $bankAccountName }}</p>
                 <p><strong>Cara Pembayaran:</strong> Transfer Bank / Tunai</p>
                 <p><strong>Batas Pembayaran:</strong> Sebelum {{ \Carbon\Carbon::parse($booking->start_date)->subDay()->format('d M Y') }}</p>
             </div>

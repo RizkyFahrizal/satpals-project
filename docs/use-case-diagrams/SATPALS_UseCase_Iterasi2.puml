@@ -4,21 +4,18 @@ left to right direction
 
 skinparam backgroundColor #FFFFFF
 skinparam actorStyle awesome
-skinparam nodesep 25
-skinparam ranksep 50
+skinparam nodesep 15
+skinparam ranksep 60
 skinparam shadowing false
 skinparam arrow {
     Color #000000
-    Thickness 2
-}
-skinparam arrowLollipop {
-    Color #000000
+    Thickness 1.5
 }
 skinparam usecase {
     BackgroundColor #FFF9D9
     BorderColor #D97706
     BorderThickness 2
-    FontSize 11
+    FontSize 12
     FontStyle bold
 }
 skinparam actor {
@@ -26,17 +23,35 @@ skinparam actor {
     BorderColor #0066CC
     BorderThickness 2
 }
+skinparam package {
+    BackgroundColor #FFF2CC
+    BorderColor #D97706
+}
 
 title Use Case Diagram SATPALS Iterasi 2
 
-actor "Pengurus" as Pengurus
+' DEKLARASI AKTOR KIRI
 actor "Admin" as Admin
-actor "Public User" as PublicUser
 
+package "Jajaran Pengurus" {
+    actor "Ketua Umum" as KU
+    actor "Wakil Ketua" as WKU
+    actor "Sekretaris" as SEK
+    actor "Bendahara" as BEN
+    actor "Subsie Band" as CB
+    actor "Subsie Peralatan" as CP
+    actor "MPA" as MPA
+    actor "Subsie PDD" as CPD
+    actor "Subsie Humas" as CH
+    actor "Kesekretariatan" as CK
+}
+
+' DEKLARASI SISTEM & USE CASE
 rectangle "SISTEM SATPALS" {
     
     (Login) as Login
-    
+
+    (Kelola User) as KelolaUser
     (Kelola Anggota) as KelolaAnggota
     (Kelola Struktur) as KelolaStruktur
     (Kelola Template) as KelolaTemplate
@@ -46,7 +61,6 @@ rectangle "SISTEM SATPALS" {
     (Kelola Band) as KelolaBand
     (Kelola Alat) as KelolaAlat
     (Kelola Galeri) as KelolaGaleri
-    (Kelola User) as KelolaUser
     
     (Informasi UKM) as PublicInfo
     (Lihat Struktur) as LihatStruktur
@@ -58,23 +72,48 @@ rectangle "SISTEM SATPALS" {
     (Galeri Prestasi) as GaleriPrestasi
 }
 
-' PENGURUS
-Pengurus --> Login
-Pengurus --> KelolaAnggota
-Pengurus --> KelolaStruktur
-Pengurus --> KelolaTemplate
-Pengurus --> KelolaArsip
-Pengurus --> KelolaKeuangan
-Pengurus --> KelolaBooking
-Pengurus --> KelolaBand
-Pengurus --> KelolaAlat
-Pengurus --> KelolaGaleri
+' DEKLARASI AKTOR KANAN
+actor "Public User" as PublicUser
 
-' ADMIN
+' --- RELASI ADMIN ---
 Admin --> Login
 Admin --> KelolaUser
 
-' PUBLIC USER
+' --- RELASI PENGURUS (Semua pakai --> agar rapi di kiri) ---
+KU --> Login
+WKU --> Login
+BEN --> Login
+SEK --> Login
+MPA --> Login
+CB --> Login
+CP --> Login
+CPD --> Login
+CH --> Login
+CK --> Login
+
+KU --> KelolaAnggota
+SEK --> KelolaAnggota
+
+KU --> KelolaStruktur
+SEK --> KelolaStruktur
+
+SEK --> KelolaTemplate
+SEK --> KelolaArsip
+
+BEN --> KelolaKeuangan
+KU --> KelolaKeuangan
+WKU --> KelolaKeuangan
+
+CB --> KelolaBooking
+CP --> KelolaBooking
+
+CB --> KelolaBand
+CP --> KelolaAlat
+
+MPA --> KelolaGaleri
+SEK --> KelolaGaleri
+
+' --- RELASI PUBLIC USER (<-- agar Actor tetap di Kanan) ---
 PublicInfo <-- PublicUser
 LihatStruktur <-- PublicUser
 DaftarDiklat <-- PublicUser
@@ -84,7 +123,7 @@ SewaAlat <-- PublicUser
 GaleriKegiatan <-- PublicUser
 GaleriPrestasi <-- PublicUser
 
-' INCLUDE - Login
+' --- INCLUDE (Login) ---
 KelolaUser ..> Login : <<include>>
 KelolaAnggota ..> Login : <<include>>
 KelolaStruktur ..> Login : <<include>>
@@ -96,7 +135,7 @@ KelolaBand ..> Login : <<include>>
 KelolaAlat ..> Login : <<include>>
 KelolaGaleri ..> Login : <<include>>
 
-' EXTEND - Invoice
+' --- EXTEND (Keuangan) ---
 KelolaBooking ..> KelolaKeuangan : <<extend>>
 KelolaBand ..> KelolaKeuangan : <<extend>>
 KelolaAlat ..> KelolaKeuangan : <<extend>>

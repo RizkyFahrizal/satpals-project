@@ -91,7 +91,7 @@ class StudioBookingController extends Controller
             'sesi' => 'required|integer|in:1,2,3,4',
             'keperluan' => 'required|string|min:10|max:500',
             'booking_scope' => 'required|in:ukm_all,non_ukm',
-            'jumlah_non_ukm' => 'required_if:booking_scope,non_ukm|integer|min:1|max:999',
+            'jumlah_non_ukm' => 'exclude_unless:booking_scope,non_ukm|integer|min:1|max:999',
         ], [
             'npm.required' => 'NPM wajib diisi',
             'nama_lengkap.required' => 'Nama lengkap wajib diisi',
@@ -113,7 +113,7 @@ class StudioBookingController extends Controller
         // Pastikan format date konsisten (YYYY-MM-DD) dan convert ke Carbon
         $validated['tanggal_booking'] = \Carbon\Carbon::createFromFormat('Y-m-d', $validated['tanggal_booking'])->toDateString();
         $isNonUkmBooking = $validated['booking_scope'] === 'non_ukm';
-        $validated['jumlah_non_ukm'] = $isNonUkmBooking ? (int) $validated['jumlah_non_ukm'] : 0;
+        $jumlahNonUkm = $isNonUkmBooking ? (int) ($validated['jumlah_non_ukm'] ?? 0) : 0;
 
         // Validasi: cek npm dan nama di tabel members
         $member = Member::where('npm', $validated['npm'])
@@ -156,7 +156,7 @@ class StudioBookingController extends Controller
         }
 
         $pricePerPerson = StudioBookingSetting::currentPricePerPerson();
-        $hargaPokok = $isNonUkmBooking ? ($pricePerPerson * (int) $validated['jumlah_non_ukm']) : 0;
+        $hargaPokok = $isNonUkmBooking ? ($pricePerPerson * $jumlahNonUkm) : 0;
 
         // Create booking
         try {
@@ -166,7 +166,7 @@ class StudioBookingController extends Controller
                 'keperluan' => $validated['keperluan'],
                 'renter_email' => $validated['renter_email'],
                 'renter_phone' => $validated['renter_phone'],
-                'jumlah_non_ukm' => $validated['jumlah_non_ukm'],
+                'jumlah_non_ukm' => $jumlahNonUkm,
                 'harga_satuan' => $pricePerPerson,
                 'harga_pokok' => $hargaPokok,
                 'diskon_persen' => 0,

@@ -4,6 +4,7 @@ namespace App\Mail;
 
 use App\Models\EquipmentRentalRequest;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Attachment;
 use Illuminate\Mail\Mailables\Content;
@@ -11,7 +12,7 @@ use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 use PDF;
 
-class BookingApprovedMail extends Mailable
+class BookingApprovedMail extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 

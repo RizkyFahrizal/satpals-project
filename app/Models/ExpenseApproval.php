@@ -32,4 +32,9 @@ class ExpenseApproval extends Model
     {
         return $this->belongsTo(User::class, 'approved_by');
     }
+
+    public function documents()
+    {
+        return $this->hasMany(ExpenseApprovalDocument::class, 'expense_approval_id');
+    }
 }

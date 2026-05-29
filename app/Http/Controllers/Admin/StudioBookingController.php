@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Mail\StudioBookingApprovedMail;
+use App\Mail\BookingRejectedMail;
 use App\Models\Income;
 use App\Models\StudioBooking;
 use App\Models\StudioBookingSetting;
@@ -229,7 +230,7 @@ class StudioBookingController extends Controller
 
         if ($recipientEmail) {
             try {
-                Mail::to($recipientEmail)->send(new StudioBookingApprovedMail($booking));
+                Mail::to($recipientEmail)->queue(new StudioBookingApprovedMail($booking->fresh()));
             } catch (\Throwable $exception) {
                 Log::warning('Gagal mengirim email approval booking studio', [
                     'booking_id' => $booking->id,
@@ -269,6 +270,21 @@ class StudioBookingController extends Controller
             'approved_at' => now(),
             'catatan_admin' => $validated['catatan'],
         ]);
+
+        // Send rejection email
+        $recipientEmail = $booking->renter_email;
+        if ($recipientEmail) {
+            try {
+                Mail::to($recipientEmail)->queue(new BookingRejectedMail($booking, $validated['catatan']));
+            } catch (\Throwable $exception) {
+                Log::warning('Gagal mengirim email rejection booking studio', [
+                    'booking_id' => $booking->id,
+                    'booking_code' => $booking->booking_code ?? null,
+                    'recipient_email' => $recipientEmail,
+                    'error' => $exception->getMessage(),
+                ]);
+            }
+        }
 
         return back()->with('success', 'Booking berhasil di-reject');
     }

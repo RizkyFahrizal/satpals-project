@@ -372,6 +372,7 @@
             ukmAllMessage.classList.toggle('hidden', isNonUkm);
             qtyInput.required = isNonUkm;
             qtyInput.min = isNonUkm ? '1' : '0';
+            qtyInput.disabled = !isNonUkm;
 
             if (!isNonUkm) {
                 qtyInput.value = '0';

@@ -187,13 +187,35 @@
 
 <!-- Approve Modal -->
 <dialog id="approveModal" class="modal">
-    <div class="modal-box">
+    <div class="modal-box max-w-2xl">
         <h3 class="font-bold text-lg">Setujui Pemasukan</h3>
-        <form action="{{ route('admin.income.approve', $income) }}" method="POST">
+        <form action="{{ route('admin.income.approve', $income) }}" method="POST" enctype="multipart/form-data">
             @csrf
-            <div class="py-4">
-                <label class="block text-sm font-semibold text-gray-700 mb-2">Catatan (Opsional)</label>
-                <textarea name="notes" class="textarea textarea-bordered w-full" rows="3"></textarea>
+            <div class="py-4 space-y-4">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Catatan (Opsional)</label>
+                    <textarea name="notes" class="textarea textarea-bordered w-full" rows="3" placeholder="Catatan persetujuan..."></textarea>
+                </div>
+                
+                <div class="divider my-2">Bukti Dokumen</div>
+                
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Upload Bukti (PDF/Gambar)</label>
+                    <input type="file" name="bukti_dokumen" accept=".pdf,.jpg,.jpeg,.png" class="file-input file-input-bordered w-full" />
+                    <p class="text-xs text-gray-500 mt-1">Format: PDF, JPG, PNG. Maksimal 5MB</p>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Jenis Dokumen</label>
+                    <select name="document_type" class="select select-bordered w-full">
+                        <option value="">Pilih jenis dokumen...</option>
+                        <option value="bukti transfer">Bukti Transfer</option>
+                        <option value="kwitansi">Kwitansi</option>
+                        <option value="invoice">Invoice</option>
+                        <option value="laporan">Laporan</option>
+                        <option value="lainnya">Lainnya</option>
+                    </select>
+                </div>
             </div>
             <div class="modal-action">
                 <button type="submit" class="btn btn-success">Setujui</button>

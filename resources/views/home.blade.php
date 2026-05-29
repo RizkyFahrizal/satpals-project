@@ -29,7 +29,7 @@
                 <span class="bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent italic"> Sikap</span>
             </h2>
             <p class="text-gray-300 text-sm md:text-lg leading-relaxed max-w-xl mb-8 md:mb-10">
-                Unit kegiatan mahasiswa musik Satya Palapa adalah UKM bidang minat bakat di bidang musik. Didirikan pada tanggal 9 September 1999, kami telah melahirkan banyak musisi berbakat.
+                Unit kegiatan mahasiswa musik Satya Palapa adalah UKM bidang minat bakat di bidang musik. Didirikan pada tanggal 6 September 1999, kami telah melahirkan banyak musisi berbakat.
             </p>
             <div class="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center lg:justify-start">
                 <a href="#services" class="px-6 md:px-8 py-3 md:py-4 bg-gradient-to-r from-yellow-400 to-orange-500 text-gray-900 font-bold rounded-full hover:shadow-lg hover:shadow-yellow-400/30 transition-all duration-300 hover:-translate-y-1 hover:scale-105 text-sm md:text-base">

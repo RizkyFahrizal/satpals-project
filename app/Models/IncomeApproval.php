@@ -34,4 +34,9 @@ class IncomeApproval extends Model
     {
         return $this->belongsTo(User::class, 'approved_by');
     }
+
+    public function documents()
+    {
+        return $this->hasMany(IncomeApprovalDocument::class, 'income_approval_id');
+    }
 }

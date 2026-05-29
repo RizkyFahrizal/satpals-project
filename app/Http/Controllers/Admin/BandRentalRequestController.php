@@ -7,6 +7,7 @@ use App\Models\BandRentalRequest;
 use App\Models\Income;
 use App\Services\InvoiceService;
 use App\Mail\InvoiceApprovedMail;
+use App\Mail\BookingRejectedMail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
@@ -107,7 +108,7 @@ class BandRentalRequestController extends Controller
             // Send email to customer with PDF attachment
             if ($rental->renter_email) {
                 \Log::info('Sending invoice email to: ' . $rental->renter_email);
-                Mail::to($rental->renter_email)->send(new InvoiceApprovedMail($rental, $pdfPath));
+                Mail::to($rental->renter_email)->queue(new InvoiceApprovedMail($rental, $pdfPath));
                 \Log::info('Invoice email sent successfully');
             }
         } catch (\Exception $e) {
@@ -137,6 +138,19 @@ class BandRentalRequestController extends Controller
             'status' => 'rejected',
             'admin_notes' => $validated['admin_notes'],
         ]);
+
+        // Send rejection email to renter (if email available)
+        if ($rental->renter_email) {
+            try {
+                Mail::to($rental->renter_email)->queue(new BookingRejectedMail($rental, $validated['admin_notes']));
+            } catch (\Exception $e) {
+                \Log::warning('Gagal mengirim email penolakan sewa band', [
+                    'rental_id' => $rental->id,
+                    'email' => $rental->renter_email,
+                    'error' => $e->getMessage(),
+                ]);
+            }
+        }
 
         return redirect()->route('admin.band-rentals.show', $rental)
             ->with('success', 'Permintaan sewa band berhasil ditolak');
