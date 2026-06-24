@@ -301,6 +301,34 @@
 
             <!-- Page Content -->
             <main class="flex-1 overflow-y-auto p-4 lg:p-8">
+                @if(session('success'))
+                    <div class="alert alert-success mb-6 shadow-md rounded-2xl border border-green-200 bg-gradient-to-r from-green-50 to-emerald-50">
+                        <i class="fas fa-check-circle text-green-600 text-lg"></i>
+                        <span class="text-green-800 font-medium">{{ session('success') }}</span>
+                    </div>
+                @endif
+
+                @if(session('error'))
+                    <div class="alert alert-error mb-6 shadow-md rounded-2xl border border-red-200 bg-gradient-to-r from-red-50 to-pink-50">
+                        <i class="fas fa-exclamation-circle text-red-600 text-lg"></i>
+                        <span class="text-red-800 font-medium">{{ session('error') }}</span>
+                    </div>
+                @endif
+
+                @if(session('info'))
+                    <div class="alert alert-info mb-6 shadow-md rounded-2xl border border-blue-200 bg-gradient-to-r from-blue-50 to-sky-50">
+                        <i class="fas fa-info-circle text-blue-600 text-lg"></i>
+                        <span class="text-blue-800 font-medium">{{ session('info') }}</span>
+                    </div>
+                @endif
+
+                @if(session('warning'))
+                    <div class="alert alert-warning mb-6 shadow-md rounded-2xl border border-yellow-200 bg-gradient-to-r from-yellow-50 to-amber-50">
+                        <i class="fas fa-triangle-exclamation text-yellow-600 text-lg"></i>
+                        <span class="text-yellow-800 font-medium">{{ session('warning') }}</span>
+                    </div>
+                @endif
+
                 @yield('content')
             </main>
         </div>

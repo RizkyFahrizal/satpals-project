@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\EquipmentRentalRequest;
 use App\Models\EquipmentRentalRequestItem;
+use App\Mail\BookingConfirmationMail;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 
 class CheckoutController extends Controller
 {
@@ -111,17 +113,9 @@ class CheckoutController extends Controller
             session()->forget('cart');
             session()->flash('booking_id', $request_record->id);
 
-            // Send confirmation email to user
-            \Mail::send('emails.booking_confirmation', [
-                'order_number' => $order_number,
-                'renter_name' => $validated['renter_name'],
-                'start_date' => $request->start_date,
-                'end_date' => $request->end_date,
-                'total_price' => $total_price,
-            ], function ($message) use ($validated) {
-                $message->to($validated['renter_email'])
-                    ->subject('Konfirmasi Pesanan - Satya Palapa Rent');
-            });
+            // Send confirmation email to user (queued)
+            $request_record->load('items.equipment');
+            Mail::to($validated['renter_email'])->queue(new BookingConfirmationMail($request_record));
 
             return redirect()->route('bookings.success')
                 ->with('success', 'Pesanan berhasil dibuat! Nomor pesanan Anda: ' . $order_number);

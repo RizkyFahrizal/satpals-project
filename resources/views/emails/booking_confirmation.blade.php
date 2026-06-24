@@ -116,13 +116,13 @@
 
         <!-- Content -->
         <div class="content">
-            <p>Halo <strong>{{ $renter_name }}</strong>,</p>
+            <p>Halo <strong>{{ $booking->renter_name }}</strong>,</p>
 
             <p>Pesanan Anda telah berhasil dibuat dan sedang menunggu verifikasi dari admin kami. Berikut adalah detail pesanan Anda:</p>
 
             <!-- Order Info -->
             <div class="order-box">
-                <div class="order-number">{{ $order_number }}</div>
+                <div class="order-number">{{ $booking->order_number }}</div>
                 <p style="margin: 5px 0; color: #666; font-size: 13px;">Nomor Pesanan Anda (simpan untuk referensi)</p>
             </div>
 
@@ -130,21 +130,48 @@
             <table class="info-table">
                 <tr>
                     <td class="label">Tanggal Mulai</td>
-                    <td class="value">{{ \Carbon\Carbon::parse($start_date)->format('d MMMM Y') }}</td>
+                    <td class="value">{{ $booking->start_date ? \Carbon\Carbon::parse($booking->start_date)->translatedFormat('d F Y') : '-' }}</td>
                 </tr>
                 <tr>
                     <td class="label">Tanggal Selesai</td>
-                    <td class="value">{{ \Carbon\Carbon::parse($end_date)->format('d MMMM Y') }}</td>
+                    <td class="value">{{ $booking->end_date ? \Carbon\Carbon::parse($booking->end_date)->translatedFormat('d F Y') : '-' }}</td>
                 </tr>
                 <tr>
                     <td class="label">Total Harga</td>
                     <td class="value">
                         <strong style="font-size: 16px; color: #27ae60;">
-                            Rp {{ number_format($total_price, 0, ',', '.') }}
+                            Rp {{ number_format($booking->total_price ?? 0, 0, ',', '.') }}
                         </strong>
                     </td>
                 </tr>
             </table>
+
+            <!-- Order Items -->
+            @if($booking->items && $booking->items->count() > 0)
+            <div style="margin: 12px 0;">
+                <h4 style="margin:6px 0;color:#555;">Daftar Peralatan</h4>
+                <table style="width:100%;border-collapse:collapse;font-size:14px;">
+                    <thead>
+                        <tr style="background:#f3f4f6;border-bottom:2px solid #e5e7eb;">
+                            <th style="text-align:left;padding:8px;color:#374151;">Peralatan</th>
+                            <th style="text-align:center;padding:8px;color:#374151;">Qty</th>
+                            <th style="text-align:right;padding:8px;color:#374151;">Harga/Hari</th>
+                            <th style="text-align:right;padding:8px;color:#374151;">Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($booking->items as $item)
+                        <tr style="border-bottom:1px solid #eee;">
+                            <td style="padding:8px;">{{ $item->equipment->name ?? ($item->equipment_name ?? '-') }}</td>
+                            <td style="padding:8px;text-align:center;">{{ $item->quantity ?? 1 }}</td>
+                            <td style="padding:8px;text-align:right;">Rp {{ number_format($item->price_per_day ?? 0, 0, ',', '.') }}</td>
+                            <td style="padding:8px;text-align:right;">Rp {{ number_format($item->subtotal ?? 0, 0, ',', '.') }}</td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+            @endif
 
             <!-- Next Steps -->
             <div class="next-steps">

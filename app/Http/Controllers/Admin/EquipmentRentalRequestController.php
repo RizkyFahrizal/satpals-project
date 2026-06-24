@@ -164,10 +164,10 @@ class EquipmentRentalRequestController extends Controller
                 'admin_notes' => $validated['admin_notes'] ?? $rentalRequest->admin_notes,
             ]);
 
-            // Send approval email
-            $this->sendApprovalEmail($rentalRequest->load('items.equipment'));
-
             DB::commit();
+
+            // Send approval email after the database changes are committed
+            $this->sendApprovalEmail($rentalRequest->load('items.equipment'));
 
             return redirect()->route('admin.equipment-rental-requests.show', $id)
                 ->with('success', 'Permintaan rental berhasil disetujui. Harga final: Rp ' . number_format($hargaFinal, 0, ',', '.') . ' dan invoice telah dikirim ke email pelanggan.');
@@ -217,10 +217,10 @@ class EquipmentRentalRequestController extends Controller
                     "Alasan: " . $validated['rejection_reason'],
             ]);
 
-            // Send rejection email
-            $this->sendRejectionEmail($rentalRequest, $validated['rejection_reason']);
-
             DB::commit();
+
+            // Send rejection email after the database changes are committed
+            $this->sendRejectionEmail($rentalRequest, $validated['rejection_reason']);
 
             return redirect()->route('admin.equipment-rental-requests.index')
                 ->with('success', 'Permintaan rental berhasil ditolak. Email notifikasi telah dikirim.');

@@ -5,33 +5,75 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Permintaan Ditolak</title>
   <style>
-    body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; color: #111827; }
-    .container { max-width: 600px; margin: 24px auto; padding: 24px; border: 1px solid #e5e7eb; border-radius: 8px; }
-    h1 { font-size: 20px; margin-bottom: 8px; }
-    p { margin: 8px 0; color: #374151; }
-    .reason { background: #fff7ed; border: 1px solid #ffedd5; padding: 12px; border-radius: 6px; color: #92400e; }
+    body { margin: 0; padding: 0; background: #f9fafb; font-family: Arial, sans-serif; color: #111827; }
+    .container { max-width: 640px; margin: 0 auto; padding: 24px; }
+    .header { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: #fff; padding: 28px; border-radius: 16px 16px 0 0; text-align: center; }
+    .header h1 { margin: 0; font-size: 28px; }
+    .content { background: #fff; padding: 28px; border-radius: 0 0 16px 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.06); }
+    .section { padding: 16px; border-radius: 12px; margin: 20px 0; }
+    .reason-box { background: #fee2e2; border-left: 4px solid #dc2626; }
+    .detail-box { background: #f3f4f6; border-left: 4px solid #6b7280; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    td { padding: 8px 0; border-bottom: 1px solid #e5e7eb; }
+    .label { color: #6b7280; width: 40%; }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>Permintaan Anda Ditolak</h1>
-
-    <p>Halo {{ $booking->renter_name ?? $booking->nama_pemohon ?? 'Pelanggan' }},</p>
-
-    <p>Kami mohon maaf. Permintaan pemesanan Anda <strong>
-      {{ $booking->booking_code ?? $booking->order_number ?? $booking->kode_order ?? '' }}
-    </strong> telah ditolak oleh tim admin.</p>
-
-    @if(!empty($reason))
-    <div class="reason">
-      <strong>Alasan penolakan:</strong>
-      <p>{{ $reason }}</p>
+    <div class="header">
+      <h1>❌ Permintaan Ditolak</h1>
+      <p>Satya Palapa</p>
     </div>
-    @endif
 
-    <p>Jika Anda butuh bantuan lebih lanjut atau ingin mengajukan ulang, silakan balas email ini atau hubungi kami melalui admin panel.</p>
+    <div class="content">
+      <p style="margin:0 0 16px;font-size:15px;line-height:1.6;">Halo <strong>{{ $booking->renter_name ?? $booking->nama_pemohon ?? 'Pelanggan' }}</strong>,</p>
 
-    <p>Terima kasih,<br>Tim Satya Palapa</p>
+      <p style="margin:0 0 16px;font-size:14px;color:#374151;">Kami mohon maaf. Permintaan pemesanan Anda telah ditolak oleh tim admin.</p>
+
+      @if(!empty($reason))
+      <div class="section reason-box">
+        <h3 style="margin:0 0 12px;font-size:16px;color:#991b1b;">📋 Alasan Penolakan</h3>
+        <p style="margin:0;font-size:14px;color:#7f1d1d;">{{ $reason }}</p>
+      </div>
+      @endif
+
+      <!-- Detail Permintaan -->
+      <div class="section detail-box">
+        <h3 style="margin:0 0 12px;font-size:16px;color:#374151;">📝 Detail Permintaan</h3>
+        <table>
+          <tr>
+            <td class="label">No. Referensi</td>
+            <td style="color:#1f2937;font-weight:500;">{{ $booking->booking_code ?? $booking->order_number ?? $booking->kode_order ?? '-' }}</td>
+          </tr>
+          @if($booking->tanggal_booking || $booking->start_date || $booking->performance_date)
+          <tr>
+            <td class="label">Tanggal Permintaan</td>
+            <td style="color:#1f2937;font-weight:500;">
+              @if($booking->tanggal_booking)
+                {{ $booking->tanggal_booking->translatedFormat('d F Y') }}
+              @elseif($booking->start_date)
+                {{ $booking->start_date->translatedFormat('d F Y') }}
+              @elseif($booking->performance_date)
+                {{ $booking->performance_date->translatedFormat('d F Y') }}
+              @else
+                -
+              @endif
+            </td>
+          </tr>
+          @endif
+          @if($booking->harga_final)
+          <tr style="border-bottom:2px solid #d1d5db;">
+            <td class="label">Jumlah</td>
+            <td style="color:#1f2937;font-weight:bold;font-size:15px;">Rp {{ number_format($booking->harga_final ?? 0, 0, ',', '.') }}</td>
+          </tr>
+          @endif
+        </table>
+      </div>
+
+      <p style="margin:16px 0;font-size:14px;color:#374151;">Jika Anda butuh bantuan lebih lanjut atau ingin mengajukan ulang, silakan balas email ini atau hubungi kami melalui admin panel.</p>
+
+      <p style="margin:0;font-size:14px;color:#374151;">Terima kasih,<br><strong>Tim Satya Palapa</strong></p>
+    </div>
   </div>
 </body>
 </html>

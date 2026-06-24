@@ -13,14 +13,6 @@
     $computedHargaFinal = $booking->harga_final ?? max(0, $computedHargaPokok - ($booking->diskon_nominal ?? 0));
 @endphp
 <div class="container mx-auto px-4 py-6">
-    @if(session('warning'))
-        <div class="alert alert-warning shadow-lg mb-6">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 shrink-0 stroke-current" fill="none" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4v2m0 -6V7m0 6v2m0 -6a9 9 0 110 18 9 9 0 010 -18z" />
-            </svg>
-            <span>{{ session('warning') }}</span>
-        </div>
-    @endif
 
     <div class="flex justify-between items-start mb-6">
         <div>

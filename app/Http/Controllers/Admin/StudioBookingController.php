@@ -240,15 +240,15 @@ class StudioBookingController extends Controller
                 ]);
 
                 return back()->with('success', $hargaFinal > 0
-                    ? 'Booking berhasil di-approve dan pemasukan telah dibuat'
-                    : 'Booking berhasil di-approve tanpa pemasukan karena booking UKM semua')
+                    ? 'Permintaan studio berhasil disetujui! Kode Booking: ' . $booking->booking_code . ' | Harga Final: Rp ' . number_format($hargaFinal, 0, ',', '.') . ' | Tanggal: ' . $booking->tanggal_booking?->translatedFormat('d F Y') . ' | Sesi: ' . $booking->sesi_label . ' | Invoice sedang dikirim ke email pelanggan.'
+                    : 'Permintaan studio berhasil disetujui! Kode Booking: ' . $booking->booking_code . ' | Harga Final: Rp 0 | Tanggal: ' . $booking->tanggal_booking?->translatedFormat('d F Y') . ' | Sesi: ' . $booking->sesi_label . ' | Invoice sedang dikirim ke email pelanggan.')
                     ->with('warning', 'Booking sudah disetujui, tetapi email notifikasi gagal dikirim.');
             }
         }
 
         return back()->with('success', $hargaFinal > 0
-            ? 'Booking berhasil di-approve dan pemasukan telah dibuat'
-            : 'Booking berhasil di-approve tanpa pemasukan karena booking UKM semua');
+            ? 'Permintaan studio berhasil disetujui! Kode Booking: ' . $booking->booking_code . ' | Harga Final: Rp ' . number_format($hargaFinal, 0, ',', '.') . ' | Tanggal: ' . $booking->tanggal_booking?->translatedFormat('d F Y') . ' | Sesi: ' . $booking->sesi_label . ' | Invoice sedang dikirim ke email pelanggan.'
+            : 'Permintaan studio berhasil disetujui! Kode Booking: ' . $booking->booking_code . ' | Harga Final: Rp 0 | Tanggal: ' . $booking->tanggal_booking?->translatedFormat('d F Y') . ' | Sesi: ' . $booking->sesi_label . ' | Invoice sedang dikirim ke email pelanggan.');
     }
 
     /**
@@ -286,7 +286,7 @@ class StudioBookingController extends Controller
             }
         }
 
-        return back()->with('success', 'Booking berhasil di-reject');
+        return back()->with('success', 'Permintaan studio berhasil ditolak! Kode Booking: ' . $booking->booking_code . ' | Catatan: ' . $validated['catatan'] . ' | Email notifikasi penolakan sedang dikirim ke pelanggan.');
     }
 
     /**
