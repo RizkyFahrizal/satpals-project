@@ -26,7 +26,7 @@
     </div>
 
     <div class="content">
-      <p style="margin:0 0 16px;font-size:15px;line-height:1.6;">Halo <strong>{{ $booking->renter_name ?? $booking->nama_pemohon ?? 'Pelanggan' }}</strong>,</p>
+      <p style="margin:0 0 16px;font-size:15px;line-height:1.6;">Halo <strong>{{ $customerName ?? 'Pelanggan' }}</strong>,</p>
 
       <p style="margin:0 0 16px;font-size:14px;color:#374151;">Kami mohon maaf. Permintaan pemesanan Anda telah ditolak oleh tim admin.</p>
 
@@ -43,28 +43,18 @@
         <table>
           <tr>
             <td class="label">No. Referensi</td>
-            <td style="color:#1f2937;font-weight:500;">{{ $booking->booking_code ?? $booking->order_number ?? $booking->kode_order ?? '-' }}</td>
+            <td style="color:#1f2937;font-weight:500;">{{ $referenceCode ?? '-' }}</td>
           </tr>
-          @if($booking->tanggal_booking || $booking->start_date || $booking->performance_date)
+          @if(!empty($requestDateLabel) && $requestDateLabel !== '-')
           <tr>
             <td class="label">Tanggal Permintaan</td>
-            <td style="color:#1f2937;font-weight:500;">
-              @if($booking->tanggal_booking)
-                {{ $booking->tanggal_booking->translatedFormat('d F Y') }}
-              @elseif($booking->start_date)
-                {{ $booking->start_date->translatedFormat('d F Y') }}
-              @elseif($booking->performance_date)
-                {{ $booking->performance_date->translatedFormat('d F Y') }}
-              @else
-                -
-              @endif
-            </td>
+            <td style="color:#1f2937;font-weight:500;">{{ $requestDateLabel }}</td>
           </tr>
           @endif
-          @if($booking->harga_final)
+          @if(!is_null($amount))
           <tr style="border-bottom:2px solid #d1d5db;">
             <td class="label">Jumlah</td>
-            <td style="color:#1f2937;font-weight:bold;font-size:15px;">Rp {{ number_format($booking->harga_final ?? 0, 0, ',', '.') }}</td>
+            <td style="color:#1f2937;font-weight:bold;font-size:15px;">Rp {{ number_format($amount ?? 0, 0, ',', '.') }}</td>
           </tr>
           @endif
         </table>

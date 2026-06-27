@@ -186,7 +186,7 @@
 
             <!-- Important -->
             <div class="highlight">
-                <strong>⚠️ Penting:</strong> Simpan nomor pesanan <strong>{{ $order_number }}</strong> ini. Anda akan membutuhkannya untuk menghubungi admin atau melacak pesanan.
+                <strong>⚠️ Penting:</strong> Simpan nomor pesanan <strong>{{ $booking->order_number }}</strong> ini. Anda akan membutuhkannya untuk menghubungi admin atau melacak pesanan.
             </div>
 
             <!-- Contact -->

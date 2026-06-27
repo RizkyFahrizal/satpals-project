@@ -35,7 +35,32 @@ class BookingRejectedMail extends Mailable implements ShouldQueue
             $subject .= ' - ' . $code;
         }
 
+        $customerName = $this->booking->renter_name ?? $this->booking->nama_pemohon ?? 'Pelanggan';
+        $referenceCode = $code ?? '-';
+        $requestDate = $this->booking->tanggal_booking
+            ?? $this->booking->start_date
+            ?? $this->booking->performance_date
+            ?? null;
+
+        if ($requestDate instanceof \Carbon\CarbonInterface) {
+            $requestDateLabel = $requestDate->translatedFormat('d F Y');
+        } elseif ($requestDate) {
+            $requestDateLabel = \Carbon\Carbon::parse($requestDate)->translatedFormat('d F Y');
+        } else {
+            $requestDateLabel = '-';
+        }
+
+        $amount = $this->booking->harga_final ?? null;
+
         return $this->subject($subject)
-                    ->view('emails.booking-rejected');
+                    ->view('emails.booking-rejected')
+                    ->with([
+                        'booking' => $this->booking,
+                        'reason' => $this->reason,
+                        'customerName' => $customerName,
+                        'referenceCode' => $referenceCode,
+                        'requestDateLabel' => $requestDateLabel,
+                        'amount' => $amount,
+                    ]);
     }
 }

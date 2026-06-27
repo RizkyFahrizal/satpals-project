@@ -32,7 +32,7 @@
                 </div>
 
                 <div class="content">
-                        <p style="margin:0 0 16px;font-size:15px;line-height:1.6;">Halo, invoice Anda sudah disetujui.</p>
+                        <p style="margin:0 0 16px;font-size:15px;line-height:1.6;">Halo <strong>{{ $rental->renter_name ?? 'Pelanggan' }}</strong>, invoice Anda sudah disetujui.</p>
                         <p style="margin:0 0 16px;font-size:14px;line-height:1.6;color:#374151;">PDF invoice terlampir untuk referensi Anda.</p>
                         
                         <!-- Detail Peminta dan Band -->
@@ -75,15 +75,15 @@
                                         <table style="width:100%;border-collapse:collapse;font-size:14px;">
                                                 <tr style="border-bottom:1px solid #e5e7eb;">
                                                         <td style="padding:8px 0;color:#6b7280;width:40%;">Nama Band</td>
-                                                        <td style="padding:8px 0;color:#1f2937;font-weight:500;">{{ $rental->band->name ?? '-' }}</td>
+                                                        <td style="padding:8px 0;color:#1f2937;font-weight:500;">{{ $rental->band->band_name ?? $rental->band->name ?? '-' }}</td>
                                                 </tr>
                                                 <tr style="border-bottom:1px solid #e5e7eb;">
                                                         <td style="padding:8px 0;color:#6b7280;">Jenis Rental</td>
-                                                        <td style="padding:8px 0;color:#1f2937;font-weight:500;">{{ ucfirst($rental->rental_type ?? '-') }}</td>
+                                                        <td style="padding:8px 0;color:#1f2937;font-weight:500;">{{ ucfirst($rental->rental_type ?? (($rental->performance_start_time || $rental->performance_end_time) ? 'hourly' : 'event')) }}</td>
                                                 </tr>
                                                 <tr style="border-bottom:1px solid #e5e7eb;">
                                                         <td style="padding:8px 0;color:#6b7280;">Tanggal Perform</td>
-                                                        <td style="padding:8px 0;color:#1f2937;font-weight:500;">{{ $rental->performance_date ? $rental->performance_date->format('d M Y') : '-' }}</td>
+                                                        <td style="padding:8px 0;color:#1f2937;font-weight:500;">{{ $rental->performance_date ? $rental->performance_date->translatedFormat('d F Y') : '-' }}</td>
                                                 </tr>
                                                 <tr style="border-bottom:1px solid #e5e7eb;">
                                                         <td style="padding:8px 0;color:#6b7280;">Jam Perform</td>

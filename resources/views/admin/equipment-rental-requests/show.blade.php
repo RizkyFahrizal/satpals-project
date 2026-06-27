@@ -24,20 +24,6 @@
         </a>
     </div>
 
-    @if(session('success'))
-    <div class="alert alert-success mb-6 shadow-md rounded-2xl border border-green-200 bg-gradient-to-r from-green-50 to-emerald-50">
-        <i class="fas fa-check-circle text-green-600 text-lg"></i>
-        <span class="text-green-800 font-medium">{{ session('success') }}</span>
-    </div>
-    @endif
-
-    @if(session('error'))
-    <div class="alert alert-error mb-6 shadow-md rounded-2xl border border-red-200 bg-gradient-to-r from-red-50 to-pink-50">
-        <i class="fas fa-exclamation-circle text-red-600 text-lg"></i>
-        <span class="text-red-800 font-medium">{{ session('error') }}</span>
-    </div>
-    @endif
-
     <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
         <div class="xl:col-span-2 space-y-6">
             <div class="bg-white rounded-2xl shadow-md border border-gray-100 p-6">
