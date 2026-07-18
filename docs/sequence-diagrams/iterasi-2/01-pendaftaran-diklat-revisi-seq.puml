@@ -1,0 +1,24 @@
+@startuml diklat-guest
+title Pendaftaran Diklat - Guest
+
+actor Guest
+participant "DiklatController" as Controller
+database "Database" as DB
+participant "Storage" as Storage
+
+Guest -> Controller: create()
+Controller -> DB: activePeriod()
+DB --> Controller: period
+
+Guest -> Controller: store(Request $request)
+Controller -> Controller: validate($request)
+
+alt valid
+  Controller -> Storage: put($proof)
+  Controller -> DB: create($registration)
+  DB --> Controller: saved
+else invalid
+  Controller -> DB: rollback()
+end
+
+@enduml

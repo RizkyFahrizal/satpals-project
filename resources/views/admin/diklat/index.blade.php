@@ -4,8 +4,20 @@
 
 @section('header', 'Kelola Anggota Diklat')
 
+@section('breadcrumb', 'Operasional > Pendaftaran Diklat')
+
 @section('content')
 <div class="space-y-6">
+    <!-- Management Button Bar -->
+    <div class="bg-white rounded-2xl shadow-sm border border-yellow-100 p-6">
+        <a href="{{ route('admin.diklat.periods.index') }}" class="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-yellow-400 to-orange-500 text-gray-900 font-semibold hover:shadow-lg hover:shadow-yellow-400/30 transition-all duration-200">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h18M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+            </svg>
+            Kelola Periode Pendaftaran
+        </a>
+    </div>
+
     <!-- Statistics Cards -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <!-- Total -->
@@ -72,6 +84,18 @@
     <!-- Filters -->
     <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
         <form action="{{ route('admin.diklat.index') }}" method="GET" class="flex flex-col md:flex-row gap-4">
+            <!-- Period Filter -->
+            <div class="w-full md:w-56">
+                <select name="period_id" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 transition-all">
+                    <option value="">Semua Periode</option>
+                    @foreach($periods as $period)
+                        <option value="{{ $period->id }}" {{ request('period_id') == $period->id ? 'selected' : '' }}>
+                            {{ $period->short_name }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+
             <!-- Search -->
             <div class="flex-1">
                 <div class="relative">
@@ -99,7 +123,7 @@
                 <button type="submit" class="px-6 py-2.5 bg-yellow-400 hover:bg-yellow-500 text-gray-800 font-semibold rounded-xl transition-all">
                     Filter
                 </button>
-                @if(request('search') || request('status'))
+                @if(request('search') || request('status') || request('period_id'))
                 <a href="{{ route('admin.diklat.index') }}" class="px-6 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-xl transition-all">
                     Reset
                 </a>
@@ -107,6 +131,53 @@
             </div>
         </form>
     </div>
+
+    <!-- Accept All Button -->
+    @if($stats['pending'] > 0)
+    <div class="bg-gradient-to-r from-blue-50 to-green-50 border border-blue-200 rounded-2xl p-5">
+        <div class="flex items-center justify-between">
+            <div>
+                <h3 class="font-semibold text-blue-900">
+                    @if(request('period_id'))
+                        Terima Semua Pendaftaran Menunggu (Periode Ini)
+                    @else
+                        Terima Semua Pendaftaran Menunggu (Semua Periode)
+                    @endif
+                </h3>
+                <p class="text-sm text-blue-700 mt-1">
+                    @if(request('period_id'))
+                        {{ $stats['pending'] }} pendaftaran menunggu untuk diterima di periode ini
+                    @else
+                        {{ $stats['pending'] }} pendaftaran menunggu untuk diterima dari semua periode
+                    @endif
+                </p>
+            </div>
+            @if(request('period_id'))
+                <form action="{{ route('admin.diklat.accept-all', \App\Models\DiklatPeriod::find(request('period_id'))) }}" method="POST" class="inline">
+                    @csrf
+                    <input type="hidden" name="confirm" value="yes">
+                    <button type="submit" class="px-6 py-3 bg-green-500 hover:bg-green-600 text-white font-semibold rounded-xl transition-all flex items-center gap-2" onclick="return confirm('Terima semua {{ $stats['pending'] }} pendaftaran di periode ini? Data anggota akan otomatis ditambahkan.')">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        Terima Semua
+                    </button>
+                </form>
+            @else
+                <form action="{{ route('admin.diklat.accept-all-global') }}" method="POST" class="inline">
+                    @csrf
+                    <input type="hidden" name="confirm" value="yes">
+                    <button type="submit" class="px-6 py-3 bg-green-500 hover:bg-green-600 text-white font-semibold rounded-xl transition-all flex items-center gap-2" onclick="return confirm('Terima semua {{ $stats['pending'] }} pendaftaran dari SEMUA periode? Data anggota akan otomatis ditambahkan.')">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        Terima Semua
+                    </button>
+                </form>
+            @endif
+        </div>
+    </div>
+    @endif
 
     <!-- Success/Error Messages -->
     @if(session('success'))
@@ -131,7 +202,7 @@
                         <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Nama Lengkap</th>
                         <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">NPM</th>
                         <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Fakultas/Prodi</th>
-                        <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Spesifikasi</th>
+                        <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Angkatan</th>
                         <th class="px-6 py-4 text-center text-sm font-semibold text-gray-700">Status</th>
                         <th class="px-6 py-4 text-center text-sm font-semibold text-gray-700">Aksi</th>
                     </tr>
@@ -144,7 +215,7 @@
                         </td>
                         <td class="px-6 py-4">
                             <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold">
+                                <div class="w-10 h-10 aspect-square rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex-none shrink-0 flex items-center justify-center text-white font-bold overflow-hidden">
                                     {{ strtoupper(substr($reg->nama_lengkap, 0, 1)) }}
                                 </div>
                                 <div>
@@ -160,38 +231,23 @@
                                 <p class="text-gray-500">{{ $reg->prodi }}</p>
                             </div>
                         </td>
-                        <td class="px-6 py-4">
-                            <div class="flex flex-wrap gap-1">
-                                @foreach($reg->spesifikasi as $spec)
-                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-700">
-                                    @if($spec === 'drum') 🥁
-                                    @elseif($spec === 'keyboard') 🎹
-                                    @elseif($spec === 'vocal') 🎤
-                                    @elseif($spec === 'bass') 🎸
-                                    @elseif($spec === 'guitar') 🎸
-                                    @endif
-                                    {{ ucfirst($spec) }}
-                                </span>
-                                @endforeach
+                        <td class="px-6 py-4 text-sm">
+                            <div class="space-y-1">
+                                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide"><span class="text-gray-700">{{ $reg->period->tahun_masuk ?? $reg->tahun_masuk ?? '-' }}</span></p>
                             </div>
                         </td>
                         <td class="px-6 py-4 text-center">
+                            @if($reg->status === 'pending')
                             <form action="{{ route('admin.diklat.update-status', $reg) }}" method="POST" class="inline">
                                 @csrf
                                 @method('PATCH')
                                 <div class="relative inline-block">
                                     <select name="status" onchange="this.form.submit()" 
                                         class="appearance-none cursor-pointer pl-4 pr-10 py-2 rounded-full text-sm font-medium border-2 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2
-                                        @if($reg->status === 'pending') 
-                                            bg-gradient-to-r from-yellow-400 to-orange-400 text-gray-800 border-yellow-300 focus:ring-yellow-400
-                                        @elseif($reg->status === 'approved')
-                                            bg-gradient-to-r from-green-400 to-emerald-500 text-white border-green-400 focus:ring-green-400
-                                        @else
-                                            bg-gradient-to-r from-red-400 to-rose-500 text-white border-red-400 focus:ring-red-400
-                                        @endif">
-                                        <option value="pending" {{ $reg->status === 'pending' ? 'selected' : '' }}>⏳ Menunggu</option>
-                                        <option value="approved" {{ $reg->status === 'approved' ? 'selected' : '' }}>✅ Diterima</option>
-                                        <option value="rejected" {{ $reg->status === 'rejected' ? 'selected' : '' }}>❌ Ditolak</option>
+                                        bg-gradient-to-r from-yellow-400 to-orange-400 text-gray-800 border-yellow-300 focus:ring-yellow-400">
+                                        <option value="pending" selected>⏳ Menunggu</option>
+                                        <option value="approved">✅ Diterima</option>
+                                        <option value="rejected">❌ Ditolak</option>
                                     </select>
                                     <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
                                         <svg class="w-4 h-4 text-current opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -200,6 +256,15 @@
                                     </div>
                                 </div>
                             </form>
+                            @elseif($reg->status === 'approved')
+                            <span class="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium bg-gradient-to-r from-green-400 to-emerald-500 text-white border-2 border-green-400">
+                                ✅ Diterima
+                            </span>
+                            @else
+                            <span class="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium bg-gradient-to-r from-red-400 to-rose-500 text-white border-2 border-red-400">
+                                ❌ Ditolak
+                            </span>
+                            @endif
                         </td>
                         <td class="px-6 py-4">
                             <div class="flex items-center justify-center gap-2">

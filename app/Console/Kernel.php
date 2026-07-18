@@ -15,7 +15,8 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        // $schedule->command('inspire')->hourly();
+        // Convert expired members to alumni status every day at midnight
+        $schedule->command('members:convert-expired-to-alumni')->daily();
     }
 
     /**

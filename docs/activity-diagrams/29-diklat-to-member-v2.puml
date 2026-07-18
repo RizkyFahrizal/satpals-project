@@ -1,0 +1,44 @@
+@startuml Diklat_to_Member_v2
+
+title Pendaftaran Diklat ke Anggota UKM (Iterasi 2)
+
+start
+
+:Calon Anggota daftar;
+:Isi form (Nama, NIM, Email, Telepon);
+:Submit pendaftaran;
+
+if (Validasi OK?) then (Ya)
+  :Simpan registrasi;
+  :Status pending;
+else (Tidak)
+  :Show error;
+  stop
+endif
+
+:Admin buka halaman pendaftaran;
+:Review daftar pending;
+
+:Pilih action;
+
+if (Action?) then (Terima 1)
+  :Klik Terima;
+  :Create anggota;
+  :Status active;
+  :Update diklat accepted;
+else (Lainnya)
+  if (Terima Semua?) then (Ya)
+    :Klik Terima Semua;
+    :Loop create anggota;
+    :Update status accepted;
+  else (Tolak)
+    :Klik Tolak;
+    :Update status rejected;
+  endif
+endif
+
+:Lihat daftar anggota;
+
+stop
+
+@enduml

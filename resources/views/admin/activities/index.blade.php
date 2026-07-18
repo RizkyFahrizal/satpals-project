@@ -6,88 +6,114 @@
 @section('content')
 <div class="space-y-6">
     <!-- Stats Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-5 text-white shadow-lg">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-blue-100 text-sm">Total Kegiatan</p>
-                    <p class="text-3xl font-bold">{{ $totalActivities }}</p>
-                </div>
-                <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <!-- Total Kegiatan -->
+        <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 bg-gradient-to-br from-blue-400 to-blue-600 rounded-xl flex items-center justify-center">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                     </svg>
                 </div>
+                <div>
+                    <p class="text-sm text-gray-500">Total Kegiatan</p>
+                    <p class="text-2xl font-bold text-gray-800">{{ $totalActivities }}</p>
+                </div>
             </div>
         </div>
-        <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-xl p-5 text-white shadow-lg">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-green-100 text-sm">Dipublikasikan</p>
-                    <p class="text-3xl font-bold">{{ $publishedCount }}</p>
-                </div>
-                <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+
+        <!-- Dipublikasikan -->
+        <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 bg-gradient-to-br from-green-400 to-emerald-500 rounded-xl flex items-center justify-center">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                     </svg>
                 </div>
+                <div>
+                    <p class="text-sm text-gray-500">Dipublikasikan</p>
+                    <p class="text-2xl font-bold text-green-600">{{ $publishedCount }}</p>
+                </div>
             </div>
         </div>
-        <div class="bg-gradient-to-br from-gray-500 to-gray-600 rounded-xl p-5 text-white shadow-lg">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-gray-100 text-sm">Draft</p>
-                    <p class="text-3xl font-bold">{{ $totalActivities - $publishedCount }}</p>
-                </div>
-                <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+
+        <!-- Draft -->
+        <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 bg-gradient-to-br from-gray-400 to-gray-600 rounded-xl flex items-center justify-center">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>
                     </svg>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-500">Draft</p>
+                    <p class="text-2xl font-bold text-gray-600">{{ $totalActivities - $publishedCount }}</p>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Filter & Actions -->
-    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
-        <div class="flex flex-col md:flex-row gap-4 items-center justify-between">
-            <form action="{{ route('admin.activities.index') }}" method="GET" class="flex flex-wrap gap-3 flex-1">
-                <div class="relative flex-1 min-w-[200px]">
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
+        <form action="{{ route('admin.activities.index') }}" method="GET" class="flex flex-col md:flex-row gap-4">
+            <!-- Search -->
+            <div class="flex-1">
+                <div class="relative">
                     <input type="text" name="search" value="{{ request('search') }}" 
-                        placeholder="Cari kegiatan..." 
-                        class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        placeholder="Cari kegiatan..."
+                        class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 transition-all">
                     <svg class="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                     </svg>
                 </div>
-                <select name="tahun" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+            </div>
+
+            <!-- Year Filter -->
+            <div class="w-full md:w-36">
+                <select name="tahun" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 transition-all">
                     <option value="">Semua Tahun</option>
                     @foreach($years as $year)
                         <option value="{{ $year }}" {{ request('tahun') == $year ? 'selected' : '' }}>{{ $year }}</option>
                     @endforeach
                 </select>
-                <select name="status" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+            </div>
+
+            <!-- Status Filter -->
+            <div class="w-full md:w-40">
+                <select name="status" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 transition-all">
                     <option value="">Semua Status</option>
                     <option value="published" {{ request('status') == 'published' ? 'selected' : '' }}>Dipublikasikan</option>
                     <option value="draft" {{ request('status') == 'draft' ? 'selected' : '' }}>Draft</option>
                 </select>
-                <button type="submit" class="px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition-colors">
+            </div>
+
+            <!-- Buttons -->
+            <div class="flex gap-2">
+                <button type="submit" class="px-6 py-2.5 bg-yellow-400 hover:bg-yellow-500 text-gray-800 font-semibold rounded-xl transition-all">
                     Filter
                 </button>
                 @if(request()->hasAny(['search', 'tahun', 'status']))
-                    <a href="{{ route('admin.activities.index') }}" class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors">
+                    <a href="{{ route('admin.activities.index') }}" class="px-6 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-xl transition-all">
                         Reset
                     </a>
                 @endif
-            </form>
-            <a href="{{ route('admin.activities.create') }}" class="px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all shadow-md flex items-center gap-2">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                </svg>
-                Tambah Kegiatan
-            </a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Header with Add Button -->
+    <div class="flex justify-between items-center">
+        <div>
+            <h3 class="text-lg font-semibold text-gray-800">Daftar Kegiatan</h3>
+            <p class="text-sm text-gray-500">Kelola galeri kegiatan UKM</p>
         </div>
+        <a href="{{ route('admin.activities.create') }}" class="bg-yellow-400 hover:bg-yellow-500 text-gray-800 font-semibold px-6 py-2.5 rounded-xl transition-all flex items-center gap-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+            </svg>
+            Tambah Kegiatan
+        </a>
     </div>
 
     <!-- Activities Grid -->
@@ -106,19 +132,28 @@
     @else
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             @foreach($activities as $activity)
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow group">
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg transition-shadow">
                     <!-- Photo -->
-                    <div class="aspect-video bg-gray-100 relative overflow-hidden">
+                    <div class="relative h-48 bg-gradient-to-br from-gray-100 to-gray-200">
                         @if($activity->foto_1)
                             <img src="{{ asset('storage/' . $activity->foto_1) }}" 
                                  alt="{{ $activity->judul_kegiatan }}" 
-                                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                                 class="w-full h-full object-cover">
                         @else
-                            <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-100 to-cyan-100">
-                                <span class="text-5xl">📅</span>
+                            <div class="flex items-center justify-center h-full text-gray-400">
+                                <svg class="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                </svg>
                             </div>
                         @endif
-                        
+
+                        <!-- Year Badge -->
+                        <div class="absolute top-3 left-3">
+                            <span class="px-3 py-1 bg-gradient-to-r from-amber-400 to-yellow-500 text-white text-sm font-bold rounded-full shadow">
+                                {{ $activity->tanggal_kegiatan->format('Y') }}
+                            </span>
+                        </div>
+
                         <!-- Status Badge -->
                         <div class="absolute top-3 right-3">
                             @if($activity->is_published)
@@ -127,58 +162,55 @@
                                 <span class="px-2 py-1 bg-gray-500 text-white text-xs font-semibold rounded-full">Draft</span>
                             @endif
                         </div>
-                        
-                        <!-- Year Badge -->
-                        <div class="absolute top-3 left-3">
-                            <span class="px-2 py-1 bg-black/60 backdrop-blur-sm text-white text-xs font-semibold rounded-full">
-                                {{ $activity->tanggal_kegiatan->format('Y') }}
-                            </span>
-                        </div>
                     </div>
-                    
+
                     <!-- Content -->
                     <div class="p-4">
-                        <h3 class="font-bold text-gray-800 line-clamp-2 mb-2">{{ $activity->judul_kegiatan }}</h3>
+                        <h4 class="font-bold text-gray-800 text-lg mb-1 line-clamp-1">{{ $activity->judul_kegiatan }}</h4>
                         
-                        <div class="flex items-center gap-2 text-sm text-gray-500 mb-1">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                            </svg>
-                            <span>{{ $activity->tanggal_kegiatan->translatedFormat('d F Y') }}</span>
+                        <div class="space-y-1 text-sm text-gray-500 mb-3">
+                            <p class="flex items-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                </svg>
+                                {{ $activity->tanggal_kegiatan->translatedFormat('d M Y') }}
+                            </p>
+                            @if($activity->tempat_kegiatan)
+                            <p class="flex items-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                </svg>
+                                <span class="line-clamp-1">{{ $activity->tempat_kegiatan }}</span>
+                            </p>
+                            @endif
                         </div>
-                        
-                        @if($activity->tempat_kegiatan)
-                        <div class="flex items-center gap-2 text-sm text-gray-500">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
-                            </svg>
-                            <span class="truncate">{{ $activity->tempat_kegiatan }}</span>
-                        </div>
-                        @endif
-                        
+
                         <!-- Actions -->
-                        <div class="flex items-center gap-2 mt-4 pt-4 border-t">
-                            <a href="{{ route('admin.activities.show', $activity) }}" class="flex-1 px-3 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition-colors text-center">
+                        <div class="flex items-center gap-2 pt-3 border-t border-gray-100">
+                            <a href="{{ route('admin.activities.show', $activity) }}" 
+                               class="flex-1 py-2 text-center text-blue-600 hover:bg-blue-50 rounded-lg transition-colors text-sm font-medium">
                                 Detail
                             </a>
-                            <a href="{{ route('admin.activities.edit', $activity) }}" class="flex-1 px-3 py-2 bg-blue-100 text-blue-700 text-sm font-medium rounded-lg hover:bg-blue-200 transition-colors text-center">
+                            <a href="{{ route('admin.activities.edit', $activity) }}" 
+                               class="flex-1 py-2 text-center text-yellow-600 hover:bg-yellow-50 rounded-lg transition-colors text-sm font-medium">
                                 Edit
                             </a>
-                            <form action="{{ route('admin.activities.toggle-publish', $activity) }}" method="POST" class="inline">
+                            <form action="{{ route('admin.activities.toggle-publish', $activity) }}" method="POST" class="flex-1">
                                 @csrf
                                 @method('PATCH')
-                                <button type="submit" class="px-3 py-2 {{ $activity->is_published ? 'bg-orange-100 text-orange-700 hover:bg-orange-200' : 'bg-green-100 text-green-700 hover:bg-green-200' }} text-sm font-medium rounded-lg transition-colors" title="{{ $activity->is_published ? 'Sembunyikan' : 'Publikasikan' }}">
-                                    @if($activity->is_published)
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>
-                                        </svg>
-                                    @else
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                                        </svg>
-                                    @endif
+                                <button type="submit" class="w-full py-2 text-center {{ $activity->is_published ? 'text-gray-600 hover:bg-gray-50' : 'text-green-600 hover:bg-green-50' }} rounded-lg transition-colors text-sm font-medium">
+                                    {{ $activity->is_published ? 'Hide' : 'Publish' }}
+                                </button>
+                            </form>
+                            <form action="{{ route('admin.activities.destroy', $activity) }}" method="POST" 
+                                  onsubmit="return confirm('Yakin ingin menghapus kegiatan ini?')">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                    </svg>
                                 </button>
                             </form>
                         </div>

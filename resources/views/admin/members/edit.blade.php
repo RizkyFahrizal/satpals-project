@@ -36,7 +36,7 @@
                 <div class="md:col-span-2">
                     <label class="block text-sm font-semibold text-gray-700 mb-2">Foto Saat Ini</label>
                     <div class="flex items-center gap-4">
-                        <div class="w-20 h-20 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white text-2xl font-bold overflow-hidden border-4 border-gray-100">
+                        <div class="w-20 h-20 aspect-square rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex-none shrink-0 flex items-center justify-center text-white text-2xl font-bold overflow-hidden border-4 border-gray-100">
                             @if($member->foto)
                             <img src="{{ asset('storage/' . $member->foto) }}" alt="{{ $member->nama_lengkap }}" class="w-full h-full object-cover">
                             @else
@@ -86,13 +86,27 @@
                 <!-- No Telepon -->
                 <div>
                     <label for="no_telepon" class="block text-sm font-semibold text-gray-700 mb-2">
-                        No. Telepon <span class="text-red-500">*</span>
+                        No. Telepon Pribadi <span class="text-red-500">*</span>
                     </label>
                     <input type="text" name="no_telepon" id="no_telepon" 
                         value="{{ old('no_telepon', $member->no_telepon) }}" required
                         class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 transition-all @error('no_telepon') border-red-500 @enderror"
                         placeholder="08xxxxxxxxxx">
                     @error('no_telepon')
+                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <!-- No Telepon Orang Tua -->
+                <div>
+                    <label for="no_telepon_ortu" class="block text-sm font-semibold text-gray-700 mb-2">
+                        No. Telepon Orang Tua
+                    </label>
+                    <input type="text" name="no_telepon_ortu" id="no_telepon_ortu" 
+                        value="{{ old('no_telepon_ortu', $member->no_telepon_ortu) }}"
+                        class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 transition-all @error('no_telepon_ortu') border-red-500 @enderror"
+                        placeholder="08xxxxxxxxxx">
+                    @error('no_telepon_ortu')
                     <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                     @enderror
                 </div>
@@ -139,20 +153,6 @@
                     @enderror
                 </div>
 
-                <!-- Tahun Daftar -->
-                <div>
-                    <label for="tahun_daftar" class="block text-sm font-semibold text-gray-700 mb-2">
-                        Tahun Daftar <span class="text-red-500">*</span>
-                    </label>
-                    <input type="number" name="tahun_daftar" id="tahun_daftar" 
-                        value="{{ old('tahun_daftar', $member->tahun_daftar) }}" required
-                        min="2000" max="{{ now()->year + 1 }}"
-                        class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 transition-all @error('tahun_daftar') border-red-500 @enderror">
-                    @error('tahun_daftar')
-                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                    @enderror
-                </div>
-
                 <!-- Angkatan -->
                 <div>
                     <label for="angkatan" class="block text-sm font-semibold text-gray-700 mb-2">
@@ -176,7 +176,6 @@
                         class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 transition-all @error('status') border-red-500 @enderror">
                         <option value="aktif" {{ old('status', $member->status) === 'aktif' ? 'selected' : '' }}>✅ Aktif</option>
                         <option value="alumni" {{ old('status', $member->status) === 'alumni' ? 'selected' : '' }}>🎓 Alumni</option>
-                        <option value="keluar" {{ old('status', $member->status) === 'keluar' ? 'selected' : '' }}>❌ Keluar</option>
                     </select>
                     @error('status')
                     <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
@@ -213,6 +212,49 @@
                     </div>
                     @error('spesifikasi')
                     <p class="text-red-500 text-xs mt-2">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <!-- Spesifikasi Lainnya -->
+                <div class="md:col-span-2">
+                    <label for="spesifikasi_lainnya" class="block text-sm font-semibold text-gray-700 mb-2">
+                        Spesifikasi Lainnya
+                    </label>
+                    <p class="text-xs text-gray-500 mb-3">Tambahkan spesifikasi tambahan jika ada (pisahkan dengan koma)</p>
+                    <input type="text" name="spesifikasi_lainnya" id="spesifikasi_lainnya" 
+                        value="{{ old('spesifikasi_lainnya', $member->spesifikasi_lainnya ? implode(', ', $member->spesifikasi_lainnya) : '') }}"
+                        class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 transition-all @error('spesifikasi_lainnya') border-red-500 @enderror"
+                        placeholder="Contoh: Biola, Kecapi, atau instrumen lainnya">
+                    @error('spesifikasi_lainnya')
+                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <!-- Riwayat Penyakit -->
+                <div class="md:col-span-2">
+                    <label for="riwayat_penyakit" class="block text-sm font-semibold text-gray-700 mb-2">
+                        Riwayat Penyakit
+                    </label>
+                    <p class="text-xs text-gray-500 mb-3">Tuliskan riwayat penyakit jika ada (opsional)</p>
+                    <textarea name="riwayat_penyakit" id="riwayat_penyakit" rows="3"
+                        class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 transition-all resize-none @error('riwayat_penyakit') border-red-500 @enderror"
+                        placeholder="Contoh: Asma, alergi obat, dll">{{ old('riwayat_penyakit', $member->riwayat_penyakit) }}</textarea>
+                    @error('riwayat_penyakit')
+                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <!-- Riwayat Alergi -->
+                <div class="md:col-span-2">
+                    <label for="riwayat_alergi" class="block text-sm font-semibold text-gray-700 mb-2">
+                        Riwayat Alergi Makanan
+                    </label>
+                    <p class="text-xs text-gray-500 mb-3">Tuliskan alergi makanan jika ada (opsional)</p>
+                    <textarea name="riwayat_alergi" id="riwayat_alergi" rows="3"
+                        class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 transition-all resize-none @error('riwayat_alergi') border-red-500 @enderror"
+                        placeholder="Contoh: Alergi seafood, alergi kacang, dll">{{ old('riwayat_alergi', $member->riwayat_alergi) }}</textarea>
+                    @error('riwayat_alergi')
+                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                     @enderror
                 </div>
             </div>

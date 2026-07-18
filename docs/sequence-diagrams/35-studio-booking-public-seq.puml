@@ -1,0 +1,51 @@
+@startuml Studio_Booking_Public_Seq
+
+title Sequence Diagram - Proses Booking Studio (Public)
+
+actor User
+participant "Web App" as App
+participant System
+database Database
+
+User -> App: Buka halaman katalog studio
+App -> Database: Query daftar studio available
+Database --> App: Return studio list
+App --> User: Tampilkan katalog studio
+
+User -> App: Pilih studio
+App -> Database: Query detail studio + price
+Database --> App: Return studio details
+App --> User: Tampilkan detail studio
+
+User -> App: Isi form booking (tanggal, jam)
+App -> System: Check availability (tanggal/jam)
+System -> Database: Query existing bookings
+Database --> System: Return bookings
+System -> System: Check conflict
+System --> App: Tersedia atau tidak
+
+alt Jam tersedia
+  App --> User: Tampilkan total harga
+else Jam tidak tersedia
+  App --> User: Show error + suggest alternative
+end
+
+User -> App: Klik "Checkout"
+User -> App: Isi data penyewa + payment method
+App --> User: Show ringkasan order
+
+User -> App: Klik "Confirm & Pay"
+App -> System: Process payment
+System -> System: Validate payment method
+System --> App: Payment success/fail
+
+alt Payment berhasil
+  System -> Database: Create booking record
+  System -> Database: Update studio availability
+  System -> App: Send confirmation email
+  App --> User: Show confirmation code
+else Payment gagal
+  App --> User: Show error message
+end
+
+@enduml

@@ -1,0 +1,91 @@
+@startuml satpals-class-module-3-finance-content
+hide circle
+hide methods
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam dpi 180
+skinparam class {
+  BackgroundColor White
+  BorderColor Black
+  FontSize 11
+  FontName Arial
+}
+left to right direction
+
+title SatPals Class Diagram - Modul 3 (Income, Expense, Approval, Archive, Activity, Achievement)
+
+class Income {
+  +id
+  +title
+  +nominal
+  +source
+  +status
+  +created_by
+}
+
+class IncomeApproval {
+  +id
+  +income_id
+  +approved_by
+  +status
+}
+
+class IncomeApprovalDocument {
+  +id
+  +income_approval_id
+}
+
+class Expense {
+  +id
+  +title
+  +amount
+  +status
+  +created_by
+}
+
+class ExpenseApproval {
+  +id
+  +expense_id
+  +approved_by
+  +status
+}
+
+class ExpenseApprovalDocument {
+  +id
+  +expense_approval_id
+}
+
+class Activity {
+  +id
+  +judul_kegiatan
+  +tanggal_kegiatan
+  +is_published
+}
+
+class Achievement {
+  +id
+  +judul_lomba
+  +tanggal_lomba
+  +is_published
+}
+
+class DocumentTemplate {
+  +id
+  +nama_template
+  +file_path
+}
+
+class LetterArchive {
+  +id
+  +nama_surat
+  +jenis
+  +tanggal_surat
+}
+
+Income "1" -- "0..*" IncomeApproval : approvals
+IncomeApproval "1" -- "0..*" IncomeApprovalDocument : documents
+Expense "1" -- "0..*" ExpenseApproval : approvals
+ExpenseApproval "1" -- "0..*" ExpenseApprovalDocument : documents
+
+@enduml

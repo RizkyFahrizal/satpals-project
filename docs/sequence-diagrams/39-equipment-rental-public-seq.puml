@@ -1,0 +1,48 @@
+@startuml EquipmentRental_Public_Seq
+
+title Sequence Diagram - Equipment Rental (Public)
+
+actor User
+participant "App" as App
+participant System
+database DB
+
+User -> App: Buka katalog equipment
+App -> DB: Query available equipment
+DB --> App: Return list
+App --> User: Tampilkan katalog
+
+User -> App: Pilih equipment
+App -> DB: Query detail + price
+DB --> App: Return details
+App --> User: Tampilkan detail
+
+User -> App: Isi form (tanggal, durasi)
+App -> System: Check availability
+System -> DB: Query existing rentals
+DB --> System: Return rentals
+System -> System: Check conflict
+System --> App: Available/not
+
+alt Available
+  App --> User: Show total price
+else Not available
+  App --> User: Show error
+end
+
+User -> App: Checkout
+User -> App: Input data + payment method
+App --> User: Show summary
+
+User -> App: Confirm & Pay
+App -> System: Process payment
+
+alt Payment OK
+  System -> DB: Create rental record
+  System -> App: Send email
+  App --> User: Show rental code
+else Payment failed
+  App --> User: Show error
+end
+
+@enduml

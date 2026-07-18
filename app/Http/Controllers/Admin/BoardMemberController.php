@@ -25,17 +25,21 @@ class BoardMemberController extends Controller
 
         $boardMembers = $query->get();
 
-        // Group by jabatan type
-        $grouped = [
-            'pimpinan' => $boardMembers->whereIn('jabatan', BoardMember::JABATAN_PIMPINAN),
-            'subsie' => $boardMembers->whereIn('jabatan', BoardMember::JABATAN_SUBSIE),
-        ];
+        // Group by jabatan type (per subsie/position)
+        $grouped = [];
+        $grouped['mpa'] = $boardMembers->where('jabatan', 'mpa');
+        $grouped['pimpinan'] = $boardMembers->whereIn('jabatan', ['ketua_umum', 'wakil_ketua_umum', 'sekretaris', 'bendahara']);
 
-        // Get all available periodes
-        $periodeList = BoardMember::distinct()->pluck('periode')->filter()->sort()->reverse()->values();
-        if (!$periodeList->contains($currentPeriode)) {
-            $periodeList->prepend($currentPeriode);
-        }
+        // Subsie - group individually
+        $grouped['subsie_kesekretariatan'] = $boardMembers->where('jabatan', 'subsie_kesekretariatan');
+        $grouped['subsie_peralatan'] = $boardMembers->where('jabatan', 'subsie_peralatan');
+        $grouped['subsie_humas'] = $boardMembers->where('jabatan', 'subsie_humas');
+        $grouped['subsie_pdd'] = $boardMembers->where('jabatan', 'subsie_pdd');
+        $grouped['subsie_band'] = $boardMembers->where('jabatan', 'subsie_band');
+
+        // Get all available periodes from members angkatan (dynamically from active members)
+        // Periode only appears when there are members registered with that year
+        $periodeList = BoardMember::getAvailablePeriodes();
 
         // Get active members for selection
         $availableMembers = Member::where('status', 'aktif')
@@ -63,12 +67,39 @@ class BoardMemberController extends Controller
      */
     public function store(Request $request)
     {
+        // Check authorization: only super_admin, ketua_umum, wakil_ketua_umum, and mpa (active) can add
+        if (!auth()->user()->canAddBoardMembers($request->get('periode'))) {
+            $user = auth()->user();
+            \Log::warning('Unauthorized board member add attempt', [
+                'user_id' => $user->id,
+                'user_role' => $user->role,
+                'user_is_active' => $user->is_active,
+                'periode' => $request->get('periode'),
+            ]);
+            return back()->with('error', 'Anda tidak memiliki akses untuk menambah pengurus. Hanya Ketua Umum, Wakil Ketua Umum, dan MPA yang aktif yang dapat menambah pengurus. (Role: ' . $user->role . ', Active: ' . ($user->is_active ? 'Ya' : 'Tidak') . ')');
+        }
+        
+        \Log::info('Board member store started', [
+            'user_id' => auth()->user()->id,
+            'periode' => $request->get('periode'),
+            'member_id' => $request->get('member_id'),
+            'jabatan' => $request->get('jabatan'),
+        ]);
+
         $validated = $request->validate([
             'member_id' => 'required|exists:members,id',
-            'jabatan' => 'required|string',
+            'jabatan' => 'required|string|in:' . implode(',', array_keys(BoardMember::JABATAN_OPTIONS)),
             'periode' => 'required|string',
             'foto' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
             'create_account' => 'nullable|boolean',
+        ], [
+            'foto.max' => 'Ukuran file foto terlalu besar. Maksimal 2 MB.',
+            'foto.image' => 'File harus berupa gambar (JPEG, PNG, WebP).',
+            'foto.mimes' => 'Format gambar tidak didukung. Gunakan JPEG, PNG, atau WebP.',
+            'member_id.required' => 'Silakan pilih anggota terlebih dahulu.',
+            'member_id.exists' => 'Anggota yang dipilih tidak ditemukan.',
+            'jabatan.required' => 'Silakan pilih jabatan.',
+            'periode.required' => 'Silakan pilih periode kepengurusan.',
         ]);
 
         // Check if member already has position in this periode
@@ -78,31 +109,60 @@ class BoardMemberController extends Controller
             return back()->with('error', 'Anggota sudah memiliki jabatan di periode ini.');
         }
 
-        // Get max urutan
-        $maxUrutan = BoardMember::where('periode', $validated['periode'])->max('urutan') ?? 0;
-
-        // Handle foto upload
-        $fotoPath = null;
-        if ($request->hasFile('foto')) {
-            $fotoPath = $request->file('foto')->store('board-members', 'public');
+        // Check for unique position constraint (ketua_umum, wakil_ketua_umum, bendahara, sekretaris max 1 per periode)
+        $uniquePositions = ['ketua_umum', 'wakil_ketua_umum', 'bendahara', 'sekretaris'];
+        if (in_array($validated['jabatan'], $uniquePositions)) {
+            $existingPosition = BoardMember::where('jabatan', $validated['jabatan'])
+                ->where('periode', $validated['periode'])
+                ->exists();
+            
+            if ($existingPosition) {
+                $jabatanLabel = BoardMember::JABATAN_OPTIONS[$validated['jabatan']] ?? $validated['jabatan'];
+                return back()->with('error', "Jabatan {$jabatanLabel} sudah terisi untuk periode {$validated['periode']}. Maksimal 1 orang per jabatan per periode.");
+            }
         }
 
-        $boardMember = BoardMember::create([
-            'member_id' => $validated['member_id'],
-            'jabatan' => $validated['jabatan'],
-            'periode' => $validated['periode'],
-            'foto' => $fotoPath,
-            'is_active' => true,
-            'urutan' => $maxUrutan + 1,
-        ]);
+        try {
+            // Get max urutan
+            $maxUrutan = BoardMember::where('periode', $validated['periode'])->max('urutan') ?? 0;
 
-        // Create user account if requested
-        if ($request->filled('create_account') && $request->create_account) {
-            $user = $boardMember->createUserAccount();
-            return back()->with('success', "Pengurus berhasil ditambahkan. Akun login: {$user->email} / satpals123");
+            // Handle foto upload
+            $fotoPath = null;
+            if ($request->hasFile('foto')) {
+                $fotoPath = $request->file('foto')->store('board-members', 'public');
+            }
+
+            $boardMember = BoardMember::create([
+                'member_id' => $validated['member_id'],
+                'jabatan' => $validated['jabatan'],
+                'periode' => $validated['periode'],
+                'foto' => $fotoPath,
+                'is_active' => true,
+                'urutan' => $maxUrutan + 1,
+            ]);
+
+            // Create user account if requested
+            if ($request->filled('create_account') && $request->create_account) {
+                if ($boardMember->member?->user) {
+                    return back()->with('error', 'Pengurus berhasil ditambahkan, tetapi akun login tidak dibuat karena member ini sudah memiliki akun.');
+                }
+
+                try {
+                    $user = $boardMember->createUserAccount();
+                    $defaultPassword = strtolower(str_replace(' ', '', $boardMember->member->nama_lengkap));
+                    $message = "Pengurus berhasil ditambahkan. Akun login: {$user->email} / {$defaultPassword}";
+                    return back()->with('success', $message);
+                } catch (\Exception $e) {
+                    \Log::error('Failed to create user account', ['error' => $e->getMessage()]);
+                    return back()->with('error', 'Pengurus ditambahkan, tapi gagal membuat akun: ' . $e->getMessage());
+                }
+            }
+
+            return back()->with('success', 'Pengurus berhasil ditambahkan.');
+        } catch (\Exception $e) {
+            \Log::error('Failed to add board member', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+            return back()->with('error', 'Gagal menambahkan pengurus: ' . $e->getMessage());
         }
-
-        return back()->with('success', 'Pengurus berhasil ditambahkan.');
     }
 
     /**
@@ -110,12 +170,32 @@ class BoardMemberController extends Controller
      */
     public function update(Request $request, BoardMember $boardMember)
     {
+        // Check authorization: only super_admin, ketua_umum, wakil_ketua_umum, and mpa (active) can update
+        if (!auth()->user()->canAddBoardMembers($boardMember->periode)) {
+            return back()->with('error', 'Anda tidak memiliki akses untuk mengubah pengurus.');
+        }
+
         $validated = $request->validate([
             'jabatan' => 'required|string',
             'urutan' => 'nullable|integer|min:0',
+            'is_active' => 'nullable|boolean',
             'foto' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
             'hapus_foto' => 'nullable|boolean',
         ]);
+
+        // Check for unique position constraint if jabatan is being changed
+        $uniquePositions = ['ketua_umum', 'wakil_ketua_umum', 'bendahara', 'sekretaris'];
+        if ($validated['jabatan'] !== $boardMember->jabatan && in_array($validated['jabatan'], $uniquePositions)) {
+            $existingPosition = BoardMember::where('jabatan', $validated['jabatan'])
+                ->where('periode', $boardMember->periode)
+                ->where('id', '!=', $boardMember->id)
+                ->exists();
+            
+            if ($existingPosition) {
+                $jabatanLabel = BoardMember::JABATAN_OPTIONS[$validated['jabatan']] ?? $validated['jabatan'];
+                return back()->with('error', "Jabatan {$jabatanLabel} sudah terisi untuk periode {$boardMember->periode}. Maksimal 1 orang per jabatan per periode.");
+            }
+        }
 
         // Handle hapus foto
         if ($request->filled('hapus_foto') && $request->hapus_foto) {
@@ -135,10 +215,13 @@ class BoardMemberController extends Controller
             unset($validated['foto']);
         }
 
+        // Convert is_active to boolean
+        $validated['is_active'] = (bool) $request->filled('is_active');
+
         unset($validated['hapus_foto']);
         $boardMember->update($validated);
 
-        return back()->with('success', 'Data pengurus berhasil diperbarui.');
+            return back()->with('success', 'Pengurus berhasil diupdate.');
     }
 
     /**
@@ -157,8 +240,13 @@ class BoardMemberController extends Controller
      */
     public function createAccount(BoardMember $boardMember)
     {
-        if ($boardMember->user_id) {
-            return back()->with('error', 'Pengurus sudah memiliki akun login.');
+        if ($boardMember->user_id || $boardMember->member?->user) {
+            $existingUser = $boardMember->member?->user;
+            $message = $existingUser
+                ? 'Pengurus ini sudah memiliki akun login. Tidak dibuat akun baru agar data tidak dobel.'
+                : 'Pengurus sudah memiliki akun login.';
+
+            return back()->with('error', $message);
         }
 
         $user = $boardMember->createUserAccount();
@@ -171,9 +259,61 @@ class BoardMemberController extends Controller
      */
     public function destroy(BoardMember $boardMember)
     {
+        // Check authorization: only super_admin, ketua_umum, wakil_ketua_umum, and mpa (active) can delete
+        if (!auth()->user()->canAddBoardMembers($boardMember->periode)) {
+            return back()->with('error', 'Anda tidak memiliki akses untuk menghapus pengurus.');
+        }
+
         $boardMember->delete();
 
         return back()->with('success', 'Pengurus berhasil dihapus dari struktur.');
+    }
+
+    /**
+     * Search members for board position (API endpoint)
+     */
+    public function searchMembers(Request $request)
+    {
+        $search = $request->get('search', '');
+        $periode = $request->get('periode');
+
+        $query = Member::where('status', 'aktif');
+
+        // Search by nama or jabatan from board_members
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('nama_lengkap', 'like', "%{$search}%")
+                  ->orWhere('npm', 'like', "%{$search}%");
+            });
+        }
+
+        // Exclude members who already have position in this periode
+        if ($periode) {
+            $query->whereDoesntHave('boardPositions', function($q) use ($periode) {
+                $q->where('periode', $periode);
+            });
+        }
+
+        $members = $query->with('user')
+            ->select('id', 'nama_lengkap', 'npm', 'prodi')
+            ->limit(10)
+            ->get()
+            ->map(function($member) {
+                $accountStatus = $member->user ? 'Punya Akun' : 'Belum Punya Akun';
+                $accountClass = $member->user ? 'text-green-600' : 'text-blue-600';
+                
+                return [
+                    'id' => $member->id,
+                    'text' => "{$member->nama_lengkap} ({$member->npm}) - {$member->prodi}",
+                    'nama_lengkap' => $member->nama_lengkap,
+                    'npm' => $member->npm,
+                    'has_account' => (bool) $member->user,
+                    'account_status' => $accountStatus,
+                    'account_class' => $accountClass,
+                ];
+            });
+
+        return response()->json($members);
     }
 
     /**

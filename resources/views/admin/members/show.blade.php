@@ -23,11 +23,11 @@
                 <!-- Photo Section -->
                 <div class="relative bg-gradient-to-br from-yellow-400 via-orange-400 to-red-500 p-8 pb-24">
                     <div class="absolute -bottom-16 left-1/2 -translate-x-1/2">
-                        <div class="w-32 h-32 rounded-full border-4 border-white shadow-lg bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white text-4xl font-bold overflow-hidden">
+                        <div class="w-32 h-32 aspect-square rounded-full border-4 border-white shadow-lg bg-gradient-to-br from-yellow-400 to-orange-500 flex-none shrink-0 flex items-center justify-center text-white text-4xl font-bold overflow-hidden">
                             @if($member->foto)
                             <img src="{{ asset('storage/' . $member->foto) }}" alt="{{ $member->nama_lengkap }}" class="w-full h-full object-cover">
                             @else
-                            {{ strtoupper(substr($member->nama_lengkap, 0, 2)) }}
+                            {{ strtoupper(substr($member->nama_lengkap, 0, 1)) }}
                             @endif
                         </div>
                     </div>
@@ -46,10 +46,6 @@
                         @elseif($member->status === 'alumni')
                         <span class="px-4 py-1.5 bg-blue-100 text-blue-700 font-semibold rounded-full">
                             🎓 Alumni
-                        </span>
-                        @else
-                        <span class="px-4 py-1.5 bg-red-100 text-red-700 font-semibold rounded-full">
-                            ❌ Keluar
                         </span>
                         @endif
                     </div>
@@ -71,6 +67,15 @@
                             </svg>
                             {{ $member->no_telepon }}
                         </a>
+
+                        @if($member->no_telepon_ortu)
+                        <a href="tel:{{ $member->no_telepon_ortu }}" class="flex items-center justify-center gap-2 text-gray-600 hover:text-yellow-600 transition-colors text-sm">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+                            </svg>
+                            (Ortu) {{ $member->no_telepon_ortu }}
+                        </a>
+                        @endif
 
                         <div class="flex items-center justify-center gap-2 text-gray-600">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -136,7 +141,6 @@
                     </div>
                 </div>
             </div>
-
             <!-- UKM Info -->
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
                 <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
@@ -148,8 +152,8 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div class="p-4 bg-gray-50 rounded-xl">
-                        <p class="text-sm text-gray-500 mb-1">Tahun Daftar</p>
-                        <p class="font-semibold text-gray-800">{{ $member->tahun_daftar }}</p>
+                        <p class="text-sm text-gray-500 mb-1">Angkatan</p>
+                        <p class="font-semibold text-gray-800">{{ $member->angkatan }}</p>
                     </div>
                     <div class="p-4 bg-gray-50 rounded-xl">
                         <p class="text-sm text-gray-500 mb-1">Spesifikasi</p>
@@ -181,6 +185,57 @@
                     <p class="text-sm text-blue-600">{{ $member->diklatRegistration->created_at->format('d M Y') }}</p>
                 </div>
                 @endif
+            </div>
+
+            <!-- Health & Emergency Info -->
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4v.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    Informasi Kesehatan & Darurat
+                </h3>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <!-- No Telepon Orang Tua -->
+                    <div class="p-4 bg-green-50 rounded-xl border border-green-100">
+                        <p class="text-sm font-semibold text-green-700 mb-2">No. Telepon Orang Tua</p>
+                        @if($member->no_telepon_ortu)
+                            <a href="tel:{{ $member->no_telepon_ortu }}" class="font-semibold text-green-700 hover:text-green-800 flex items-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+                                </svg>
+                                {{ $member->no_telepon_ortu }}
+                            </a>
+                        @else
+                            <span class="text-gray-400">-</span>
+                        @endif
+                    </div>
+
+                    <!-- Riwayat Penyakit -->
+                    <div class="p-4 bg-red-50 rounded-xl border border-red-100">
+                        <p class="text-sm font-semibold text-red-700 mb-2">Riwayat Penyakit</p>
+                        <p class="text-gray-700 text-sm">
+                            @if($member->riwayat_penyakit)
+                                {{ $member->riwayat_penyakit }}
+                            @else
+                                <span class="text-gray-400">-</span>
+                            @endif
+                        </p>
+                    </div>
+
+                    <!-- Riwayat Alergi -->
+                    <div class="p-4 bg-orange-50 rounded-xl border border-orange-100">
+                        <p class="text-sm font-semibold text-orange-700 mb-2">Riwayat Alergi Makanan</p>
+                        <p class="text-gray-700 text-sm">
+                            @if($member->riwayat_alergi)
+                                {{ $member->riwayat_alergi }}
+                            @else
+                                <span class="text-gray-400">-</span>
+                            @endif
+                        </p>
+                    </div>
+                </div>
             </div>
 
             <!-- Board Position History -->

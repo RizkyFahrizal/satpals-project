@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\DiklatRegistration;
+use App\Models\DiklatPeriod;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -13,8 +14,25 @@ class DiklatController extends Controller
      */
     public function create()
     {
-        $spesifikasiOptions = DiklatRegistration::SPESIFIKASI_OPTIONS;
-        return view('diklat.register', compact('spesifikasiOptions'));
+        // Get the active period (must be open AND past tanggal_buka)
+        // Don't check tanggal_tutup - if admin manually opened it, let registration proceed
+        $activePeriod = DiklatPeriod::where('is_open', true)
+            ->whereDate('tanggal_buka', '<=', now())
+            ->first();
+        
+        if (!$activePeriod) {
+            return view('diklat.register', [
+                'activePeriod' => null,
+                'isOpen' => false,
+                'spesifikasiOptions' => DiklatRegistration::SPESIFIKASI_OPTIONS,
+            ]);
+        }
+
+        return view('diklat.register', [
+            'activePeriod' => $activePeriod,
+            'isOpen' => true,
+            'spesifikasiOptions' => DiklatRegistration::SPESIFIKASI_OPTIONS,
+        ]);
     }
 
     /**
@@ -22,6 +40,17 @@ class DiklatController extends Controller
      */
     public function store(Request $request)
     {
+        // Check if there is an active period (must be open AND past tanggal_buka)
+        // Don't check tanggal_tutup - if admin manually opened it, let registration proceed
+        $activePeriod = DiklatPeriod::where('is_open', true)
+            ->whereDate('tanggal_buka', '<=', now())
+            ->first();
+        
+        if (!$activePeriod) {
+            return redirect()->route('diklat.register')
+                ->with('error', 'Pendaftaran diklat sedang ditutup.');
+        }
+
         $validated = $request->validate([
             'nama_lengkap' => 'required|string|max:255',
             'jenis_kelamin' => 'required|in:laki-laki,perempuan',
@@ -32,6 +61,8 @@ class DiklatController extends Controller
             'prodi' => 'required|string|max:255',
             'spesifikasi' => 'required|array|min:1',
             'spesifikasi.*' => 'in:drum,keyboard,vocal,bass,guitar',
+            'spesifikasi_lainnya' => 'nullable|array',
+            'spesifikasi_lainnya.*' => 'nullable|string|max:255',
             'bukti_pembayaran' => 'required|image|mimes:jpeg,png,jpg|max:2048',
             'riwayat_penyakit' => 'nullable|string',
             'riwayat_alergi' => 'nullable|string',
@@ -59,6 +90,20 @@ class DiklatController extends Controller
             $path = $file->storeAs('bukti_pembayaran', $filename, 'public');
             $validated['bukti_pembayaran'] = $path;
         }
+
+        // Filter out null values from spesifikasi_lainnya
+        if (!empty($validated['spesifikasi_lainnya'])) {
+            $validated['spesifikasi_lainnya'] = array_filter($validated['spesifikasi_lainnya'], function($item) {
+                return !empty($item);
+            });
+            if (empty($validated['spesifikasi_lainnya'])) {
+                $validated['spesifikasi_lainnya'] = null;
+            }
+        }
+
+        // Add period ID and tahun masuk
+        $validated['diklat_period_id'] = $activePeriod->id;
+        $validated['tahun_masuk'] = $activePeriod->tahun_masuk;
 
         DiklatRegistration::create($validated);
 

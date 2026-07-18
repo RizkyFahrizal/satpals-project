@@ -1,0 +1,19 @@
+@startuml booking-studio-guest
+title Booking Studio - Guest
+
+actor Guest
+participant "StudioBookingController" as Controller
+database DB
+participant "Email Service" as Mail
+
+Guest -> Controller: create()
+Controller -> DB: availableSessions()
+DB --> Controller: sessions
+
+Guest -> Controller: store(Request $request)
+Controller -> Controller: validate($request)
+Controller -> DB: create($booking)
+DB --> Controller: saved
+Controller -> Mail: queue(BookingConfirmationMail)
+
+@enduml

@@ -1,0 +1,181 @@
+@startuml satpals-cdm
+
+hide circle
+left to right direction
+
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam linetype ortho
+
+title SatPals - Conceptual Data Model (CDM)
+
+'==============================
+' PUBLIC & AUTH
+'==============================
+package "Public & Authentication" {
+
+entity User {}
+entity Member {}
+entity BoardMember {}
+entity DiklatRegistration {}
+entity DiklatPeriod {}
+
+}
+
+'==============================
+' STUDIO BOOKING
+'==============================
+package "Studio Booking" {
+
+entity StudioBooking {}
+entity StudioBookingSetting {}
+
+}
+
+'==============================
+' BAND RENTAL
+'==============================
+package "Band Rental" {
+
+entity Band {}
+entity BandMember {}
+entity BandGenre {}
+entity BandPrototype {}
+entity BandMOU {}
+entity BandRentalRequest {}
+
+}
+
+'==============================
+' EQUIPMENT RENTAL
+'==============================
+package "Equipment Rental" {
+
+entity EquipmentRental {}
+entity EquipmentRentalUnit {}
+entity EquipmentRentalRequest {}
+entity EquipmentRentalRequestItem {}
+
+}
+
+'==============================
+' FINANCE
+'==============================
+package "Finance" {
+
+entity Income {}
+entity IncomeDocument {}
+entity IncomeApproval {}
+entity IncomeApprovalDocument {}
+
+entity Expense {}
+entity ExpenseDocument {}
+entity ExpenseApproval {}
+entity ExpenseApprovalDocument {}
+
+}
+
+'==============================
+' CONTENT
+'==============================
+package "Content & Documentation" {
+
+entity Activity {}
+entity Achievement {}
+entity DocumentTemplate {}
+entity LetterArchive {}
+
+}
+
+'==============================
+' SYSTEM
+'==============================
+package "System" {
+
+entity Job {}
+entity FailedJob {}
+entity PersonalAccessToken {}
+entity PasswordReset {}
+
+}
+
+'========================================================
+' PUBLIC
+'========================================================
+
+User ||--o| Member : has profile
+User ||--o{ BoardMember : assigned
+Member ||--o{ BoardMember : serves as
+
+DiklatPeriod ||--o{ DiklatRegistration : contains
+DiklatPeriod ||--o{ Member : consists of
+DiklatRegistration ||--o| Member : accepted as
+
+'========================================================
+' STUDIO BOOKING
+'========================================================
+
+User ||--o{ StudioBooking : books
+User ||--o{ StudioBooking : approves
+
+StudioBookingSetting ||--o{ StudioBooking : pricing
+
+Income ||--o| StudioBooking : payment
+
+'========================================================
+' BAND RENTAL
+'========================================================
+
+Band ||--o{ BandMember : has
+Band ||--o{ BandGenre : categorized
+Band ||--o{ BandPrototype : performs
+Band ||--o| BandMOU : agreement
+Band ||--o{ BandRentalRequest : receives
+
+Income ||--o| BandRentalRequest : payment
+
+'========================================================
+' EQUIPMENT RENTAL
+'========================================================
+
+EquipmentRental ||--o{ EquipmentRentalUnit : consists of
+
+EquipmentRentalRequest ||--o{ EquipmentRentalRequestItem : contains
+EquipmentRental ||--o{ EquipmentRentalRequestItem : rented item
+
+User ||--o{ EquipmentRentalRequest : approves
+
+Income ||--o| EquipmentRentalRequest : payment
+
+'========================================================
+' FINANCE
+'========================================================
+
+User ||--o{ Income : creates
+Income ||--o{ IncomeDocument : has
+Income ||--o{ IncomeApproval : reviewed
+IncomeApproval ||--o{ IncomeApprovalDocument : has
+User ||--o{ IncomeApproval : approves
+
+User ||--o{ Expense : creates
+Expense ||--o{ ExpenseDocument : has
+Expense ||--o{ ExpenseApproval : reviewed
+ExpenseApproval ||--o{ ExpenseApprovalDocument : has
+User ||--o{ ExpenseApproval : approves
+
+'========================================================
+' SYSTEM
+'========================================================
+
+User ||--o{ PersonalAccessToken : owns
+
+note bottom
+Conceptual Data Model (CDM)
+
+Menampilkan entitas utama beserta hubungan konseptual.
+Entitas sistem (Jobs, FailedJobs, PasswordReset,
+PersonalAccessToken) merupakan supporting entities.
+end note
+
+@enduml

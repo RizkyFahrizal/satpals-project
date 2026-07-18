@@ -1,0 +1,258 @@
+@startuml satpals-pdm
+hide circle
+skinparam dpi 150
+skinparam linetype ortho
+skinparam entity {
+    BackgroundColor White
+    BorderColor Black
+    FontSize 9
+    FontName Arial
+}
+hide methods
+
+' ===== Users & Core Entities =====
+entity "users" as users {
+    *id : BIGINT <<PK>>
+    --
+    name : VARCHAR
+    email : VARCHAR
+    username : VARCHAR
+    role : ENUM
+    member_id : BIGINT <<FK>>
+}
+
+entity "members" as members {
+    *id : BIGINT <<PK>>
+    --
+    nama_lengkap : VARCHAR
+    npm : VARCHAR
+    status : ENUM
+    diklat_registration_id : BIGINT <<FK>>
+}
+
+entity "board_members" as board_members {
+    *id : BIGINT <<PK>>
+    --
+    member_id : BIGINT <<FK>>
+    user_id : BIGINT <<FK>>
+    jabatan : VARCHAR
+}
+
+entity "diklat_periods" as diklat_periods {
+    *id : BIGINT <<PK>>
+    --
+    nama_periode : VARCHAR
+    tahun_masuk : INT
+    is_open : BOOLEAN
+}
+
+entity "diklat_registrations" as diklat_registrations {
+    *id : BIGINT <<PK>>
+    --
+    nama_lengkap : VARCHAR
+    npm : VARCHAR
+    status : ENUM
+}
+
+' ===== Band Rental Entities =====
+entity "bands" as bands {
+    *id : BIGINT <<PK>>
+    --
+    band_name : VARCHAR
+    price_per_hour : DECIMAL
+    price_per_event : DECIMAL
+}
+
+entity "band_members" as band_members {
+    *id : BIGINT <<PK>>
+    --
+    band_id : BIGINT <<FK>>
+    member_name : VARCHAR
+    role : VARCHAR
+}
+
+entity "band_genres" as band_genres {
+    *id : BIGINT <<PK>>
+    --
+    band_id : BIGINT <<FK>>
+    genre_name : VARCHAR
+}
+
+entity "band_mous" as band_mous {
+    *id : BIGINT <<PK>>
+    --
+    band_id : BIGINT <<FK>>
+    status : VARCHAR
+}
+
+entity "band_rental_requests" as band_rental_requests {
+    *id : BIGINT <<PK>>
+    --
+    band_id : BIGINT <<FK>>
+    renter_name : VARCHAR
+    performance_date : DATETIME
+    status : ENUM
+    harga_final : INT
+    income_id : BIGINT <<FK>>
+}
+
+' ===== Studio Booking Entities =====
+entity "studio_bookings" as studio_bookings {
+    *id : BIGINT <<PK>>
+    --
+    booking_code : VARCHAR
+    user_id : BIGINT <<FK>>
+    tanggal_booking : DATE
+    sesi : INT
+    status : ENUM
+    harga_final : INT
+    income_id : BIGINT <<FK>>
+}
+
+' ===== Equipment Rental Entities =====
+entity "equipment_rentals" as equipment_rentals {
+    *id : BIGINT <<PK>>
+    --
+    name : VARCHAR
+    category : ENUM
+    price_per_day : DECIMAL
+}
+
+entity "equipment_rental_units" as equipment_rental_units {
+    *id : BIGINT <<PK>>
+    --
+    equipment_rental_id : BIGINT <<FK>>
+    unit_name : VARCHAR
+    quantity : INT
+}
+
+entity "equipment_rental_requests" as equipment_rental_requests {
+    *id : BIGINT <<PK>>
+    --
+    order_number : VARCHAR
+    renter_name : VARCHAR
+    start_date : DATE
+    end_date : DATE
+    status : ENUM
+    harga_final : INT
+    income_id : BIGINT <<FK>>
+}
+
+entity "equipment_rental_request_items" as equipment_rental_request_items {
+    *id : BIGINT <<PK>>
+    --
+    equipment_rental_request_id : BIGINT <<FK>>
+    equipment_rental_id : BIGINT <<FK>>
+    quantity : INT
+    subtotal : DECIMAL
+}
+
+' ===== Finance - Income Entities =====
+entity "income" as income {
+    *id : BIGINT <<PK>>
+    --
+    title : VARCHAR
+    nominal : DECIMAL
+    created_by : BIGINT <<FK>>
+    status : ENUM
+}
+
+entity "income_documents" as income_documents {
+    *id : BIGINT <<PK>>
+    --
+    income_id : BIGINT <<FK>>
+    file_path : VARCHAR
+}
+
+entity "income_approvals" as income_approvals {
+    *id : BIGINT <<PK>>
+    --
+    income_id : BIGINT <<FK>>
+    approved_by : BIGINT <<FK>>
+    approval_status : ENUM
+}
+
+' ===== Finance - Expense Entities =====
+entity "expenses" as expenses {
+    *id : BIGINT <<PK>>
+    --
+    type : ENUM
+    title : VARCHAR
+    nominal : DECIMAL
+    created_by : BIGINT <<FK>>
+    status : ENUM
+}
+
+entity "expense_documents" as expense_documents {
+    *id : BIGINT <<PK>>
+    --
+    expense_id : BIGINT <<FK>>
+    file_path : VARCHAR
+}
+
+entity "expense_approvals" as expense_approvals {
+    *id : BIGINT <<PK>>
+    --
+    expense_id : BIGINT <<FK>>
+    approved_by : BIGINT <<FK>>
+    approval_status : ENUM
+}
+
+' ===== Content & Documentation Entities =====
+entity "activities" as activities {
+    *id : BIGINT <<PK>>
+    --
+    judul_kegiatan : VARCHAR
+    tanggal_kegiatan : DATE
+}
+
+entity "achievements" as achievements {
+    *id : BIGINT <<PK>>
+    --
+    judul_lomba : VARCHAR
+    tanggal_lomba : DATE
+}
+
+entity "document_templates" as document_templates {
+    *id : BIGINT <<PK>>
+    --
+    nama_template : VARCHAR
+    file_path : VARCHAR
+}
+
+entity "letter_archives" as letter_archives {
+    *id : BIGINT <<PK>>
+    --
+    nama_surat : VARCHAR
+    jenis : ENUM
+    tanggal_surat : DATE
+}
+
+' ===== Relationships =====
+users ||--o| members : user_id
+users ||--o{ board_members : user_id
+members ||--o{ board_members : member_id
+diklat_periods ||--o{ diklat_registrations : periode_id
+
+bands ||--o{ band_members : band_id
+bands ||--o{ band_genres : band_id
+bands ||--o| band_mous : band_id
+bands ||--o{ band_rental_requests : band_id
+band_rental_requests ||--o| income : income_id
+
+studio_bookings ||--o| income : income_id
+
+equipment_rentals ||--o{ equipment_rental_units : equipment_rental_id
+equipment_rental_requests ||--o{ equipment_rental_request_items : request_id
+equipment_rentals ||--o{ equipment_rental_request_items : equipment_rental_id
+equipment_rental_requests ||--o| income : income_id
+
+users ||--o{ income : user_id
+income ||--o{ income_documents : income_id
+income ||--o{ income_approvals : income_id
+
+users ||--o{ expenses : user_id
+expenses ||--o{ expense_documents : expense_id
+expenses ||--o{ expense_approvals : expense_id
+
+@enduml

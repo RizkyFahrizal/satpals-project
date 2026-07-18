@@ -1,0 +1,94 @@
+@startuml band-admin-list
+title Persewaan Band - Admin: List Rental Requests
+
+actor Admin
+participant "BandRentalRequestController" as AdminController
+participant "BandRentalRequest" as RequestModel
+
+Admin -> AdminController: index()
+AdminController -> RequestModel: queryPending()
+RequestModel --> AdminController: Collection<Request>
+AdminController --> Admin: 200 OK (requests list)
+
+@enduml
+
+@startuml band-admin-approve
+title Persewaan Band - Admin: Approve Rental Request
+
+actor Admin
+participant "BandRentalRequestController" as AdminController
+participant "BandRentalRequest" as RequestModel
+participant "IncomeService" as IncomeService
+participant "InvoiceService" as InvoiceService
+participant "MailService" as Mail
+
+Admin -> AdminController: approve($requestId)
+AdminController -> RequestModel: find($requestId)
+RequestModel --> AdminController: Request
+AdminController -> RequestModel: updateStatus('approved')
+RequestModel --> AdminController: updated
+AdminController -> IncomeService: createFromRequest(Request)
+IncomeService --> AdminController: Income(id)
+AdminController -> InvoiceService: generateInvoice(Request)
+InvoiceService --> AdminController: PDF(invoice)
+AdminController -> Mail: queue(RentalApprovedMail, Request, PDF)
+AdminController --> Admin: 200 OK
+
+@enduml
+
+@startuml band-admin-reject
+title Persewaan Band - Admin: Reject Rental Request
+
+actor Admin
+participant "BandRentalRequestController" as AdminController
+participant "BandRentalRequest" as RequestModel
+participant "MailService" as Mail
+
+Admin -> AdminController: reject($requestId, $reason)
+AdminController -> RequestModel: find($requestId)
+RequestModel --> AdminController: Request
+AdminController -> RequestModel: updateStatus('rejected')
+RequestModel --> AdminController: updated
+AdminController -> Mail: queue(RentalRejectedMail, Request)
+AdminController --> Admin: 200 OK
+
+@enduml
+
+@startuml band-admin-cancel
+title Persewaan Band - Admin: Cancel Rental Request
+
+actor Admin
+participant "BandRentalRequestController" as AdminController
+participant "BandRentalRequest" as RequestModel
+participant "RefundService" as RefundService
+participant "MailService" as Mail
+
+Admin -> AdminController: cancel($requestId)
+AdminController -> RequestModel: find($requestId)
+RequestModel --> AdminController: Request
+AdminController -> RequestModel: updateStatus('cancelled')
+RequestModel --> AdminController: updated
+AdminController -> RefundService: processRefund(Request)
+RefundService --> AdminController: refundProcessed
+AdminController -> Mail: queue(RentalCancelledMail, Request)
+AdminController --> Admin: 200 OK
+
+@enduml
+
+@startuml band-admin-complete
+title Persewaan Band - Admin: Complete Rental Request
+
+actor Admin
+participant "BandRentalRequestController" as AdminController
+participant "BandRentalRequest" as RequestModel
+participant "MailService" as Mail
+
+Admin -> AdminController: complete($requestId)
+AdminController -> RequestModel: find($requestId)
+RequestModel --> AdminController: Request
+AdminController -> RequestModel: updateStatus('completed')
+RequestModel --> AdminController: updated
+AdminController -> Mail: queue(RentalCompletedMail, Request)
+AdminController --> Admin: 200 OK
+
+@enduml

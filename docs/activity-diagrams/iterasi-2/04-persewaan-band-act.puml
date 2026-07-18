@@ -1,0 +1,44 @@
+@startuml Persewaan_Band_Activity
+
+title Activity Diagram - Persewaan Band
+
+start
+:User buka halaman band;
+:User pilih band dan lihat detail;
+
+if (Tipe sewa event atau per jam?) then (Event)
+  :Pilih sewa per event;
+  :Harga dihitung per event;
+else (Per jam)
+  :Isi durasi sewa per jam;
+  :Harga dihitung per jam;
+endif
+
+:User isi data penyewaan dan jadwal acara;
+:System validasi data;
+
+if (Data valid?) then (Ya)
+  :Simpan permintaan sewa dengan status pending;
+  :Tampilkan halaman sukses;
+  :Admin menerima notifikasi permintaan baru;
+else (Tidak)
+  :Tampilkan pesan error;
+endif
+
+:Admin buka daftar permintaan;
+:Admin review detail sewa;
+
+if (Disetujui?) then (Ya)
+  :Update status approved;
+  :Generate invoice;
+  :Kirim email konfirmasi + invoice;
+  :Buat income pada keuangan;
+else (Tidak)
+  :Update status rejected/cancelled;
+  :Jika sudah approved lalu dibatalkan, income diubah menjadi rejected;
+  :Kirim email penolakan/pembatalan;
+endif
+
+stop
+
+@enduml

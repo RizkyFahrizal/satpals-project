@@ -1,0 +1,42 @@
+@startuml StudioManagementAdmin
+
+title Management Booking Studio (Admin)
+
+start
+
+:Admin buka dashboard;
+:View statistik & calendar;
+
+:Search booking;
+:Filter by status/date/studio;
+
+:Display booking list;
+
+if (Ada booking?) then (Ya)
+  :Klik untuk detail;
+  :Show: penyewa, studio, jam;
+  
+  if (Pending?) then (Ya)
+    :Klik Approve;
+    :Update = confirmed;
+  else (Lainnya)
+    :Check status;
+    if (Confirmed?) then (Ya)
+      :Klik Check In;
+      :Update = in-progress;
+    else (In Progress)
+      :Klik Check Out;
+      :Catat waktu;
+      :Update = completed;
+    endif
+  endif
+else (Tidak)
+  :Show empty;
+endif
+
+:View reports;
+:Export data;
+
+stop
+
+@enduml

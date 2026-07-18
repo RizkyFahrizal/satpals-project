@@ -1,0 +1,20 @@
+@startuml persewaan-band-guest
+title Persewaan Band - Guest
+
+actor Guest
+participant "BandRentalController" as Controller
+database DB
+participant "Invoice Service" as Invoice
+participant "Email Service" as Mail
+
+Guest -> Controller: index()
+Controller -> DB: availableBands()
+DB --> Controller: bands
+
+Guest -> Controller: storeRequest(Request $request)
+Controller -> Controller: validate($request)
+Controller -> DB: create($request)
+DB --> Controller: saved
+Controller -> Mail: queue(RentalRequestReceivedMail)
+
+@enduml

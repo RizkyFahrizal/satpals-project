@@ -1,0 +1,270 @@
+@startuml
+hide circle
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+
+' =====================================================
+' SatPals Project - High Level Class Diagram
+' =====================================================
+
+
+package "Core Models" {
+  class User {
+    +id
+    +name
+    +email
+    +role
+    +member_id
+  }
+
+  class Member {
+    +id
+    +nama_lengkap
+    +diklat_registration_id
+    +diklat_period_id
+  }
+
+  class BoardMember {
+    +id
+    +member_id
+    +diklat_period_id
+    +user_id
+    +is_active
+  }
+
+  class Activity
+  class Achievement
+  class DocumentTemplate
+  class LetterArchive
+}
+
+package "Diklat Domain" {
+  class DiklatPeriod {
+    +id
+    +nama_periode
+  }
+
+  class DiklatRegistration {
+    +id
+    +diklat_period_id
+    +status
+  }
+}
+
+package "Band Rental Domain" {
+  class Band {
+    +id
+    +band_name
+    +price_per_hour
+    +price_per_event
+    +is_available
+  }
+
+  class BandMember
+
+  class BandRentalRequest {
+    +id
+    +renter_email
+    +kode_order
+    +status
+    +harga_pokok
+    +harga_final
+  }
+}
+
+package "Equipment Rental Domain" {
+  class EquipmentRental {
+    +id
+    +name
+    +price_per_day
+    +is_available
+  }
+
+  class EquipmentRentalUnit {
+    +id
+    +equipment_rental_id
+    +unit_code
+    +status
+  }
+
+  class EquipmentRentalRequest {
+    +id
+    +order_number
+    +renter_email
+    +status
+    +harga_pokok
+    +harga_final
+  }
+
+  class EquipmentRentalRequestItem {
+    +id
+    +equipment_rental_request_id
+    +equipment_rental_id
+    +quantity
+    +price_per_day
+    +subtotal
+  }
+}
+
+package "Studio Booking Domain" {
+  class StudioBooking {
+    +id
+    +booking_code
+    +tanggal_booking
+    +nama_pemohon
+    +status
+    +harga_final
+  }
+
+  class StudioBookingSetting {
+    +id
+    +default_price
+    +is_active
+  }
+}
+
+package "Finance Domain" {
+  class Income {
+    +id
+    +title
+    +nominal
+    +source
+    +status
+    +created_by
+  }
+
+  ' class IncomeDocument {
+  '   +id
+  '   +income_id
+  '   +document_path
+  ' }
+
+  class IncomeApproval {
+    +id
+    +income_id
+    +approved_by
+    +status
+  }
+
+  class IncomeApprovalDocument {
+    +id
+    +income_approval_id
+    +document_path
+  }
+
+  class Expense {
+    +id
+    +title
+    +amount
+    +status
+    +created_by
+  }
+
+  ' class ExpenseDocument {
+  '   +id
+  '   +expense_id
+  '   +document_path
+  ' }
+
+  class ExpenseApproval {
+    +id
+    +expense_id
+    +approved_by
+    +status
+  }
+
+  class ExpenseApprovalDocument {
+    +id
+    +expense_approval_id
+    +document_path
+  }
+}
+
+' =====================================================
+' Eloquent Relations
+' =====================================================
+
+User "1" -- "0..1" Member : belongsTo
+User "1" -- "0..1" BoardMember : hasOne
+
+Member "1" -- "0..*" BoardMember : hasMany
+Member "1" -- "0..1" User : hasOne
+Member "*" -- "1" DiklatRegistration : belongsTo
+Member "*" -- "1" DiklatPeriod : belongsTo
+
+BoardMember "*" -- "1" Member : belongsTo
+BoardMember "*" -- "1" DiklatPeriod : belongsTo
+BoardMember "*" -- "1" User : belongsTo
+
+DiklatPeriod "1" -- "0..*" DiklatRegistration : hasMany
+
+Band "1" -- "0..*" BandMember : hasMany
+Band "1" -- "0..*" BandGenre : hasMany
+Band "1" -- "0..*" BandPrototype : hasMany
+Band "1" -- "0..1" BandMOU : hasOne
+Band "1" -- "0..*" BandRentalRequest : hasMany
+BandRentalRequest "*" -- "1" Band : belongsTo
+
+EquipmentRental "1" -- "0..*" EquipmentRentalUnit : hasMany
+EquipmentRental "1" -- "0..*" EquipmentRentalRequestItem : hasMany
+EquipmentRentalRequest "1" -- "0..*" EquipmentRentalRequestItem : hasMany
+EquipmentRentalRequestItem "*" -- "1" EquipmentRentalRequest : belongsTo
+EquipmentRentalRequestItem "*" -- "1" EquipmentRental : belongsTo
+
+EquipmentRentalRequest "*" -- "1" Income : belongsTo
+EquipmentRentalRequest "*" -- "1" User : belongsTo (approved_by)
+
+StudioBooking "*" -- "1" Income : belongsTo
+StudioBooking "*" -- "1" User : belongsTo (approved_by)
+
+' Income "1" -- "0..*" IncomeDocument : hasMany
+Income "1" -- "0..*" IncomeApproval : hasMany
+IncomeApproval "*" -- "1" Income : belongsTo
+IncomeApproval "*" -- "1" User : belongsTo (approved_by)
+IncomeApproval "1" -- "0..*" IncomeApprovalDocument : hasMany
+IncomeApprovalDocument "*" -- "1" IncomeApproval : belongsTo
+
+' Expense "1" -- "0..*" ExpenseDocument : hasMany
+Expense "1" -- "0..*" ExpenseApproval : hasMany
+Expense "*" -- "1" User : belongsTo (created_by)
+ExpenseApproval "*" -- "1" Expense : belongsTo
+ExpenseApproval "*" -- "1" User : belongsTo (approved_by)
+ExpenseApproval "1" -- "0..*" ExpenseApprovalDocument : hasMany
+ExpenseApprovalDocument "*" -- "1" ExpenseApproval : belongsTo
+
+Income "*" -- "1" User : belongsTo (created_by)
+
+' =====================================================
+' Layer Dependencies (Key Flows)
+' =====================================================
+
+' CheckoutController ..> EquipmentRentalRequest
+' CheckoutController ..> EquipmentRentalRequestItem
+' CheckoutController ..> BookingConfirmationMail
+
+' EquipmentRentalRequestController ..> EquipmentRentalRequest
+' EquipmentRentalRequestController ..> Income
+' EquipmentRentalRequestController ..> BookingApprovedMail
+' EquipmentRentalRequestController ..> BookingRejectedMail
+
+' BandRentalRequestController ..> BandRentalRequest
+' BandRentalRequestController ..> Income
+' BandRentalRequestController ..> InvoiceService
+' BandRentalRequestController ..> InvoiceApprovedMail
+' BandRentalRequestController ..> BookingRejectedMail
+
+' StudioBookingControllerAdmin ..> StudioBooking
+' StudioBookingControllerAdmin ..> StudioBookingSetting
+' StudioBookingControllerAdmin ..> Income
+' StudioBookingControllerAdmin ..> StudioBookingApprovedMail
+' StudioBookingControllerAdmin ..> BookingRejectedMail
+
+' InvoiceService ..> BandRentalRequest
+' InvoiceApprovedMail ..> BandRentalRequest
+' BookingApprovedMail ..> EquipmentRentalRequest
+' BookingConfirmationMail ..> EquipmentRentalRequest
+' StudioBookingApprovedMail ..> StudioBooking
+' BookingRejectedMail ..> StudioBooking
+' BookingRejectedMail ..> EquipmentRentalRequest
+' BookingRejectedMail ..> BandRentalRequest
+@enduml

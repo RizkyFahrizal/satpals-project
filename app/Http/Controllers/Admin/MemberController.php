@@ -37,7 +37,7 @@ class MemberController extends Controller
             });
         }
 
-        $members = $query->latest()->paginate(10)->withQueryString();
+        $members = $query->orderBy('angkatan', 'desc')->orderBy('nama_lengkap', 'asc')->paginate(10)->withQueryString();
 
         // Get available angkatan for filter
         $angkatanList = Member::distinct()->pluck('angkatan')->filter()->sort()->values();
@@ -71,16 +71,26 @@ class MemberController extends Controller
             'nama_lengkap' => 'required|string|max:255',
             'jenis_kelamin' => 'required|in:laki-laki,perempuan',
             'no_telepon' => 'required|string|max:20',
+            'no_telepon_ortu' => 'nullable|string|max:20',
             'npm' => 'required|string|max:20|unique:members,npm',
             'fakultas' => 'required|string|max:255',
             'prodi' => 'required|string|max:255',
             'spesifikasi' => 'required|array|min:1',
             'spesifikasi.*' => 'in:drum,keyboard,vocal,bass,guitar',
-            'tahun_daftar' => 'required|integer|min:2000|max:' . (now()->year + 1),
+            'spesifikasi_lainnya' => 'nullable|string',
+            'riwayat_penyakit' => 'nullable|string',
+            'riwayat_alergi' => 'nullable|string',
             'angkatan' => 'required|string|max:10',
-            'status' => 'required|in:aktif,alumni,keluar',
+            'status' => 'required|in:aktif,alumni',
             'foto' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ]);
+
+        // Convert spesifikasi_lainnya string to array
+        if ($validated['spesifikasi_lainnya']) {
+            $validated['spesifikasi_lainnya'] = array_map('trim', explode(',', $validated['spesifikasi_lainnya']));
+        } else {
+            $validated['spesifikasi_lainnya'] = null;
+        }
 
         if ($request->hasFile('foto')) {
             $file = $request->file('foto');
@@ -121,16 +131,26 @@ class MemberController extends Controller
             'nama_lengkap' => 'required|string|max:255',
             'jenis_kelamin' => 'required|in:laki-laki,perempuan',
             'no_telepon' => 'required|string|max:20',
+            'no_telepon_ortu' => 'nullable|string|max:20',
             'npm' => 'required|string|max:20|unique:members,npm,' . $member->id,
             'fakultas' => 'required|string|max:255',
             'prodi' => 'required|string|max:255',
             'spesifikasi' => 'required|array|min:1',
             'spesifikasi.*' => 'in:drum,keyboard,vocal,bass,guitar',
-            'tahun_daftar' => 'required|integer|min:2000|max:' . (now()->year + 1),
+            'spesifikasi_lainnya' => 'nullable|string',
+            'riwayat_penyakit' => 'nullable|string',
+            'riwayat_alergi' => 'nullable|string',
             'angkatan' => 'required|string|max:10',
-            'status' => 'required|in:aktif,alumni,keluar',
+            'status' => 'required|in:aktif,alumni',
             'foto' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ]);
+
+        // Convert spesifikasi_lainnya string to array
+        if ($validated['spesifikasi_lainnya']) {
+            $validated['spesifikasi_lainnya'] = array_map('trim', explode(',', $validated['spesifikasi_lainnya']));
+        } else {
+            $validated['spesifikasi_lainnya'] = null;
+        }
 
         if ($request->hasFile('foto')) {
             // Delete old photo
@@ -155,7 +175,7 @@ class MemberController extends Controller
     public function updateStatus(Request $request, Member $member)
     {
         $request->validate([
-            'status' => 'required|in:aktif,alumni,keluar',
+            'status' => 'required|in:aktif,alumni',
         ]);
 
         $member->update(['status' => $request->status]);
@@ -168,13 +188,29 @@ class MemberController extends Controller
      */
     public function destroy(Member $member)
     {
-        // Delete photo
-        if ($member->foto) {
-            Storage::disk('public')->delete($member->foto);
-        }
+            // Prevent delete if member is still listed in board structure (active or inactive)
+            if ($member->boardPositions()->exists()) {
+                return redirect()->route('admin.members.index')
+                    ->with('error', 'Tidak dapat menghapus data anggota karena masih terdaftar di struktur pengurus. Hapus data pengurus terlebih dahulu.');
+            }
 
-        $member->delete();
+            // Check if member still has active diklat registration
+            $hasActiveDiklat = $member->diklatRegistration()
+                ->whereIn('status', ['diterima', 'mengikuti', 'lulus'])
+                ->exists();
 
-        return redirect()->route('admin.members.index')->with('success', 'Data anggota berhasil dihapus.');
+            if ($hasActiveDiklat) {
+                return redirect()->route('admin.members.index')
+                    ->with('error', 'Tidak dapat menghapus anggota yang masih memiliki pendaftaran diklat aktif. Silakan ubah status pendaftaran terlebih dahulu.');
+            }
+
+            // Delete photo
+            if ($member->foto) {
+                Storage::disk('public')->delete($member->foto);
+            }
+
+            $member->delete();
+
+            return redirect()->route('admin.members.index')->with('success', 'Data anggota berhasil dihapus.');
     }
 }

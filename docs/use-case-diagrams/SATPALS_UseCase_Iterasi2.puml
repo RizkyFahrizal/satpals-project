@@ -1,0 +1,155 @@
+@startuml SATPALS_UseCase_Iterasi2
+
+left to right direction
+
+skinparam backgroundColor #FFFFFF
+skinparam actorStyle awesome
+skinparam nodesep 15
+skinparam ranksep 60
+skinparam shadowing false
+skinparam arrow {
+    Color #000000
+    Thickness 1.5
+}
+skinparam usecase {
+    BackgroundColor #FFF9D9
+    BorderColor #D97706
+    BorderThickness 2
+    FontSize 12
+    FontStyle bold
+}
+skinparam actor {
+    BackgroundColor #E8F4F8
+    BorderColor #0066CC
+    BorderThickness 2
+}
+skinparam package {
+    BackgroundColor #FFF2CC
+    BorderColor #D97706
+}
+
+title Use Case Diagram SATPALS Iterasi 2
+
+' DEKLARASI AKTOR KIRI
+actor "Admin" as Admin
+
+package "Jajaran Pengurus" {
+    actor "Ketua Umum" as KU
+    actor "Wakil Ketua" as WKU
+    actor "Sekretaris" as SEK
+    actor "Bendahara" as BEN
+    actor "Subsie Band" as CB
+    actor "Subsie Peralatan" as CP
+    actor "MPA" as MPA
+    actor "Subsie PDD" as CPD
+    actor "Subsie Humas" as CH
+    actor "Kesekretariatan" as CK
+}
+actor "Admin" as Admin
+Guest -[hidden]down-> Admin
+
+' DEKLARASI SISTEM & USE CASE
+rectangle "SISTEM SATPALS" {
+    
+    (Login) as Login
+
+    (Kelola User) as KelolaUser
+    (Kelola Anggota) as KelolaAnggota
+    (Kelola Struktur) as KelolaStruktur
+    (Kelola Template) as KelolaTemplate
+    (Kelola Arsip Surat) as KelolaArsip
+    (Kelola Keuangan) as KelolaKeuangan
+    (Kelola Booking) as KelolaBooking
+    (Kelola Band) as KelolaBand
+    (Kelola Alat) as KelolaAlat
+    (Kelola Galeri) as KelolaGaleri
+    
+    (Informasi UKM) as PublicInfo
+    (Lihat Struktur) as LihatStruktur
+    (Daftar Diklat) as DaftarDiklat
+    (Booking Studio) as BookingStudio
+    (Sewa Band) as SewaBand
+    (Sewa Alat) as SewaAlat
+    (Galeri Kegiatan) as GaleriKegiatan
+    (Galeri Prestasi) as GaleriPrestasi
+}
+
+' DEKLARASI AKTOR KANAN
+' actor "Guest" as PublicUser
+
+' --- RELASI ADMIN ---
+Admin --> Login
+Admin --> KelolaUser
+
+' --- RELASI PENGURUS (Semua pakai --> agar rapi di kiri) ---
+KU --> Login
+WKU --> Login
+BEN --> Login
+SEK --> Login
+MPA --> Login
+CB --> Login
+CP --> Login
+CPD --> Login
+CH --> Login
+CK --> Login
+
+KU --> KelolaAnggota
+SEK --> KelolaAnggota
+
+KU --> KelolaStruktur
+SEK --> KelolaStruktur
+
+SEK --> KelolaTemplate
+SEK --> KelolaArsip
+
+BEN --> KelolaKeuangan
+KU --> KelolaKeuangan
+WKU --> KelolaKeuangan
+
+CB --> KelolaBooking
+CP --> KelolaBooking
+
+CB --> KelolaBand
+CP --> KelolaAlat
+
+MPA --> KelolaGaleri
+SEK --> KelolaGaleri
+
+' --- RELASI PUBLIC USER (<-- agar Actor tetap di Kanan) ---
+' PublicInfo <-- PublicUser
+' LihatStruktur <-- PublicUser
+' DaftarDiklat <-- PublicUser
+' BookingStudio <-- PublicUser
+' SewaBand <-- PublicUser
+' SewaAlat <-- PublicUser
+' GaleriKegiatan <-- PublicUser
+' GaleriPrestasi <-- PublicUser
+
+Guest --> PublicInfo
+Guest --> LihatStruktur
+Guest --> DaftarDiklat
+Guest --> BookingStudio
+Guest --> SewaBand
+Guest --> SewaAlat
+Guest --> GaleriKegiatan
+Guest --> GaleriPrestasi
+
+
+' --- INCLUDE (Login) ---
+KelolaUser ..> Login : <<include>>
+KelolaAnggota ..> Login : <<include>>
+KelolaStruktur ..> Login : <<include>>
+KelolaTemplate ..> Login : <<include>>
+KelolaArsip ..> Login : <<include>>
+KelolaKeuangan ..> Login : <<include>>
+KelolaBooking ..> Login : <<include>>
+KelolaBand ..> Login : <<include>>
+KelolaAlat ..> Login : <<include>>
+KelolaGaleri ..> Login : <<include>>
+
+' --- EXTEND (Keuangan) ---
+KelolaBooking ..> KelolaKeuangan : <<extend>>
+KelolaBand ..> KelolaKeuangan : <<extend>>
+KelolaAlat ..> KelolaKeuangan : <<extend>>
+
+@enduml

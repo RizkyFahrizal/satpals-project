@@ -144,7 +144,7 @@
                     <thead class="bg-gray-50">
                         <tr>
                             <th class="font-semibold text-gray-700">Tanggal</th>
-                            <th class="font-semibold text-gray-700">Jenis</th>
+                            <th class="font-semibold text-gray-700 text-center w-36">Jenis</th>
                             <th class="font-semibold text-gray-700">Surat</th>
                             <th class="font-semibold text-gray-700">Nomor Surat</th>
                             <th class="font-semibold text-gray-700">Pengirim/Penerima</th>
@@ -158,10 +158,13 @@
                             <td class="text-gray-600">
                                 <div class="text-sm font-medium">{{ $letter->tanggal_surat->format('d M Y') }}</div>
                             </td>
-                            <td>
-                                <span class="badge {{ $letter->jenis_badge_class }} gap-1">
-                                    {{ $letter->jenis_icon }} {{ $letter->jenis_label }}
-                                </span>
+                            <td class="align-middle">
+                                <div class="flex justify-center">
+                                    <span class="inline-flex items-center gap-2 px-3 py-2 rounded-full text-xs font-semibold whitespace-nowrap {{ $letter->jenis_badge_class }}">
+                                        <span class="text-sm leading-none">{{ $letter->jenis_icon }}</span>
+                                        <span>{{ $letter->jenis_label }}</span>
+                                    </span>
+                                </div>
                             </td>
                             <td>
                                 <div class="flex items-center gap-3">

@@ -1,0 +1,38 @@
+@startuml persewaan-alat-guest
+title Persewaan Alat - Guest
+
+actor Guest
+participant "EquipmentPublicController" as PublicController
+participant "CartController" as CartController
+participant "CheckoutController" as CheckoutController
+participant "EquipmentRepository" as EquipmentRepo
+participant "Cart" as CartModel
+participant "Order" as OrderModel
+participant "OrderItem" as OrderItemModel
+participant "MailService" as Mail
+
+Guest -> PublicController: index()
+PublicController -> EquipmentRepo: getAvailable()
+EquipmentRepo --> PublicController: Collection<Equipment>
+
+Guest -> CartController: addToCart($equipmentId, $qty)
+CartController -> CartModel: addItem($equipmentId, $qty)
+CartModel --> CartController: cartUpdated
+
+Guest -> CartController: update($equipmentId, $qty)
+CartController -> CartModel: updateItem($equipmentId, $qty)
+CartModel --> CartController: cartUpdated
+
+Guest -> CheckoutController: store(Request $request)
+CheckoutController -> CheckoutController: validate($request)
+CheckoutController -> CartModel: getItems()
+CartModel --> CheckoutController: items
+CheckoutController -> OrderModel: create($orderData)
+OrderModel --> CheckoutController: Order(id)
+CheckoutController -> OrderItemModel: createBulk($items)
+OrderItemModel --> CheckoutController: itemsSaved
+CheckoutController -> CartModel: clear()
+CheckoutController -> Mail: queue(OrderConfirmationMail, Order)
+
+@enduml
+

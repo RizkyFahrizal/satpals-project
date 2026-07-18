@@ -43,22 +43,62 @@
             <!-- Pimpinan Section -->
             @if($pimpinan->isNotEmpty())
             <div class="mb-16">
+                @php
+                    $mpaMembers = $pimpinan->where('jabatan', 'mpa');
+                @endphp
+
+                @if($mpaMembers->isNotEmpty())
+                <div class="text-center mb-10">
+                    <span class="inline-block px-4 py-2 bg-purple-100 rounded-full text-purple-700 text-sm font-semibold mb-4">🏛️ Majelis Perwakilan Anggota</span>
+                    <h2 class="text-2xl font-bold text-gray-800">Majelis Perwakilan Anggota</h2>
+                </div>
+                <div class="flex justify-center mb-12">
+                    <div class="flex flex-wrap justify-center gap-8">
+                        @foreach($mpaMembers as $mpaMember)
+                        <div class="group text-center">
+                            <div class="w-56 h-72 rounded-2xl overflow-hidden bg-gradient-to-br from-purple-400 to-pink-500 shadow-lg group-hover:shadow-xl group-hover:scale-105 transition-all duration-300">
+                                @php
+                                    $foto = $mpaMember->foto ?? ($mpaMember->member->foto ?? null);
+                                @endphp
+                                @if($foto)
+                                    <img src="{{ asset('storage/' . $foto) }}" 
+                                         alt="{{ $mpaMember->member->nama_lengkap }}" 
+                                         class="w-full h-full object-cover object-top">
+                                @else
+                                    <div class="w-full h-full flex items-center justify-center">
+                                        <span class="text-6xl text-white/60">👤</span>
+                                    </div>
+                                @endif
+                            </div>
+                            <div class="mt-4 w-56">
+                                <span class="inline-flex items-center justify-center px-3 py-1 bg-gradient-to-r from-purple-500 to-pink-600 text-white rounded-full text-xs font-bold mb-2 w-full">
+                                    Majelis Perwakilan Anggota
+                                </span>
+                                <h3 class="font-bold text-gray-800 text-sm line-clamp-2 leading-tight">{{ $mpaMember->member->nama_lengkap ?? 'Belum Ditentukan' }}</h3>
+                                @if($mpaMember->member)
+                                    <p class="text-gray-500 text-xs mt-2 line-clamp-1">{{ $mpaMember->member->prodi }}</p>
+                                @endif
+                            </div>
+                        </div>
+                        @endforeach
+                    </div>
+                </div>
+                @endif
+
                 <div class="text-center mb-10">
                     <span class="inline-block px-4 py-2 bg-yellow-100 rounded-full text-yellow-700 text-sm font-semibold mb-4">⭐ Pimpinan Inti</span>
                     <h2 class="text-3xl font-bold text-gray-800">Badan Pengurus Harian</h2>
                 </div>
 
-                <!-- All BPH in one row -->
-                <div class="flex flex-wrap justify-center gap-6">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 place-items-center">
                     @php
-                        $jabatanOrder = ['ketua_umum', 'wakil_ketua_umum', 'sekretaris', 'bendahara', 'mpa'];
+                        $jabatanOrder = ['ketua_umum', 'wakil_ketua_umum', 'sekretaris', 'bendahara'];
                     @endphp
                     @foreach($jabatanOrder as $jabatan)
                         @php $member = $pimpinan->where('jabatan', $jabatan)->first(); @endphp
                         @if($member)
                         <div class="group text-center">
-                            <!-- Photo Card -->
-                            <div class="w-40 h-48 rounded-2xl overflow-hidden bg-gradient-to-br from-yellow-400 to-orange-500 shadow-lg group-hover:shadow-xl group-hover:scale-105 transition-all duration-300">
+                            <div class="w-56 h-72 rounded-2xl overflow-hidden bg-gradient-to-br from-yellow-400 to-orange-500 shadow-lg group-hover:shadow-xl group-hover:scale-105 transition-all duration-300">
                                 @php
                                     $foto = $member->foto ?? ($member->member->foto ?? null);
                                 @endphp
@@ -72,14 +112,13 @@
                                     </div>
                                 @endif
                             </div>
-                            <!-- Info -->
-                            <div class="mt-3 w-40">
-                                <span class="inline-block px-3 py-1 bg-gradient-to-r from-yellow-400 to-orange-500 text-white rounded-full text-xs font-bold mb-1">
+                            <div class="mt-4 w-56">
+                                <span class="inline-flex items-center justify-center px-3 py-1 bg-gradient-to-r from-yellow-400 to-orange-500 text-white rounded-full text-xs font-bold mb-2 w-full">
                                     {{ $member->jabatan_label }}
                                 </span>
-                                <h3 class="font-bold text-gray-800 text-sm line-clamp-2">{{ $member->member->nama_lengkap ?? 'Belum Ditentukan' }}</h3>
+                                <h3 class="font-bold text-gray-800 text-sm line-clamp-2 leading-tight">{{ $member->member->nama_lengkap ?? 'Belum Ditentukan' }}</h3>
                                 @if($member->member)
-                                    <p class="text-gray-500 text-xs mt-1">{{ $member->member->prodi }}</p>
+                                    <p class="text-gray-500 text-xs mt-2 line-clamp-1">{{ $member->member->prodi }}</p>
                                 @endif
                             </div>
                         </div>
@@ -119,41 +158,41 @@
                     @foreach($subsieOrder as $jabatan)
                         @php $members = $subsie->where('jabatan', $jabatan); @endphp
                         @if($members->isNotEmpty())
-                        <div class="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100">
-                            <!-- Header Subsie -->
-                            <div class="bg-gradient-to-r {{ $subsieColors[$jabatan][0] ?? 'from-gray-400 to-gray-500' }} px-6 py-4 flex items-center gap-3">
-                                <span class="text-3xl">{{ $subsieIcons[$jabatan] ?? '🎵' }}</span>
-                                <h3 class="text-lg font-bold text-white">{{ App\Models\BoardMember::JABATAN_OPTIONS[$jabatan] ?? $jabatan }}</h3>
-                                <span class="ml-auto bg-white/20 px-3 py-1 rounded-full text-white text-sm">{{ $members->count() }} Anggota</span>
+                        <div class="mb-12">
+                            <div class="text-center mb-8">
+                                <span class="inline-flex items-center justify-center gap-2 px-4 py-2 bg-white rounded-full text-sm font-semibold shadow-sm border border-gray-100">
+                                    <span class="text-xl">{{ $subsieIcons[$jabatan] ?? '🎵' }}</span>
+                                    <span class="text-gray-800">{{ App\Models\BoardMember::JABATAN_OPTIONS[$jabatan] ?? $jabatan }}</span>
+                                    <span class="ml-2 px-3 py-0.5 rounded-full text-xs font-semibold text-white bg-gradient-to-r {{ $subsieColors[$jabatan][1] ?? 'from-gray-500 to-gray-600' }}">
+                                        {{ $members->count() }} Anggota
+                                    </span>
+                                </span>
                             </div>
-                            
-                            <!-- Members Grid - Max 5 per row, centered -->
-                            <div class="p-6">
-                                <div class="flex flex-wrap justify-center gap-6">
-                                    @foreach($members as $index => $member)
-                                    @if($index > 0 && $index % 5 == 0)
-                                    <div class="w-full hidden lg:block"></div>
-                                    @endif
+
+                            <div class="flex justify-center">
+                                <div class="flex flex-wrap justify-center gap-8">
+                                    @foreach($members as $member)
                                     <div class="group text-center">
-                                        <!-- Photo Card - Same style as BPH but with subsie color -->
-                                        <div class="w-40 h-48 rounded-2xl overflow-hidden bg-gradient-to-br {{ $subsieColors[$jabatan][0] ?? 'from-gray-400 to-gray-500' }} shadow-lg group-hover:shadow-xl group-hover:scale-105 transition-all duration-300">
+                                        <div class="w-56 h-72 rounded-2xl overflow-hidden bg-gradient-to-br {{ $subsieColors[$jabatan][0] ?? 'from-gray-400 to-gray-500' }} shadow-lg group-hover:shadow-xl group-hover:scale-105 transition-all duration-300">
                                             @php
                                                 $foto = $member->foto ?? ($member->member->foto ?? null);
                                             @endphp
                                             @if($foto)
                                                 <img src="{{ asset('storage/' . $foto) }}" 
                                                      alt="{{ $member->member->nama_lengkap }}" 
-                                                     class="w-full h-full object-cover object-top">
+                                                     class="w-full h-full object-cover object-center">
                                             @else
                                                 <div class="w-full h-full flex items-center justify-center">
-                                                    <span class="text-5xl text-white/50">👤</span>
+                                                    <span class="text-6xl text-white/60">👤</span>
                                                 </div>
                                             @endif
                                         </div>
-                                        <!-- Info -->
-                                        <div class="mt-3 w-40">
-                                            <h4 class="font-semibold text-gray-800 text-sm line-clamp-2">{{ $member->member->nama_lengkap }}</h4>
-                                            <p class="text-gray-500 text-xs mt-1">{{ $member->member->prodi }}</p>
+                                        <div class="mt-4 w-56">
+                                            <span class="inline-flex items-center justify-center px-3 py-1 bg-gradient-to-r {{ $subsieColors[$jabatan][1] ?? 'from-gray-500 to-gray-600' }} text-white rounded-full text-xs font-bold mb-2 w-full">
+                                                {{ App\Models\BoardMember::JABATAN_OPTIONS[$jabatan] ?? $jabatan }}
+                                            </span>
+                                            <h4 class="font-bold text-gray-800 text-sm line-clamp-2 leading-tight">{{ $member->member->nama_lengkap }}</h4>
+                                            <p class="text-gray-500 text-xs mt-2 line-clamp-1">{{ $member->member->prodi }}</p>
                                         </div>
                                     </div>
                                     @endforeach

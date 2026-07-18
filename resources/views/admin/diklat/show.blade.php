@@ -40,126 +40,127 @@
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <!-- Main Info -->
         <div class="lg:col-span-2 space-y-6">
-            <!-- Data Pribadi -->
+            <!-- Info Pendaftar - All in One Card -->
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                 <div class="bg-gradient-to-r from-blue-500 to-indigo-600 px-6 py-4">
-                    <h3 class="text-lg font-semibold text-white flex items-center gap-2">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                        </svg>
-                        Data Pribadi
-                    </h3>
+                    <h3 class="text-lg font-semibold text-white">Informasi Lengkap Pendaftar</h3>
                 </div>
-                <div class="p-6 space-y-4">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="text-sm text-gray-500">Nama Lengkap</label>
-                            <p class="font-semibold text-gray-800">{{ $registration->nama_lengkap }}</p>
-                        </div>
-                        <div>
-                            <label class="text-sm text-gray-500">Jenis Kelamin</label>
-                            <p class="font-semibold text-gray-800">
-                                {{ $registration->jenis_kelamin === 'laki-laki' ? '👨 Laki-laki' : '👩 Perempuan' }}
-                            </p>
-                        </div>
-                        <div>
-                            <label class="text-sm text-gray-500">No. Telepon Pribadi</label>
-                            <p class="font-semibold text-gray-800">
-                                <a href="tel:{{ $registration->no_telepon_pribadi }}" class="text-blue-600 hover:underline">
-                                    {{ $registration->no_telepon_pribadi }}
-                                </a>
-                            </p>
-                        </div>
-                        <div>
-                            <label class="text-sm text-gray-500">No. Telepon Orang Tua/Wali</label>
-                            <p class="font-semibold text-gray-800">
-                                <a href="tel:{{ $registration->no_telepon_ortu }}" class="text-blue-600 hover:underline">
-                                    {{ $registration->no_telepon_ortu }}
-                                </a>
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Data Akademik -->
-            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                <div class="bg-gradient-to-r from-emerald-500 to-teal-600 px-6 py-4">
-                    <h3 class="text-lg font-semibold text-white flex items-center gap-2">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z"/>
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"/>
-                        </svg>
-                        Data Akademik
-                    </h3>
-                </div>
-                <div class="p-6 space-y-4">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div>
-                            <label class="text-sm text-gray-500">NPM</label>
-                            <p class="font-semibold text-gray-800 font-mono">{{ $registration->npm }}</p>
-                        </div>
-                        <div>
-                            <label class="text-sm text-gray-500">Fakultas</label>
-                            <p class="font-semibold text-gray-800">{{ $registration->fakultas }}</p>
-                        </div>
-                        <div>
-                            <label class="text-sm text-gray-500">Program Studi</label>
-                            <p class="font-semibold text-gray-800">{{ $registration->prodi }}</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Spesifikasi Musik -->
-            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                <div class="bg-gradient-to-r from-purple-500 to-pink-600 px-6 py-4">
-                    <h3 class="text-lg font-semibold text-white flex items-center gap-2">
-                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/>
-                        </svg>
-                        Spesifikasi Musik
-                    </h3>
-                </div>
-                <div class="p-6">
-                    <div class="flex flex-wrap gap-3">
-                        @foreach($registration->spesifikasi as $spec)
-                        <span class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium bg-purple-100 text-purple-700 border border-purple-200">
-                            @if($spec === 'drum') 🥁
-                            @elseif($spec === 'keyboard') 🎹
-                            @elseif($spec === 'vocal') 🎤
-                            @elseif($spec === 'bass') 🎸
-                            @elseif($spec === 'guitar') 🎸
-                            @endif
-                            {{ ucfirst($spec) }}
-                        </span>
-                        @endforeach
-                    </div>
-                </div>
-            </div>
-
-            <!-- Riwayat Kesehatan -->
-            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                <div class="bg-gradient-to-r from-red-500 to-rose-600 px-6 py-4">
-                    <h3 class="text-lg font-semibold text-white flex items-center gap-2">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
-                        </svg>
-                        Riwayat Kesehatan
-                    </h3>
-                </div>
-                <div class="p-6 space-y-4">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label class="text-sm text-gray-500 mb-2 block">Riwayat Penyakit</label>
-                            <div class="bg-gray-50 rounded-xl p-4 min-h-[80px]">
-                                <p class="text-gray-800">{{ $registration->riwayat_penyakit ?: '-' }}</p>
+                <div class="p-6 space-y-6">
+                    <!-- Data Pribadi Section -->
+                    <div class="pb-6 border-b border-gray-200">
+                        <h4 class="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-4 flex items-center gap-2">
+                            <span class="w-1 h-4 bg-blue-500 rounded"></span>
+                            Data Pribadi
+                        </h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="text-xs text-gray-500 uppercase tracking-wide">Nama Lengkap</label>
+                                <p class="font-semibold text-gray-800">{{ $registration->nama_lengkap }}</p>
+                            </div>
+                            <div>
+                                <label class="text-xs text-gray-500 uppercase tracking-wide">Jenis Kelamin</label>
+                                <p class="font-semibold text-gray-800">
+                                    {{ $registration->jenis_kelamin === 'laki-laki' ? '👨 Laki-laki' : '👩 Perempuan' }}
+                                </p>
+                            </div>
+                            <div>
+                                <label class="text-xs text-gray-500 uppercase tracking-wide">No. Telepon Pribadi</label>
+                                <p class="font-semibold text-gray-800">
+                                    <a href="tel:{{ $registration->no_telepon_pribadi }}" class="text-blue-600 hover:underline">
+                                        {{ $registration->no_telepon_pribadi }}
+                                    </a>
+                                </p>
+                            </div>
+                            <div>
+                                <label class="text-xs text-gray-500 uppercase tracking-wide">No. Telepon Orang Tua</label>
+                                <p class="font-semibold text-gray-800">
+                                    <a href="tel:{{ $registration->no_telepon_ortu }}" class="text-blue-600 hover:underline">
+                                        {{ $registration->no_telepon_ortu ?: '-' }}
+                                    </a>
+                                </p>
                             </div>
                         </div>
-                        <div>
-                            <label class="text-sm text-gray-500 mb-2 block">Riwayat Alergi</label>
-                            <div class="bg-gray-50 rounded-xl p-4 min-h-[80px]">
-                                <p class="text-gray-800">{{ $registration->riwayat_alergi ?: '-' }}</p>
+                    </div>
+
+                    <!-- Data Akademik Section -->
+                    <div class="pb-6 border-b border-gray-200">
+                        <h4 class="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-4 flex items-center gap-2">
+                            <span class="w-1 h-4 bg-emerald-500 rounded"></span>
+                            Data Akademik
+                        </h4>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label class="text-xs text-gray-500 uppercase tracking-wide">NPM</label>
+                                <p class="font-semibold text-gray-800 font-mono">{{ $registration->npm }}</p>
+                            </div>
+                            <div>
+                                <label class="text-xs text-gray-500 uppercase tracking-wide">Fakultas</label>
+                                <p class="font-semibold text-gray-800">{{ $registration->fakultas }}</p>
+                            </div>
+                            <div>
+                                <label class="text-xs text-gray-500 uppercase tracking-wide">Program Studi</label>
+                                <p class="font-semibold text-gray-800">{{ $registration->prodi }}</p>
+                            </div>
+                            <div>
+                                <label class="text-xs text-gray-500 uppercase tracking-wide">Tahun Masuk (Angkatan)</label>
+                                <p class="font-semibold text-gray-800">{{ $registration->tahun_masuk ?? '-' }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Spesifikasi Musik Section -->
+                    <div class="pb-6 border-b border-gray-200">
+                        <h4 class="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-4 flex items-center gap-2">
+                            <span class="w-1 h-4 bg-purple-500 rounded"></span>
+                            Spesifikasi Musik
+                        </h4>
+                        <div class="flex flex-wrap gap-2">
+                            @foreach($registration->spesifikasi as $spec)
+                            <span class="inline-flex items-center gap-1 px-3 py-1 rounded-lg text-xs font-medium bg-purple-100 text-purple-700">
+                                @if($spec === 'drum') 🥁
+                                @elseif($spec === 'keyboard') 🎹
+                                @elseif($spec === 'vocal') 🎤
+                                @elseif($spec === 'bass') 🎸
+                                @elseif($spec === 'guitar') 🎸
+                                @endif
+                                {{ ucfirst($spec) }}
+                            </span>
+                            @endforeach
+                        </div>
+                        @if($registration->spesifikasi_lainnya && count($registration->spesifikasi_lainnya) > 0)
+                        <div class="mt-3 pt-3 border-t border-gray-200">
+                            <p class="text-xs text-gray-500 mb-2">Lainnya:</p>
+                            <div class="flex flex-wrap gap-2">
+                                @foreach($registration->spesifikasi_lainnya as $spec)
+                                    @if(!empty($spec))
+                                    <span class="inline-flex items-center gap-1 px-3 py-1 rounded-lg text-xs font-medium bg-indigo-100 text-indigo-700">
+                                        🎵 {{ $spec }}
+                                    </span>
+                                    @endif
+                                @endforeach
+                            </div>
+                        </div>
+                        @endif
+                    </div>
+
+                    <!-- Riwayat Kesehatan Section -->
+                    <div>
+                        <h4 class="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-4 flex items-center gap-2">
+                            <span class="w-1 h-4 bg-red-500 rounded"></span>
+                            Riwayat Kesehatan
+                        </h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="text-xs text-gray-500 uppercase tracking-wide">Riwayat Penyakit</label>
+                                <div class="bg-gray-50 rounded-lg p-3 mt-1 min-h-[50px]">
+                                    <p class="text-sm text-gray-800">{{ $registration->riwayat_penyakit ?: '-' }}</p>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="text-xs text-gray-500 uppercase tracking-wide">Riwayat Alergi</label>
+                                <div class="bg-gray-50 rounded-lg p-3 mt-1 min-h-[50px]">
+                                    <p class="text-sm text-gray-800">{{ $registration->riwayat_alergi ?: '-' }}</p>
+                                </div>
                             </div>
                         </div>
                     </div>

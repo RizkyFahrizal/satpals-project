@@ -1,0 +1,37 @@
+@startuml Pengurus_Form_Smart_v2
+
+title Sequence Diagram - Form Pengurus dengan Periode & Smart Filter (Iterasi 2)
+
+actor Admin
+participant System
+database Database
+
+Admin -> System: Klik tombol "Tambah Pengurus"
+System -> Database: Query dislat_periods
+Database --> System: Return list periode
+System --> Admin: Tampilkan modal form dengan dropdown periode
+
+Admin -> System: Pilih periode dari dropdown
+System -> Database: Fetch periode details (tanggal_buka, tanggal_tutup)
+Database --> System: Return periode data
+System -> System: Auto-fill tanggal_buka & tanggal_tutup (readonly)
+System --> Admin: Display auto-filled dates
+
+Admin -> System: Klik field "Anggota"
+System -> Database: Query member WHERE status=active AND not_board_member
+Database --> System: Return filtered member list
+System --> Admin: Tampilkan dropdown member (smart filtered)
+
+Admin -> System: Pilih anggota dari dropdown
+System -> System: Validate member not already board member
+System -> System: Check member status = active
+System --> Admin: Display konfirmasi nama + NIM
+
+Admin -> System: Pilih jabatan dan upload foto
+Admin -> System: Klik tombol "Simpan"
+System -> Database: Validate all fields + periode + member
+System -> Database: Create/Update board_member record
+Database --> System: Success
+System --> Admin: Display success message
+
+@enduml

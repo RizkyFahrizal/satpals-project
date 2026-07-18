@@ -16,7 +16,7 @@
 
 ## 📖 Tentang SATPALS
 
-**SATPALS** adalah aplikasi web manajemen organisasi yang dirancang khusus untuk kelompok kesenian **Satya Palapa** di UPN Veteran Jawa Timur. Aplikasi ini membantu mengelola berbagai aspek organisasi dengan antarmuka yang user-friendly dan fitur-fitur yang komprehensif.
+**SATPALS** adalah aplikasi web manajemen organisasi untuk **Satya Palapa** di UPN Veteran Jawa Timur. Aplikasi ini dipakai untuk mengelola struktur pengurus, arsip dokumen, keuangan, booking studio, persewaan band, persewaan alat, dan pendaftaran diklat dalam satu sistem.
 
 ### ✨ Fitur Utama
 
@@ -38,11 +38,11 @@
 - Preview dan download dokumen
 - Statistik surat masuk/keluar
 
-#### 📚 **Kelola Diklat (Training)**
-- Daftar peserta diklat (public form)
-- Kelola data peserta (admin panel)
-- Filter peserta berdasarkan periode
-- Export data peserta
+#### 📚 **Kelola Diklat**
+- Pendaftaran diklat via form public
+- Pengelolaan peserta diklat di admin panel
+- Status dan data peserta terpusat
+- Siap dipakai untuk rekap/monitoring pendaftaran
 
 #### 🏆 **Prestasi & Kegiatan**
 - Dokumentasi prestasi organisasi
@@ -50,19 +50,51 @@
 - Timeline aktivitas
 - Galeri foto kegiatan
 
-#### 💰 **Manajemen Keuangan** *(coming soon)*
-- Pencatatan pemasukan/pengeluaran
-- Kategorisasi transaksi
-- Laporan keuangan
+#### 💰 **Manajemen Keuangan** *(implemented)*
+- Pencatatan pemasukan dan pengeluaran
+- Dashboard ringkas dengan total, status, dan transaksi terbaru
+- Filter berdasarkan periode, tipe, status, jenis pengeluaran, judul, keterangan, dan dibuat oleh
+- Tracking creator untuk audit trail
 
-#### 🎷 **Persewaan Alat & Band** *(coming soon)*
-- Kelola alat musik
-- Booking/peminjaman alat
-- Kelola paket band
+#### 🎷 **Persewaan Band** *(implemented)*
+- Kelola data band dan harga sewa
+- Form permintaan sewa band untuk public
+- Approval, rejection, cancel, dan complete oleh admin
+- Invoice PDF otomatis saat approval
+- Email notifikasi ke penyewa
+- Status pesanan dan income terhubung
 
-#### 🎬 **Booking Studio** *(coming soon)*
-- Reservasi studio recording
-- Manajemen jadwal slot
+#### 🎬 **Booking Studio** *(implemented)*
+- Booking studio untuk public
+- Approval, rejection, cancel, dan complete oleh admin
+- Invoice PDF saat booking disetujui
+- Email notifikasi dan ringkasan pembayaran
+
+#### 🧰 **Persewaan Alat** *(implemented)*
+- Keranjang public untuk memilih alat
+- Checkout dengan data penyewa dan periode sewa
+- Approval, rejection, cancel, dan complete oleh admin
+- Invoice PDF dan email otomatis
+- Integrasi ke keuangan saat disetujui
+
+---
+
+## 🧭 Alur Proses Singkat
+
+### Booking Studio
+Public isi form booking → admin review → approve/reject → invoice PDF dikirim → user menerima notifikasi email.
+
+### Sewa Band
+Public buat permintaan sewa band → admin cek jadwal dan harga → approve/reject → invoice dibuat → pembayaran dikonfirmasi → status bisa selesai/dibatalkan.
+
+### Sewa Alat
+User pilih alat ke keranjang → checkout isi data & tanggal sewa → admin approve/reject → invoice dikirim → jika dibatalkan, income ikut ditandai rejected.
+
+### Pendaftaran Diklat
+Calon peserta isi form pendaftaran → data masuk ke admin panel → admin kelola status dan rekap peserta per periode.
+
+### Keuangan
+Transaksi pemasukan/pengeluaran dicatat di dashboard → admin bisa filter, cari, dan memantau status transaksi.
 
 ---
 
@@ -146,6 +178,17 @@ Password: password
 
 ---
 
+## ✨ Recent Improvements (April 2026)
+
+- ✅ Booking studio, sewa band, dan sewa alat memakai alur approval/invoice/email yang lebih konsisten
+- ✅ Persewaan alat terhubung ke keuangan saat disetujui
+- ✅ Modal konfirmasi untuk approve, reject, cancel, dan complete diperjelas
+- ✅ Halaman checkout sewa alat kini punya success page khusus
+- ✅ Dashboard keuangan punya filter pencarian berdasarkan judul, keterangan, dan pembuat transaksi
+- ✅ Template email dan invoice diperbarui agar lebih jelas di inbox dan PDF
+
+---
+
 ## 🎨 Tech Stack
 
 | Technology | Version | Purpose |
@@ -193,24 +236,6 @@ Project menggunakan Laravel best practices:
 
 ---
 
-## 🤝 Contributing
-
-Kontribusi sangat diterima! Untuk berkontribusi:
-
-1. Fork repository ini
-2. Buat branch fitur: `git checkout -b feature/AmazingFeature`
-3. Commit changes: `git commit -m 'Add AmazingFeature'`
-4. Push ke branch: `git push origin feature/AmazingFeature`
-5. Buka Pull Request
-
----
-
-## 📄 License
-
-Project ini dilisensikan di bawah lisensi MIT. Lihat file [LICENSE](LICENSE) untuk detail lebih lanjut.
-
----
-
 ## 👨‍💻 Developer
 
 **Rizky Fahrizal**
@@ -230,18 +255,6 @@ Jika ada pertanyaan atau issue, silakan buat [GitHub Issue](https://github.com/R
   Made with ❤️ for Satya Palapa Organization
 </p>
 
-## Contributing
+## 📄 License
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Project ini dilisensikan di bawah lisensi MIT. Lihat file [LICENSE](LICENSE) untuk detail lebih lanjut.

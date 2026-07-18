@@ -1,0 +1,26 @@
+@startuml Diklat_Batch_Accept_v2
+
+title Sequence Diagram - Batch Accept Pendaftaran Diklat (Iterasi 2)
+
+actor Admin
+participant System
+database Database
+
+Admin -> System: Buka halaman kelola pendaftaran
+System -> Database: Query registrasi dengan status=pending
+Database --> System: Return list pending
+System --> Admin: Tampilkan daftar pending
+
+Admin -> System: Klik tombol "Terima Semua Pending"
+
+loop Untuk setiap registrasi pending
+    System -> Database: Create member dari data diklat
+    System -> Database: Update status registrasi = accepted
+    Database --> System: Success
+end
+
+System --> Admin: Tampilkan "X pendaftar berhasil diaktifkan"
+Admin -> System: Refresh halaman daftar anggota
+System --> Admin: Tampilkan anggota baru dengan status active
+
+@enduml
