@@ -1,0 +1,70 @@
+@startuml studio-admin-list
+title Booking Studio - Admin: List Bookings
+
+actor Admin
+participant "StudioBookingController" as AdminController
+participant "StudioBooking" as BookingModel
+
+Admin -> AdminController: index()
+AdminController -> BookingModel: queryPending()
+BookingModel --> AdminController: Collection<Booking>
+AdminController --> Admin: 200 OK (bookings list)
+
+@enduml
+
+@startuml studio-admin-approve
+title Booking Studio - Admin: Approve Booking
+
+actor Admin
+participant "StudioBookingController" as AdminController
+participant "StudioBooking" as BookingModel
+participant "IncomeService" as IncomeService
+participant "MailService" as Mail
+
+Admin -> AdminController: approve($bookingId)
+AdminController -> BookingModel: find($bookingId)
+BookingModel --> AdminController: Booking
+AdminController -> BookingModel: updateStatus('approved')
+BookingModel --> AdminController: updated
+AdminController -> IncomeService: createFromBooking(Booking)
+IncomeService --> AdminController: Income(id)
+AdminController -> Mail: queue(BookingApprovedMail, Booking)
+AdminController --> Admin: 200 OK
+
+@enduml
+
+@startuml studio-admin-reject
+title Booking Studio - Admin: Reject Booking
+
+actor Admin
+participant "StudioBookingController" as AdminController
+participant "StudioBooking" as BookingModel
+participant "MailService" as Mail
+
+Admin -> AdminController: reject($bookingId, $reason)
+AdminController -> BookingModel: find($bookingId)
+BookingModel --> AdminController: Booking
+AdminController -> BookingModel: updateStatus('rejected')
+BookingModel --> AdminController: updated
+AdminController -> Mail: queue(BookingRejectedMail, Booking)
+AdminController --> Admin: 200 OK
+
+@enduml
+
+@startuml studio-admin-complete
+title Booking Studio - Admin: Complete Booking
+
+actor Admin
+participant "StudioBookingController" as AdminController
+participant "StudioBooking" as BookingModel
+participant "MailService" as Mail
+
+Admin -> AdminController: complete($bookingId)
+AdminController -> BookingModel: find($bookingId)
+BookingModel --> AdminController: Booking
+AdminController -> BookingModel: updateStatus('completed')
+BookingModel --> AdminController: updated
+AdminController -> Mail: queue(BookingCompletedMail, Booking)
+AdminController --> Admin: 200 OK
+
+@enduml

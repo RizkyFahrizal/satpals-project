@@ -1,22 +1,43 @@
-@startuml Kelola_Keuangan_Sequence
-
-title Sequence Diagram - Kelola Keuangan
+@startuml kelola-keuangan-admin
+title Kelola Keuangan - Admin
 
 actor Admin
-participant "Financial Dashboard" as View
-participant "Income/Expense Controller" as Controller
+participant "IncomeController" as IncomeController
+participant "ExpenseController" as ExpenseController
+participant "Income" as IncomeModel
+participant "Expense" as ExpenseModel
+participant "IncomeApproval" as IncomeApprovalModel
+participant "ExpenseApproval" as ExpenseApprovalModel
 database DB
 
-Admin -> View: Buka menu keuangan
-View -> Controller: index()
-Controller -> DB: Ambil ringkasan dan transaksi
-DB --> Controller: Data keuangan
-Controller --> View: Tampilkan dashboard
+Admin -> IncomeController: index()
+IncomeController -> DB: summarizeIncome()
+DB --> IncomeController: incomeData
 
-Admin -> View: Tambah transaksi / filter data / approve transaksi
-View -> Controller: store() / filter() / approve() / reject()
-Controller -> DB: Simpan atau update data
-DB --> Controller: Berhasil
-Controller --> View: Tampilkan pesan sukses
+Admin -> ExpenseController: index()
+ExpenseController -> DB: summarizeExpense()
+DB --> ExpenseController: expenseData
+
+Admin -> IncomeController: store(Request $request)
+IncomeController -> IncomeModel: create($request)
+IncomeModel --> IncomeController: saved
+
+Admin -> ExpenseController: store(Request $request)
+ExpenseController -> ExpenseModel: create($request)
+ExpenseModel --> ExpenseController: saved
+
+Admin -> IncomeController: approve($incomeId)
+IncomeController -> IncomeApprovalModel: create($incomeId)
+IncomeApprovalModel --> IncomeController: approved
+
+Admin -> ExpenseController: approve($expenseId)
+ExpenseController -> ExpenseApprovalModel: create($expenseId)
+ExpenseApprovalModel --> ExpenseController: approved
+
+Admin -> IncomeController: reject($incomeId)
+IncomeController -> IncomeApprovalModel: updateStatus('rejected')
+
+Admin -> ExpenseController: reject($expenseId)
+ExpenseController -> ExpenseApprovalModel: updateStatus('rejected')
 
 @enduml

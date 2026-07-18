@@ -1,0 +1,100 @@
+@startuml satpals-class-module-2-band-equipment-studio
+hide circle
+hide methods
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam dpi 180
+skinparam class {
+  BackgroundColor White
+  BorderColor Black
+  FontSize 11
+  FontName Arial
+}
+left to right direction
+
+title SatPals Class Diagram - Modul 2 (Band, Equipment Rental, Studio Booking)
+
+class Band {
+  +id
+  +band_name
+  +price_per_hour
+  +price_per_event
+  +is_available
+}
+
+class BandMember {
+  +id
+  +band_id
+}
+
+class BandRentalRequest {
+  +id
+  +renter_email
+  +kode_order
+  +status
+  +harga_pokok
+  +harga_final
+}
+
+class EquipmentRental {
+  +id
+  +name
+  +price_per_day
+  +is_available
+}
+
+class EquipmentRentalUnit {
+  +id
+  +equipment_rental_id
+  +unit_code
+  +status
+}
+
+class EquipmentRentalRequest {
+  +id
+  +order_number
+  +renter_email
+  +status
+  +harga_pokok
+  +harga_final
+}
+
+class EquipmentRentalRequestItem {
+  +id
+  +equipment_rental_request_id
+  +equipment_rental_id
+  +quantity
+  +price_per_day
+  +subtotal
+}
+
+class StudioBooking {
+  +id
+  +booking_code
+  +tanggal_booking
+  +nama_pemohon
+  +status
+  +harga_final
+}
+
+class StudioBookingSetting {
+  +id
+  +default_price
+  +is_active
+}
+
+Band "1" -- "0..*" BandMember : members
+Band "1" -- "0..*" BandRentalRequest : requests
+BandRentalRequest "*" -- "1" Band : belongs_to
+
+EquipmentRental "1" -- "0..*" EquipmentRentalUnit : units
+EquipmentRental "1" -- "0..*" EquipmentRentalRequestItem : items
+EquipmentRentalRequest "1" -- "0..*" EquipmentRentalRequestItem : request_items
+EquipmentRentalRequestItem "*" -- "1" EquipmentRentalRequest : belongs_to
+EquipmentRentalRequestItem "*" -- "1" EquipmentRental : equipment
+EquipmentRentalRequest "*" -- "1" StudioBooking : related <<optional>>
+
+StudioBooking "*" -- "1" StudioBookingSetting : pricing_source
+
+@enduml

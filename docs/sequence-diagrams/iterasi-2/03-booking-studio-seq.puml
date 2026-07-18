@@ -1,26 +1,19 @@
-@startuml Booking_Studio_Sequence
+@startuml booking-studio-guest
+title Booking Studio - Guest
 
-title Sequence Diagram - Booking Studio
-
-actor User
-participant "Studio Booking Form" as View
+actor Guest
 participant "StudioBookingController" as Controller
 database DB
 participant "Email Service" as Mail
 
-User -> View: Buka form booking
-View -> Controller: create()
-Controller -> DB: Ambil data ketersediaan sesi
-DB --> Controller: Data sesi
-Controller --> View: Tampilkan form dan jadwal
+Guest -> Controller: create()
+Controller -> DB: availableSessions()
+DB --> Controller: sessions
 
-User -> View: Isi form booking
-View -> Controller: store(request)
-Controller -> Controller: Validasi input dan cek sesi
-Controller -> DB: Simpan booking pending
-DB --> Controller: Berhasil
-Controller -> Mail: Kirim notifikasi booking
-Mail --> User: Email konfirmasi
-Controller --> View: Redirect ke halaman sukses
+Guest -> Controller: store(Request $request)
+Controller -> Controller: validate($request)
+Controller -> DB: create($booking)
+DB --> Controller: saved
+Controller -> Mail: queue(BookingConfirmationMail)
 
 @enduml

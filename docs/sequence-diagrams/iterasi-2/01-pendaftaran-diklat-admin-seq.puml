@@ -1,0 +1,68 @@
+@startuml diklat-admin-list
+title Pendaftaran Diklat - Admin: List Registrations
+
+actor Admin
+participant "DiklatRegistrationController" as AdminController
+participant "DiklatRegistration" as RegistrationModel
+
+Admin -> AdminController: index()
+AdminController -> RegistrationModel: queryPending()
+RegistrationModel --> AdminController: Collection<Registration>
+AdminController --> Admin: 200 OK (registrations list)
+
+@enduml
+
+@startuml diklat-admin-approve
+title Pendaftaran Diklat - Admin: Approve Registration
+
+actor Admin
+participant "DiklatRegistrationController" as AdminController
+participant "DiklatRegistration" as RegistrationModel
+participant "Member" as MemberModel
+participant "MailService" as Mail
+
+Admin -> AdminController: approve($registrationId)
+AdminController -> RegistrationModel: find($registrationId)
+RegistrationModel --> AdminController: Registration
+AdminController -> RegistrationModel: updateStatus('approved')
+RegistrationModel --> AdminController: updated
+AdminController -> MemberModel: create(Registration)
+MemberModel --> AdminController: Member(id)
+AdminController -> Mail: queue(RegistrationApprovedMail, Registration)
+AdminController --> Admin: 200 OK
+
+@enduml
+
+@startuml diklat-admin-reject
+title Pendaftaran Diklat - Admin: Reject Registration
+
+actor Admin
+participant "DiklatRegistrationController" as AdminController
+participant "DiklatRegistration" as RegistrationModel
+participant "MailService" as Mail
+
+Admin -> AdminController: reject($registrationId, $reason)
+AdminController -> RegistrationModel: find($registrationId)
+RegistrationModel --> AdminController: Registration
+AdminController -> RegistrationModel: updateStatus('rejected')
+RegistrationModel --> AdminController: updated
+AdminController -> Mail: queue(RegistrationRejectedMail, Registration)
+AdminController --> Admin: 200 OK
+
+@enduml
+
+@startuml diklat-admin-verify-payment
+title Pendaftaran Diklat - Admin: Verify Payment
+
+actor Admin
+participant "DiklatRegistrationController" as AdminController
+participant "DiklatRegistration" as RegistrationModel
+
+Admin -> AdminController: verifyPayment($registrationId)
+AdminController -> RegistrationModel: find($registrationId)
+RegistrationModel --> AdminController: Registration
+AdminController -> RegistrationModel: updatePaymentStatus('verified')
+RegistrationModel --> AdminController: updated
+AdminController --> Admin: 200 OK
+
+@enduml

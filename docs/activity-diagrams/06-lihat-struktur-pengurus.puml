@@ -12,11 +12,12 @@ else (Tidak)
     :Use periode terbaru;
 endif
 
-:Query database untuk data pengurus;
-:dengan periode yang dipilih;
+' :Query database untuk data pengurus;
+' :dengan periode yang dipilih;
 
-:Group data by jabatan;
+' :Group data by jabatan;
 
+:Ambil dan kelompokkan data pengurus;
 :Fetch semua board members:;
 :(ketua_umum, wakil_ketua_umum, sekretaris, bendahara, mpa);
 
@@ -25,40 +26,48 @@ endif
 
 :Render halaman struktur;
 
-partition "Section BPH (Badan Pengurus Harian)" {
+' partition "Section BPH (Badan Pengurus Harian)" {
+    fork 
+    :=== Section BPH;
+
     :Display title & badge;
     repeat
-        :Display card with:;
-        :- Foto (w-40 h-48);
-        :- Gradient yellow-orange;
-        :- Nama lengkap;
-        :- Jabatan label;
-        :- Program studi;
-        :- Hover effect;
+        ' :Display card with:;
+        ' :- Foto (w-40 h-48);
+        ' :- Gradient yellow-orange;
+        ' :- Nama lengkap;
+        ' :- Jabatan label;
+        ' :- Program studi;
+        ' :- Hover effect;
+        :Render kartu anggota BPH;
     repeat while (Masih ada BPH member?) is (Ya)
     ->Tidak;
-}
+' }
+fork again
+' partition "Section Subsie" {
+    :=== Section Subsie;
 
-partition "Section Subsie" {
     repeat
         :Display subsie header dengan:;
-        :- Icon subsie;
+        ' :- Icon subsie;
         :- Nama subsie;
         :- Jumlah anggota;
-        :- Gradient color per subsie;
+        ' :- Gradient color per subsie;
         repeat
-            :Display card with:;
-            :- Foto (w-40 h-48);
-            :- Gradient color sesuai subsie;
-            :- Nama lengkap;
-            :- Program studi;
-            :Max 5 kartu per baris;
-            :Centered alignment;
+            ' :Display card with:;
+            ' :- Foto (w-40 h-48);
+            ' :- Gradient color sesuai subsie;
+            ' :- Nama lengkap;
+            ' :- Program studi;
+            ' :Max 5 kartu per baris;
+            ' :Centered alignment;
+            :Render kartu anggota Subsie;
         repeat while (Masih ada member dalam subsie?) is (Ya)
         ->Tidak;
     repeat while (Masih ada subsie?) is (Ya)
     ->Tidak;
-}
+' }
+end fork
 
 :Display periode selector dropdown;
 

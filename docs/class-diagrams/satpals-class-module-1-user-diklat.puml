@@ -1,0 +1,61 @@
+@startuml satpals-class-module-1-user-diklat
+hide circle
+hide methods
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam dpi 180
+skinparam class {
+  BackgroundColor White
+  BorderColor Black
+  FontSize 11
+  FontName Arial
+}
+left to right direction
+
+title SatPals Class Diagram - Modul 1 (User, Member, BoardMember, Diklat)
+
+class User {
+  +id
+  +name
+  +email
+  +role
+  +member_id
+}
+
+class Member {
+  +id
+  +nama_lengkap
+  +diklat_registration_id
+  +diklat_period_id
+}
+
+class BoardMember {
+  +id
+  +member_id
+  +diklat_period_id
+  +user_id
+  +is_active
+}
+
+class DiklatPeriod {
+  +id
+  +nama_periode
+}
+
+class DiklatRegistration {
+  +id
+  +diklat_period_id
+  +status
+}
+
+User "1" -- "0..1" Member : member
+User "1" -- "0..1" BoardMember : board_profile
+Member "1" -- "0..1" BoardMember : board_role
+Member "*" -- "1" DiklatRegistration : registration
+Member "*" -- "1" DiklatPeriod : period
+BoardMember "*" -- "1" Member : belongs_to
+BoardMember "*" -- "1" DiklatPeriod : period
+DiklatPeriod "1" -- "0..*" DiklatRegistration : registrations
+
+@enduml

@@ -1,0 +1,77 @@
+@startuml persewaan-admin-approve
+title Persewaan Alat - Admin: Approve Order
+
+actor Admin
+participant "EquipmentRentalRequestController" as AdminController
+participant "Order" as OrderModel
+participant "IncomeService" as IncomeService
+participant "MailService" as Mail
+
+Admin -> AdminController: approve($orderId)
+AdminController -> OrderModel: find($orderId)
+OrderModel --> AdminController: Order
+AdminController -> OrderModel: updateStatus('approved')
+OrderModel --> AdminController: updated
+AdminController -> IncomeService: createFromOrder(Order)
+IncomeService --> AdminController: Income(id)
+AdminController -> Mail: queue(OrderStatusMail::approved, Order)
+AdminController --> Admin: 200 OK
+
+@enduml
+
+@startuml persewaan-admin-reject
+title Persewaan Alat - Admin: Reject Order
+
+actor Admin
+participant "EquipmentRentalRequestController" as AdminController
+participant "Order" as OrderModel
+participant "MailService" as Mail
+
+Admin -> AdminController: reject($orderId, $reason)
+AdminController -> OrderModel: find($orderId)
+OrderModel --> AdminController: Order
+AdminController -> OrderModel: updateStatus('rejected')
+OrderModel --> AdminController: updated
+AdminController -> Mail: queue(OrderStatusMail::rejected, Order)
+AdminController --> Admin: 200 OK
+
+@enduml
+
+@startuml persewaan-admin-cancel
+title Persewaan Alat - Admin: Cancel Order
+
+actor Admin
+participant "EquipmentRentalRequestController" as AdminController
+participant "Order" as OrderModel
+participant "RefundService" as RefundService
+participant "MailService" as Mail
+
+Admin -> AdminController: cancel($orderId)
+AdminController -> OrderModel: find($orderId)
+OrderModel --> AdminController: Order
+AdminController -> OrderModel: updateStatus('cancelled')
+OrderModel --> AdminController: updated
+AdminController -> RefundService: processRefund(Order)
+RefundService --> AdminController: refundProcessed
+AdminController -> Mail: queue(OrderStatusMail::cancelled, Order)
+AdminController --> Admin: 200 OK
+
+@enduml
+
+@startuml persewaan-admin-complete
+title Persewaan Alat - Admin: Complete Order
+
+actor Admin
+participant "EquipmentRentalRequestController" as AdminController
+participant "Order" as OrderModel
+participant "MailService" as Mail
+
+Admin -> AdminController: complete($orderId)
+AdminController -> OrderModel: find($orderId)
+OrderModel --> AdminController: Order
+AdminController -> OrderModel: updateStatus('completed')
+OrderModel --> AdminController: updated
+AdminController -> Mail: queue(OrderStatusMail::completed, Order)
+AdminController --> Admin: 200 OK
+
+@enduml

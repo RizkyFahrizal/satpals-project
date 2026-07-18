@@ -45,6 +45,8 @@ package "Jajaran Pengurus" {
     actor "Subsie Humas" as CH
     actor "Kesekretariatan" as CK
 }
+actor "Admin" as Admin
+Guest -[hidden]down-> Admin
 
 ' DEKLARASI SISTEM & USE CASE
 rectangle "SISTEM SATPALS" {
@@ -73,7 +75,7 @@ rectangle "SISTEM SATPALS" {
 }
 
 ' DEKLARASI AKTOR KANAN
-actor "Public User" as PublicUser
+' actor "Guest" as PublicUser
 
 ' --- RELASI ADMIN ---
 Admin --> Login
@@ -114,14 +116,24 @@ MPA --> KelolaGaleri
 SEK --> KelolaGaleri
 
 ' --- RELASI PUBLIC USER (<-- agar Actor tetap di Kanan) ---
-PublicInfo <-- PublicUser
-LihatStruktur <-- PublicUser
-DaftarDiklat <-- PublicUser
-BookingStudio <-- PublicUser
-SewaBand <-- PublicUser
-SewaAlat <-- PublicUser
-GaleriKegiatan <-- PublicUser
-GaleriPrestasi <-- PublicUser
+' PublicInfo <-- PublicUser
+' LihatStruktur <-- PublicUser
+' DaftarDiklat <-- PublicUser
+' BookingStudio <-- PublicUser
+' SewaBand <-- PublicUser
+' SewaAlat <-- PublicUser
+' GaleriKegiatan <-- PublicUser
+' GaleriPrestasi <-- PublicUser
+
+Guest --> PublicInfo
+Guest --> LihatStruktur
+Guest --> DaftarDiklat
+Guest --> BookingStudio
+Guest --> SewaBand
+Guest --> SewaAlat
+Guest --> GaleriKegiatan
+Guest --> GaleriPrestasi
+
 
 ' --- INCLUDE (Login) ---
 KelolaUser ..> Login : <<include>>
